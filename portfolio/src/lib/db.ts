@@ -4,6 +4,7 @@ import type { ProfileData } from '../types';
 const DB_NAME = 'portfolio_db';
 const ADMIN_EMAIL = 'faridmaloof@gmail.com';
 const DEFAULT_PASSWORD = 'Admin123!';
+const DEFAULT_USERNAME = 'admin';
 
 // Initialize database with default admin
 export function initDB(): void {
@@ -12,9 +13,9 @@ export function initDB(): void {
     if (!db) {
       const initialDB = {
         profiles: [],
-        admins: [{ 
-          email: ADMIN_EMAIL, 
-          username: 'admin', 
+        admins: [{
+          email: ADMIN_EMAIL,
+          username: DEFAULT_USERNAME,
           password: DEFAULT_PASSWORD,
           mustChangePassword: true,
           resetCode: null,
@@ -26,9 +27,9 @@ export function initDB(): void {
       // Ensure existing DB has the new admin structure
       const parsedDB = JSON.parse(db);
       if (!parsedDB.admins || parsedDB.admins.length === 0) {
-        parsedDB.admins = [{ 
-          email: ADMIN_EMAIL, 
-          username: 'admin', 
+        parsedDB.admins = [{
+          email: ADMIN_EMAIL,
+          username: DEFAULT_USERNAME,
           password: DEFAULT_PASSWORD,
           mustChangePassword: true,
           resetCode: null,
@@ -93,8 +94,10 @@ export function authenticateAdmin(identifier: string, password: string): boolean
   try {
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
     const admin = db.admins?.find(
-      (a: { email: string; username: string; password: string }) => 
-        (a.email === identifier || a.username === identifier) && a.password === password
+      (a: { email: string; username: string; password: string }) =>
+        ((a.email || '').toLowerCase() === identifier.toLowerCase() || 
+         (a.username || '').toLowerCase() === identifier.toLowerCase()) && 
+        a.password === password
     );
     return !!admin;
   } catch (error) {
@@ -103,11 +106,14 @@ export function authenticateAdmin(identifier: string, password: string): boolean
   }
 }
 
-// Get admin by email
-export function getAdminByEmail(email: string): any {
+// Get admin by email or username
+export function getAdminByIdentifier(identifier: string): any {
   try {
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
-    return db.admins?.find((a: { email: string }) => a.email === email) || null;
+    return db.admins?.find((a: { email: string; username: string }) => 
+      (a.email || '').toLowerCase() === identifier.toLowerCase() || 
+      (a.username || '').toLowerCase() === identifier.toLowerCase()
+    ) || null;
   } catch (error) {
     console.error('Error getting admin:', error);
     return null;
@@ -120,10 +126,10 @@ export function generateResetCode(): string {
 }
 
 // Request password reset
-export function requestPasswordReset(email: string): boolean {
+export function requestPasswordReset(identifier: string): boolean {
   try {
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
-    const admin = db.admins?.find((a: { email: string }) => a.email === email);
+    const admin = getAdminByIdentifier(identifier);
     
     if (!admin) {
       return false;
@@ -132,14 +138,22 @@ export function requestPasswordReset(email: string): boolean {
     const resetCode = generateResetCode();
     const expiryTime = Date.now() + (15 * 60 * 1000); // 15 minutes
     
-    admin.resetCode = resetCode;
-    admin.resetCodeExpiry = expiryTime;
+    // Update admin in array
+    const adminIndex = db.admins.findIndex((a: { email: string; username: string }) => 
+      (a.email || '').toLowerCase() === identifier.toLowerCase() || 
+      (a.username || '').toLowerCase() === identifier.toLowerCase()
+    );
+    
+    if (adminIndex >= 0) {
+      db.admins[adminIndex].resetCode = resetCode;
+      db.admins[adminIndex].resetCodeExpiry = expiryTime;
+    }
     
     localStorage.setItem(DB_NAME, JSON.stringify(db));
     
-    // In a real app, send email here. For now, log to console
-    console.log(`Password reset code for ${email}: ${resetCode}`);
-    alert(`Reset Code (check console): ${resetCode}`);
+    // In a real app, send email here. For now, log to console and show alert
+    console.log(`Password reset code for ${admin.email}: ${resetCode}`);
+    alert(`Reset Code sent to ${admin.email}: ${resetCode}`);
     
     return true;
   } catch (error) {
@@ -149,20 +163,27 @@ export function requestPasswordReset(email: string): boolean {
 }
 
 // Verify reset code
-export function verifyResetCode(email: string, code: string): boolean {
+export function verifyResetCode(identifier: string, code: string): boolean {
   try {
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
-    const admin = db.admins?.find((a: { email: string }) => a.email === email);
+    const admin = getAdminByIdentifier(identifier);
     
     if (!admin || !admin.resetCode || !admin.resetCodeExpiry) {
       return false;
     }
     
     if (Date.now() > admin.resetCodeExpiry) {
-      // Code expired
-      admin.resetCode = null;
-      admin.resetCodeExpiry = null;
-      localStorage.setItem(DB_NAME, JSON.stringify(db));
+      // Code expired - clear it
+      const adminIndex = db.admins.findIndex((a: { email: string; username: string }) => 
+        (a.email || '').toLowerCase() === identifier.toLowerCase() || 
+        (a.username || '').toLowerCase() === identifier.toLowerCase()
+      );
+      
+      if (adminIndex >= 0) {
+        db.admins[adminIndex].resetCode = null;
+        db.admins[adminIndex].resetCodeExpiry = null;
+        localStorage.setItem(DB_NAME, JSON.stringify(db));
+      }
       return false;
     }
     
@@ -174,33 +195,42 @@ export function verifyResetCode(email: string, code: string): boolean {
 }
 
 // Reset password with code
-export function resetPasswordWithCode(email: string, code: string, newPassword: string): boolean {
+export function resetPasswordWithCode(identifier: string, code: string, newPassword: string): boolean {
   try {
-    if (!verifyResetCode(email, code)) {
+    if (!verifyResetCode(identifier, code)) {
       return false;
     }
     
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
-    const admin = db.admins?.find((a: { email: string }) => a.email === email);
+    const admin = getAdminByIdentifier(identifier);
     
     if (!admin) {
       return false;
     }
     
-    admin.password = newPassword;
-    admin.resetCode = null;
-    admin.resetCodeExpiry = null;
-    admin.mustChangePassword = false;
+    // Update admin in array
+    const adminIndex = db.admins.findIndex((a: { email: string; username: string }) => 
+      (a.email || '').toLowerCase() === identifier.toLowerCase() || 
+      (a.username || '').toLowerCase() === identifier.toLowerCase()
+    );
     
-    localStorage.setItem(DB_NAME, JSON.stringify(db));
-    return true;
+    if (adminIndex >= 0) {
+      db.admins[adminIndex].password = newPassword;
+      db.admins[adminIndex].resetCode = null;
+      db.admins[adminIndex].resetCodeExpiry = null;
+      db.admins[adminIndex].mustChangePassword = false;
+      localStorage.setItem(DB_NAME, JSON.stringify(db));
+      return true;
+    }
+    
+    return false;
   } catch (error) {
     console.error('Error resetting password:', error);
     return false;
   }
 }
 
-// Change admin password
+// Change admin password (for currently logged in admin)
 export function changeAdminPassword(newPassword: string): boolean {
   try {
     const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
@@ -218,12 +248,9 @@ export function changeAdminPassword(newPassword: string): boolean {
 }
 
 // Check if admin must change password
-export function mustChangePassword(username: string): boolean {
+export function mustChangePassword(identifier: string): boolean {
   try {
-    const db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
-    const admin = db.admins?.find(
-      (a: { username: string; mustChangePassword: boolean }) => a.username === username
-    );
+    const admin = getAdminByIdentifier(identifier);
     return admin?.mustChangePassword || false;
   } catch (error) {
     console.error('Error checking password change requirement:', error);
