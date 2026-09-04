@@ -13,6 +13,7 @@ interface ProfileContextType {
   showCompletedEducation: boolean;
   setShowCompletedEducation: (show: boolean) => void;
   isValidProfile: boolean;
+  refreshKey: number; // Force re-render when URL changes
 }
 
 const VALID_PROFILES: TrackType[] = ['qa', 'dev', 'combined'];
@@ -20,15 +21,16 @@ const VALID_PROFILES: TrackType[] = ['qa', 'dev', 'combined'];
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('es');
-  const [track, setTrack] = useState<TrackType>('combined');
+  const [language, setLanguageState] = useState<Language>('es');
+  const [track, setTrackState] = useState<TrackType>('combined');
   const [isValidProfile, setIsValidProfile] = useState(true);
   const [showAllExperience, setShowAllExperience] = useState(false);
   const [showAllCertifications, setShowAllCertifications] = useState(false);
   const [showCompletedEducation, setShowCompletedEducation] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Read URL params on mount
-  useEffect(() => {
+  // Read URL params on mount and when URL changes
+  const parseUrlParams = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
     const profileParam = params.get('profile');
     const langParam = params.get('lang');
@@ -36,38 +38,53 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     // Validate profile parameter
     if (profileParam) {
       if (VALID_PROFILES.includes(profileParam as TrackType)) {
-        setTrack(profileParam as TrackType);
+        setTrackState(profileParam as TrackType);
         setIsValidProfile(true);
       } else {
         // Invalid profile - use default 'combined' and mark as invalid
-        setTrack('combined');
+        setTrackState('combined');
         setIsValidProfile(false);
       }
     } else {
       // No profile param - use default 'combined'
-      setTrack('combined');
+      setTrackState('combined');
       setIsValidProfile(true);
     }
     
     if (langParam && ['en', 'es'].includes(langParam)) {
-      setLanguage(langParam as Language);
+      setLanguageState(langParam as Language);
     }
+    
+    setRefreshKey(prev => prev + 1);
   }, []);
 
+  // Initial load
+  useEffect(() => {
+    parseUrlParams();
+    
+    // Listen for popstate (back/forward browser buttons)
+    const handlePopState = () => parseUrlParams();
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [parseUrlParams]);
+
   const handleSetLanguage = useCallback((lang: Language) => {
-    setLanguage(lang);
+    setLanguageState(lang);
     // Update URL without reload
     const params = new URLSearchParams(window.location.search);
     params.set('lang', lang);
     window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+    setRefreshKey(prev => prev + 1);
   }, []);
 
   const handleSetTrack = useCallback((newTrack: TrackType) => {
-    setTrack(newTrack);
+    setTrackState(newTrack);
     // Update URL without reload
     const params = new URLSearchParams(window.location.search);
     params.set('profile', newTrack);
     window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+    setRefreshKey(prev => prev + 1);
   }, []);
 
   return (
@@ -82,7 +99,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setShowAllCertifications,
       showCompletedEducation,
       setShowCompletedEducation,
-      isValidProfile
+      isValidProfile,
+      refreshKey
     }}>
       {children}
     </ProfileContext.Provider>

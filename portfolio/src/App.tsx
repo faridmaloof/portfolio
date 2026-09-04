@@ -16,7 +16,7 @@ import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 
 function PortfolioContent() {
-  const { language, track, setLanguage, setTrack, isValidProfile } = useProfile();
+  const { language, track, setLanguage, setTrack, isValidProfile, refreshKey } = useProfile();
   const { isDark, toggle: toggleTheme } = useDarkMode();
   
   const handleDownloadPDF = () => {
@@ -24,7 +24,7 @@ function PortfolioContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div key={refreshKey} className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
