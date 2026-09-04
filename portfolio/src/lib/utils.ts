@@ -12,7 +12,7 @@ export function getLocalizedRole(
   if (track === 'combined' && role.combined) {
     return role.combined[language];
   }
-  return role[track][language];
+  return role[track]?.[language] || role.qa[language];
 }
 
 export function getLocalizedDetail(
@@ -27,7 +27,7 @@ export function getLocalizedDetail(
   if (track === 'combined' && detail.combined) {
     return detail.combined[language];
   }
-  return detail[track][language];
+  return detail[track]?.[language] || detail.qa[language];
 }
 
 export function getLocalizedSkills(
@@ -42,7 +42,7 @@ export function getLocalizedSkills(
   if (track === 'combined' && skills.combined) {
     return skills.combined[language];
   }
-  return skills[track][language];
+  return skills[track]?.[language] || skills.qa[language];
 }
 
 export function getLocalizedSummary(
@@ -53,7 +53,7 @@ export function getLocalizedSummary(
   if (track === 'combined' && summary.combined) {
     return summary.combined[language];
   }
-  return summary[track][language];
+  return summary[track]?.[language] || summary.qa[language];
 }
 
 export function getLocalizedTitle(
@@ -64,7 +64,7 @@ export function getLocalizedTitle(
   if (track === 'combined' && titles.combined) {
     return titles.combined[language];
   }
-  return titles[track][language];
+  return titles[track]?.[language] || titles.qa[language];
 }
 
 export function downloadJSON(data: ProfileData, filename: string): void {

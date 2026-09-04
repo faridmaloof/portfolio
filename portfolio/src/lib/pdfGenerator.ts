@@ -141,7 +141,8 @@ export function generatePDF(data: ProfileData, language: Language): void {
 
   yPos += 10;
   const educationItems = data.education[language];
-  educationItems.forEach(([institution, degree, dates, gpa]) => {
+  educationItems.forEach((item: { en: [string, string, string, string]; es: [string, string, string, string] }) => {
+    const [institution, degree, dates, gpa] = item[language];
     if (yPos > 250) {
       doc.addPage();
       yPos = margin;

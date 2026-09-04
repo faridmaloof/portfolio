@@ -121,7 +121,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "Stori",
-      role: { en: "QA Automation Engineer", es: "Ingeniero de Automatización QA" },
+      role: {
+        qa: { en: "QA Automation Engineer", es: "Ingeniero de Automatización QA" },
+        dev: { en: "QA Automation Engineer", es: "Ingeniero de Automatización QA" },
+      },
       location: "México",
       dates: { en: "Jun 2023 – Aug 2025", es: "Jun 2023 – Ago 2025" },
       detail: {
@@ -155,7 +158,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "GMSTEK, LLC",
-      role: { en: "Development & QA Tester", es: "Desarrollo & QA Tester" },
+      role: {
+        qa: { en: "Development & QA Tester", es: "Desarrollo & QA Tester" },
+        dev: { en: "Development & QA Tester", es: "Desarrollo & QA Tester" },
+      },
       location: "Palmetto Bay, Florida, USA",
       dates: { en: "Jul 2022 – Jun 2023", es: "Jul 2022 – Jun 2023" },
       detail: {
@@ -187,7 +193,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "COLSOF S.A.S",
-      role: { en: "Specialist Engineer", es: "Ingeniero Especialista" },
+      role: {
+        qa: { en: "Specialist Engineer", es: "Ingeniero Especialista" },
+        dev: { en: "Specialist Engineer", es: "Ingeniero Especialista" },
+      },
       location: "Bogotá, Colombia",
       dates: { en: "Aug 2021 – Jun 2022", es: "Ago 2021 – Jun 2022" },
       detail: {
@@ -219,7 +228,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "ECOPROYECT CONSULTORÍA SAS",
-      role: { en: "Senior J2EE Developer", es: "Desarrollador Senior J2EE" },
+      role: {
+        qa: { en: "Senior J2EE Developer", es: "Desarrollador Senior J2EE" },
+        dev: { en: "Senior J2EE Developer", es: "Desarrollador Senior J2EE" },
+      },
       location: "Cali, Colombia",
       dates: { en: "Nov 2021 – Feb 2022", es: "Nov 2021 – Feb 2022" },
       detail: {
@@ -253,7 +265,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "GreenSQA S.A.",
-      role: { en: "Software Test Engineer → Junior Integrated Service Professional", es: "Ingeniero de Pruebas de Software → Profesional Junior de Servicios Integrados" },
+      role: {
+        qa: { en: "Software Test Engineer → Junior Integrated Service Professional", es: "Ingeniero de Pruebas de Software → Profesional Junior de Servicios Integrados" },
+        dev: { en: "Software Test Engineer → Junior Integrated Service Professional", es: "Ingeniero de Pruebas de Software → Profesional Junior de Servicios Integrados" },
+      },
       location: "Cali, Colombia",
       dates: { en: "Feb 2020 – Aug 2021", es: "Feb 2020 – Ago 2021" },
       detail: {
@@ -287,7 +302,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "Busscar de Colombia",
-      role: { en: "Senior Software Developer", es: "Desarrollador Senior de Software" },
+      role: {
+        qa: { en: "Senior Software Developer", es: "Desarrollador Senior de Software" },
+        dev: { en: "Senior Software Developer", es: "Desarrollador Senior de Software" },
+      },
       location: "Pereira, Colombia",
       dates: { en: "Sep 2017 – Feb 2020", es: "Sep 2017 – Feb 2020" },
       detail: {
@@ -321,7 +339,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "EMCALI EICE ESP",
-      role: { en: "Technology Solutions Analyst", es: "Analista de Soluciones Tecnológicas" },
+      role: {
+        qa: { en: "Technology Solutions Analyst", es: "Analista de Soluciones Tecnológicas" },
+        dev: { en: "Technology Solutions Analyst", es: "Analista de Soluciones Tecnológicas" },
+      },
       location: "Cali, Colombia",
       dates: { en: "Jun 2016 – Sep 2017", es: "Jun 2016 – Sep 2017" },
       detail: {
@@ -353,7 +374,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "System Factory SAS",
-      role: { en: "Technology Solutions Leader", es: "Líder de Soluciones Tecnológicas" },
+      role: {
+        qa: { en: "Technology Solutions Leader", es: "Líder de Soluciones Tecnológicas" },
+        dev: { en: "Technology Solutions Leader", es: "Líder de Soluciones Tecnológicas" },
+      },
       location: "Cali, Colombia",
       dates: { en: "Jun 2016 – Sep 2016", es: "Jun 2016 – Sep 2016" },
       detail: {
@@ -383,7 +407,10 @@ export const defaultProfileData: ProfileData = {
     },
     {
       company: "Grupo SAI S.A.S",
-      role: { en: "Senior Support Engineer", es: "Ingeniero Senior de Soporte" },
+      role: {
+        qa: { en: "Senior Support Engineer", es: "Ingeniero Senior de Soporte" },
+        dev: { en: "Senior Support Engineer", es: "Ingeniero Senior de Soporte" },
+      },
       location: "Cali, Colombia",
       dates: { en: "Sep 2015 – Jun 2016", es: "Sep 2015 – Jun 2016" },
       detail: {
@@ -417,32 +444,32 @@ export const defaultProfileData: ProfileData = {
     heading: { en: "Early Career", es: "Inicio de Carrera" },
     items: {
       en: [
-        ["Banco de Occidente", "Operations & Technology Audit Assistant (2012 – 2015)", "Cali, Colombia", "Automated recurring audit and reporting processes using ACL scripting; consolidated information for SOX compliance and Grupo Aval reporting; supported technology audits across multiple regional offices."],
-        ["EMCALI EICE ESP", "Service Desk / Help Desk (Aug 2011 – May 2012)", "Cali, Colombia", "Provided first- and second-level technical support for ADSL, IP telephony, and IP television services, ensuring service continuity and customer satisfaction."],
-        ["Grupo SAI S.A.S", "Support Analyst (Jan 2011 – Aug 2011)", "Cali, Colombia", "Configured and maintained the SAI Open accounting application and its database for client implementations."],
+        { en: ["Banco de Occidente", "Operations & Technology Audit Assistant (2012 – 2015)", "Cali, Colombia", "Automated recurring audit and reporting processes using ACL scripting; consolidated information for SOX compliance and Grupo Aval reporting; supported technology audits across multiple regional offices."], es: ["Banco de Occidente", "Asistente de Auditoría de Procesos y Tecnología (2012 – 2015)", "Cali, Colombia", "Automatizó procesos recurrentes de auditoría y reporting usando scripts en ACL; consolidó información para cumplimiento SOX y reportes a Grupo Aval; apoyó auditorías tecnológicas en distintas sedes regionales."] },
+        { en: ["EMCALI EICE ESP", "Service Desk / Help Desk (Aug 2011 – May 2012)", "Cali, Colombia", "Provided first- and second-level technical support for ADSL, IP telephony, and IP television services, ensuring service continuity and customer satisfaction."], es: ["EMCALI EICE ESP", "Service Desk / Mesa de Ayuda (Ago 2011 – May 2012)", "Cali, Colombia", "Brindó soporte técnico de primer y segundo nivel para servicios de ADSL, telefonía IP y televisión IP, garantizando continuidad del servicio y satisfacción del cliente."] },
+        { en: ["Grupo SAI S.A.S", "Support Analyst (Jan 2011 – Aug 2011)", "Cali, Colombia", "Configured and maintained the SAI Open accounting application and its database for client implementations."], es: ["Grupo SAI S.A.S", "Analista de Soporte (Ene 2011 – Ago 2011)", "Cali, Colombia", "Configuró y mantuvo la aplicación contable SAI Open y su base de datos para implementaciones de clientes."] },
       ],
       es: [
-        ["Banco de Occidente", "Asistente de Auditoría de Procesos y Tecnología (2012 – 2015)", "Cali, Colombia", "Automatizó procesos recurrentes de auditoría y reporting usando scripts en ACL; consolidó información para cumplimiento SOX y reportes a Grupo Aval; apoyó auditorías tecnológicas en distintas sedes regionales."],
-        ["EMCALI EICE ESP", "Service Desk / Mesa de Ayuda (Ago 2011 – May 2012)", "Cali, Colombia", "Brindó soporte técnico de primer y segundo nivel para servicios de ADSL, telefonía IP y televisión IP, garantizando continuidad del servicio y satisfacción del cliente."],
-        ["Grupo SAI S.A.S", "Analista de Soporte (Ene 2011 – Ago 2011)", "Cali, Colombia", "Configuró y mantuvo la aplicación contable SAI Open y su base de datos para implementaciones de clientes."],
+        { en: ["Banco de Occidente", "Operations & Technology Audit Assistant (2012 – 2015)", "Cali, Colombia", "Automated recurring audit and reporting processes using ACL scripting; consolidated information for SOX compliance and Grupo Aval reporting; supported technology audits across multiple regional offices."], es: ["Banco de Occidente", "Asistente de Auditoría de Procesos y Tecnología (2012 – 2015)", "Cali, Colombia", "Automatizó procesos recurrentes de auditoría y reporting usando scripts en ACL; consolidó información para cumplimiento SOX y reportes a Grupo Aval; apoyó auditorías tecnológicas en distintas sedes regionales."] },
+        { en: ["EMCALI EICE ESP", "Service Desk / Help Desk (Aug 2011 – May 2012)", "Cali, Colombia", "Provided first- and second-level technical support for ADSL, IP telephony, and IP television services, ensuring service continuity and customer satisfaction."], es: ["EMCALI EICE ESP", "Service Desk / Mesa de Ayuda (Ago 2011 – May 2012)", "Cali, Colombia", "Brindó soporte técnico de primer y segundo nivel para servicios de ADSL, telefonía IP y televisión IP, garantizando continuidad del servicio y satisfacción del cliente."] },
+        { en: ["Grupo SAI S.A.S", "Support Analyst (Jan 2011 – Aug 2011)", "Cali, Colombia", "Configured and maintained the SAI Open accounting application and its database for client implementations."], es: ["Grupo SAI S.A.S", "Analista de Soporte (Ene 2011 – Ago 2011)", "Cali, Colombia", "Configuró y mantuvo la aplicación contable SAI Open y su base de datos para implementaciones de clientes."] },
       ],
     },
   },
 
   education: {
     en: [
-      ["Asturias Corporación Universitaria", "Specialization in Project Management", "Oct 2023 – Nov 2024", "GPA 4.9/5.0"],
-      ["Uniremington", "Systems Engineering", "Feb 2020 – Mar 2023", "GPA 4.2/5.0"],
-      ["Universidad Autónoma de Occidente", "Computer Engineering (coursework)", "2014 – 2017", "GPA 4.0/5.0"],
-      ["Universidad del Valle", "Information Systems Technology", "Aug 2006 – May 2010", "GPA 3.77/5.0"],
-      ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Computer Engineering (coursework)", "2004 – 2006", "GPA 4.7/5.0"],
+      { en: ["Asturias Corporación Universitaria", "Specialization in Project Management", "Oct 2023 – Nov 2024", "GPA 4.9/5.0"], es: ["Asturias Corporación Universitaria", "Especialización en Gerencia de Proyectos", "Oct 2023 – Nov 2024", "Promedio 4.9/5.0"] },
+      { en: ["Uniremington", "Systems Engineering", "Feb 2020 – Mar 2023", "GPA 4.2/5.0"], es: ["Uniremington", "Ingeniería de Sistemas", "Feb 2020 – Mar 2023", "Promedio 4.2/5.0"] },
+      { en: ["Universidad Autónoma de Occidente", "Computer Engineering (coursework)", "2014 – 2017", "GPA 4.0/5.0"], es: ["Universidad Autónoma de Occidente", "Ingeniería Informática (cursada)", "2014 – 2017", "Promedio 4.0/5.0"] },
+      { en: ["Universidad del Valle", "Information Systems Technology", "Aug 2006 – May 2010", "GPA 3.77/5.0"], es: ["Universidad del Valle", "Tecnología en Sistemas de Información", "Ago 2006 – May 2010", "Promedio 3.77/5.0"] },
+      { en: ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Computer Engineering (coursework)", "2004 – 2006", "GPA 4.7/5.0"], es: ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Ingeniería Informática (cursada)", "2004 – 2006", "Promedio 4.7/5.0"] },
     ],
     es: [
-      ["Asturias Corporación Universitaria", "Especialización en Gerencia de Proyectos", "Oct 2023 – Nov 2024", "Promedio 4.9/5.0"],
-      ["Uniremington", "Ingeniería de Sistemas", "Feb 2020 – Mar 2023", "Promedio 4.2/5.0"],
-      ["Universidad Autónoma de Occidente", "Ingeniería Informática (cursada)", "2014 – 2017", "Promedio 4.0/5.0"],
-      ["Universidad del Valle", "Tecnología en Sistemas de Información", "Ago 2006 – May 2010", "Promedio 3.77/5.0"],
-      ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Ingeniería Informática (cursada)", "2004 – 2006", "Promedio 4.7/5.0"],
+      { en: ["Asturias Corporación Universitaria", "Specialization in Project Management", "Oct 2023 – Nov 2024", "GPA 4.9/5.0"], es: ["Asturias Corporación Universitaria", "Especialización en Gerencia de Proyectos", "Oct 2023 – Nov 2024", "Promedio 4.9/5.0"] },
+      { en: ["Uniremington", "Systems Engineering", "Feb 2020 – Mar 2023", "GPA 4.2/5.0"], es: ["Uniremington", "Ingeniería de Sistemas", "Feb 2020 – Mar 2023", "Promedio 4.2/5.0"] },
+      { en: ["Universidad Autónoma de Occidente", "Computer Engineering (coursework)", "2014 – 2017", "GPA 4.0/5.0"], es: ["Universidad Autónoma de Occidente", "Ingeniería Informática (cursada)", "2014 – 2017", "Promedio 4.0/5.0"] },
+      { en: ["Universidad del Valle", "Information Systems Technology", "Aug 2006 – May 2010", "GPA 3.77/5.0"], es: ["Universidad del Valle", "Tecnología en Sistemas de Información", "Ago 2006 – May 2010", "Promedio 3.77/5.0"] },
+      { en: ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Computer Engineering (coursework)", "2004 – 2006", "GPA 4.7/5.0"], es: ["Corporación Universitaria de Ciencia y Desarrollo (UNICIENCIA)", "Ingeniería Informática (cursada)", "2004 – 2006", "Promedio 4.7/5.0"] },
     ],
   },
 

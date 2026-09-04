@@ -1,19 +1,19 @@
-```gitignore
+```
 # Dependencies
 node_modules/
 
 # Build outputs
 dist/
 build/
-.next/
-out/
+*.js.map
+*.ts.map
 
-# Environment variables
+# Environment
 .env
 .env.local
-.env.*
+*.env.*
 
-# IDE files
+# Editors
 .vscode/
 .idea/
 *.swp
@@ -24,32 +24,45 @@ out/
 
 # Temporary files
 *.tmp
+*.temp
 
-# Python specific
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-env/
-venv/
+*.so
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
+venv/
+.env/
+pyvenv.cfg
 
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-*.coverage
+# Compiled files
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# MyPy cache
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# MyPy
 .mypy_cache/
 
-# PyTest cache
+# PyTest
 .pytest_cache/
 
-# Compressed files
+# Zip and compressed files
 *.zip
 *.gz
 *.tar
