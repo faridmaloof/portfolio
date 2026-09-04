@@ -14,7 +14,11 @@ export const defaultProfileData: ProfileData = {
 
   titles: {
     qa: { en: "QA Automation Engineer / SDET", es: "Especialista en Automatización de Pruebas / SDET" },
-    dev: { en: "Full Stack Developer | Backend Engineer (Java · NET)", es: "Desarrollador Full Stack | Backend (Java · NET)" },
+    dev: { en: "Full Stack Developer | Backend Engineer (Java · .NET)", es: "Desarrollador Full Stack | Backend (Java · .NET)" },
+    combined: { 
+      en: "Senior Software Engineer | SDET | Full Stack Developer", 
+      es: "Ingeniero de Software Senior | SDET | Desarrollador Full Stack" 
+    },
   },
 
   summary: {
@@ -25,6 +29,10 @@ export const defaultProfileData: ProfileData = {
     dev: {
       en: "Full Stack / Backend Developer with 15+ years of experience building and maintaining web applications and APIs using Java (Spring Boot), C#/.NET, and PHP, with hands-on experience across AWS cloud infrastructure (EC2, RDS) and relational databases (MySQL, Oracle, SQL Server). Track record spans the full SDLC — architecture, development, code review, deployment, and production support — for PDM systems, internal enterprise platforms, and client-facing web applications. A strong QA and testing background (JMeter, Postman, automated testing) adds a quality-first mindset that reduces rework and improves release reliability.",
       es: "Desarrollador Full Stack / Backend con más de 15 años de experiencia construyendo y manteniendo aplicaciones web y APIs con Java (Spring Boot), C#/.NET y PHP, con experiencia práctica en infraestructura cloud de AWS (EC2, RDS) y bases de datos relacionales (MySQL, Oracle, SQL Server). Ha participado en el ciclo completo de desarrollo de software —arquitectura, desarrollo, revisión de código, despliegue y soporte en producción— para sistemas PDM, plataformas empresariales internas y aplicaciones web de cara al cliente. Su sólido background en QA y pruebas (JMeter, Postman, automatización de pruebas) aporta una mentalidad orientada a la calidad que reduce el retrabajo y mejora la confiabilidad de las entregas.",
+    },
+    combined: {
+      en: "Senior Software Engineer with 15+ years of experience delivering enterprise software solutions across software development, quality engineering, test automation architecture and cloud-native technologies. My career combines software engineering and quality engineering disciplines, allowing me to design scalable systems, automation frameworks and engineering solutions that improve software quality, accelerate delivery cycles and enable high-performing development teams. I specialize in building maintainable engineering solutions for web applications, APIs and distributed systems, leveraging modern technologies such as .NET, React, TypeScript, Playwright, Python, AWS, Azure and Kubernetes. Throughout my career I have worked as Software Developer, Senior Software Engineer, QA Automation Engineer, SDET, Technical Advisor and Project Leader, contributing to both product development and engineering excellence initiatives.",
+      es: "Ingeniero de Software Senior con más de 15 años de experiencia entregando soluciones de software empresarial en desarrollo de software, ingeniería de calidad, arquitectura de automatización de pruebas y tecnologías cloud-native. Mi carrera combina disciplinas de ingeniería de software e ingeniería de calidad, permitiéndome diseñar sistemas escalables, frameworks de automatización y soluciones de ingeniería que mejoran la calidad del software, aceleran los ciclos de entrega y habilitan equipos de alto rendimiento. Me especializo en construir soluciones de ingeniería mantenibles para aplicaciones web, APIs y sistemas distribuidos, aprovechando tecnologías modernas como .NET, React, TypeScript, Playwright, Python, AWS, Azure y Kubernetes. A lo largo de mi carrera he trabajado como Desarrollador de Software, Ingeniero de Software Senior, QA Automation Engineer, SDET, Asesor Técnico y Líder de Proyectos, contribuyendo tanto al desarrollo de productos como a iniciativas de excelencia en ingeniería.",
     },
   },
 
@@ -57,6 +65,24 @@ export const defaultProfileData: ProfileData = {
         ["Desarrollo de APIs", "Diseño de APIs RESTful, Google Cloud Apigee, ASP.NET Core Web APIs"],
         ["Prácticas", "Revisión de código y mentoría, colaboración CI/CD y DevOps, Agile/Scrum, pruebas unitarias y de integración, gestión de proyectos PMI"],
         ["Mentalidad de calidad", "JMeter, Postman, automatización de pruebas — desde un background en QA"],
+      ],
+    },
+    combined: {
+      en: [
+        ["Languages & Frameworks", "Java (Spring Boot), C#/.NET (ASP.NET Core, VB.NET), PHP, React, TypeScript"],
+        ["Cloud & Infrastructure", "AWS (EC2, RDS), Azure, Kubernetes, Docker, Linux"],
+        ["Test Automation & QA", "Playwright, Selenium, Cypress, Pytest, Robot Framework, JMeter, Postman, ISTQB"],
+        ["API & Backend Development", "RESTful API design, Google Cloud Apigee, ASP.NET Core Web APIs, Spring Boot APIs"],
+        ["Databases & Data", "MySQL, Oracle, SQL Server, PostgreSQL, MongoDB, Power BI, DAX"],
+        ["Practices & Methodologies", "Agile/Scrum, DevOps, CI/CD, Code review, PMI/PMBOK, BDD, TDD"],
+      ],
+      es: [
+        ["Lenguajes y Frameworks", "Java (Spring Boot), C#/.NET (ASP.NET Core, VB.NET), PHP, React, TypeScript"],
+        ["Cloud e Infraestructura", "AWS (EC2, RDS), Azure, Kubernetes, Docker, Linux"],
+        ["Automatización de Pruebas & QA", "Playwright, Selenium, Cypress, Pytest, Robot Framework, JMeter, Postman, ISTQB"],
+        ["API & Desarrollo Backend", "Diseño de APIs RESTful, Google Cloud Apigee, ASP.NET Core Web APIs, Spring Boot APIs"],
+        ["Bases de Datos & Datos", "MySQL, Oracle, SQL Server, PostgreSQL, MongoDB, Power BI, DAX"],
+        ["Prácticas y Metodologías", "Agile/Scrum, DevOps, CI/CD, Revisión de código, PMI/PMBOK, BDD, TDD"],
       ],
     },
   },

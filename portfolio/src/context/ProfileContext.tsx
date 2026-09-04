@@ -12,13 +12,17 @@ interface ProfileContextType {
   setShowAllCertifications: (show: boolean) => void;
   showCompletedEducation: boolean;
   setShowCompletedEducation: (show: boolean) => void;
+  isValidProfile: boolean;
 }
+
+const VALID_PROFILES: TrackType[] = ['qa', 'dev', 'combined'];
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('es');
-  const [track, setTrack] = useState<TrackType>('qa');
+  const [track, setTrack] = useState<TrackType>('combined');
+  const [isValidProfile, setIsValidProfile] = useState(true);
   const [showAllExperience, setShowAllExperience] = useState(false);
   const [showAllCertifications, setShowAllCertifications] = useState(false);
   const [showCompletedEducation, setShowCompletedEducation] = useState(true);
@@ -29,8 +33,20 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     const profileParam = params.get('profile');
     const langParam = params.get('lang');
     
-    if (profileParam && ['qa', 'dev', 'combined'].includes(profileParam)) {
-      setTrack(profileParam as TrackType);
+    // Validate profile parameter
+    if (profileParam) {
+      if (VALID_PROFILES.includes(profileParam as TrackType)) {
+        setTrack(profileParam as TrackType);
+        setIsValidProfile(true);
+      } else {
+        // Invalid profile - use default 'combined' and mark as invalid
+        setTrack('combined');
+        setIsValidProfile(false);
+      }
+    } else {
+      // No profile param - use default 'combined'
+      setTrack('combined');
+      setIsValidProfile(true);
     }
     
     if (langParam && ['en', 'es'].includes(langParam)) {
@@ -65,7 +81,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       showAllCertifications,
       setShowAllCertifications,
       showCompletedEducation,
-      setShowCompletedEducation
+      setShowCompletedEducation,
+      isValidProfile
     }}>
       {children}
     </ProfileContext.Provider>
