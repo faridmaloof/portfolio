@@ -1,9 +1,10 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
-import type { ProfileData, Language } from '../types';
+import type { ProfileData, Language, TrackType } from '../types';
 
 interface HeaderProps {
   data: ProfileData;
   language: Language;
+  track?: TrackType;
 }
 
 // LinkedIn SVG Icon component
@@ -24,8 +25,25 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export function Header({ data, language }: HeaderProps) {
+export function Header({ data, language, track = 'combined' }: HeaderProps) {
   const { contact } = data;
+  
+  // Get the title based on track and language
+  const getTitle = () => {
+    if (track === 'qa') {
+      return language === 'es' 
+        ? 'Especialista en Automatización de Pruebas / SDET' 
+        : 'QA Automation Engineer / SDET';
+    } else if (track === 'dev') {
+      return language === 'es'
+        ? 'Desarrollador Full Stack | Backend (Java · .NET)'
+        : 'Full Stack Developer | Backend Engineer (Java · .NET)';
+    } else {
+      return language === 'es'
+        ? 'Ingeniero de Software Senior | SDET | Desarrollador Full Stack'
+        : 'Senior Software Engineer | SDET | Full Stack Developer';
+    }
+  };
 
   return (
     <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
@@ -57,7 +75,7 @@ export function Header({ data, language }: HeaderProps) {
               {contact.name}
             </h1>
             <p className="text-blue-300 text-lg sm:text-xl mb-6 font-medium">
-              {language === 'es' ? 'Especialista en Automatización de Pruebas / SDET' : 'QA Automation Engineer / SDET'}
+              {getTitle()}
             </p>
 
             {/* Contact Details */}

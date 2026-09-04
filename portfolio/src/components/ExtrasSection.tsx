@@ -1,16 +1,18 @@
 import { Award, Languages, ChevronDown, ChevronUp } from 'lucide-react';
-import type { ProfileData, Language } from '../types';
+import type { ProfileData, Language, TrackType } from '../types';
 import { useProfile } from '../context/ProfileContext';
 
 interface ExtrasSectionProps {
   data: ProfileData;
   language: Language;
+  track?: TrackType;
 }
 
 export function ExtrasSection({ data, language }: ExtrasSectionProps) {
   const { showAllCertifications, setShowAllCertifications } = useProfile();
   
-  // Show only first 5 certifications by default
+  // Get certifications based on track (for future customization)
+  // Currently using default certifications, but can be customized per track
   const certifications = data.certifications[language];
   const certificationsToShow = showAllCertifications 
     ? certifications 
