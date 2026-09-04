@@ -1,0 +1,17 @@
+Challenge Date,IP Address,User Agent,Country,Challenge Type
+Mon May 27 15:44:44 UTC 2024,186.113.73.214,Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0,Colombia,EMAIL_PIN_CHALLENGE
+Mon May 27 15:45:11 UTC 2024,186.113.73.214,Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0,Colombia,EMAIL_PIN_CHALLENGE
+Wed Nov 12 13:55:13 UTC 2025,185.107.57.9,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",Netherlands,EMAIL_PIN_CHALLENGE
+Wed Nov 12 13:55:13 UTC 2025,185.107.57.9,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",Netherlands,EMAIL_PIN_CHALLENGE
+Wed Nov 12 13:55:57 UTC 2025,185.107.57.9,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",Netherlands,EMAIL_PIN_CHALLENGE
+Tue Dec 02 13:44:53 UTC 2025,190.60.234.204,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0 Teams/25306.804.4102.7193/49",Colombia,SSP_BLOCKING_CHALLENGE
+Tue Dec 02 13:46:25 UTC 2025,152.201.252.25,"Mozilla/5.0 (Linux; Android 14; CPH2363 Build/TP1A.220905.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/142.0.7444.102 Mobile Safari/537.36 com.linkedin.android/205101 [LinkedInApp]/2.220.139",Colombia,SSP_BLOCKING_CHALLENGE
+Tue Dec 02 13:46:27 UTC 2025,152.201.252.25,"Mozilla/5.0 (Linux; Android 14; CPH2363 Build/TP1A.220905.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/142.0.7444.102 Mobile Safari/537.36 com.linkedin.android/205101 [LinkedInApp]/2.220.139",Colombia,LINKEDIN_APP_CHALLENGE
+Tue Dec 02 13:46:27 UTC 2025,190.60.234.204,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0 Teams/25306.804.4102.7193/49",Colombia,SSP_BLOCKING_CHALLENGE
+Wed Mar 04 16:21:03 UTC 2026,89.187.171.227,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",Czechia,SSP_BLOCKING_CHALLENGE
+Wed Mar 04 16:30:14 UTC 2026,191.108.5.20,"Mozilla/5.0 (Linux; Android 14; CPH2363 Build/TP1A.220905.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/145.0.7632.79 Mobile Safari/537.36 com.linkedin.android/208102 [LinkedInApp]/2.250.73",Colombia,SSP_BLOCKING_CHALLENGE
+Wed Mar 04 16:30:20 UTC 2026,191.108.5.20,"Mozilla/5.0 (Linux; Android 14; CPH2363 Build/TP1A.220905.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/145.0.7632.79 Mobile Safari/537.36 com.linkedin.android/208102 [LinkedInApp]/2.250.73",Colombia,LINKEDIN_APP_CHALLENGE
+Wed Mar 04 16:30:23 UTC 2026,89.187.171.227,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",Czechia,SSP_BLOCKING_CHALLENGE
+Sat May 09 02:59:30 UTC 2026,,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",Unknown,EMAIL_PIN_CHALLENGE
+Sat May 09 02:59:31 UTC 2026,,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",Unknown,EMAIL_PIN_CHALLENGE
+Sat May 09 02:59:48 UTC 2026,,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",Unknown,EMAIL_PIN_CHALLENGE
