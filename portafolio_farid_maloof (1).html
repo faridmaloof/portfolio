@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farid Maloof | Tech Lead & SDET</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- html2pdf for native PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Custom Config & Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s ease-out forwards' },
+                    keyframes: {
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+
+        .print-format { background: white !important; padding: 0 !important; font-size: 11pt !important; }
+        .print-format nav, .print-format .print-hidden { display: none !important; }
+        .print-format .web-only { display: none !important; }
+        .print-format main { max-width: 100% !important; margin: 0 !important; padding: 10px 20px !important; }
+        
+        .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2563eb; padding-bottom: 15px; }
+        .print-name { font-size: 24pt; font-weight: 800; color: #0f172a; }
+        .print-title { font-size: 14pt; color: #2563eb; font-weight: 600; margin-top: 5px; }
+        .print-contact { font-size: 10pt; color: #475569; margin-top: 10px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        
+        .print-format section { margin-bottom: 20px !important; page-break-inside: avoid; }
+        .print-format h3 { font-size: 14pt !important; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px !important; color: #1e293b !important; }
+        .print-format h3 i { display: none !important; }
+        
+        /* Grid adjustments for print */
+        .print-format .grid { display: block !important; }
+        .print-format .md\:grid-cols-2, .print-format .lg\:grid-cols-3 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; }
+        
+        /* Skills in print */
+        .print-format .print-skill-card { border: none !important; padding: 0 !important; margin-bottom: 10px !important; box-shadow: none !important; break-inside: avoid; }
+        .print-format .print-skill-cat { font-size: 11pt !important; margin-bottom: 4px !important; padding-bottom: 2px !important; border-bottom: 1px dashed #cbd5e1 !important; }
+        .print-format .print-skill-tech span { display: inline-block !important; border: 1px solid #e2e8f0 !important; padding: 2px 6px !important; margin: 2px !important; font-size: 9pt !important; border-radius: 4px !important; background: transparent !important; color: #334155 !important; }
+        
+        /* Projects & Experience in print */
+        .print-format .bg-white { background: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important; }
+        .print-format .print-date { font-size: 9.5pt !important; background: transparent !important; border: none !important; padding: 0 !important; color: #475569 !important; font-weight: 600; text-align: left !important; display: block; margin-bottom: 2px; }
+        .print-format .print-job-title { font-size: 12pt !important; margin-bottom: 2px !important; }
+        .print-format .print-company { font-size: 11pt !important; color: #2563eb !important; margin-bottom: 8px !important; }
+        .print-format .print-desc li { font-size: 10pt !important; list-style-type: disc !important; margin-left: 15px !important; margin-bottom: 4px !important; }
+        .print-format #early-career-content { display: block !important; }
+        .print-format .print-early-job { margin-bottom: 15px !important; break-inside: avoid; }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 print-hidden transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">F</div>
+                    <span class="font-bold text-slate-800 text-lg tracking-tight">Maloof</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-600 items-center">
+                    <a href="#skills" class="hover:text-blue-600 transition-colors ui-skills-nav">Competencias</a>
+                    <a href="#projects" class="hover:text-blue-600 transition-colors ui-projects-nav">Proyectos</a>
+                    <a href="#experience" class="hover:text-blue-600 transition-colors ui-experience-nav">Experiencia</a>
+                    <a href="#education" class="hover:text-blue-600 transition-colors ui-education-nav">Educación</a>
+                    
+                    <!-- Language Selector -->
+                    <div class="flex items-center space-x-1 border-l pl-6 border-slate-200">
+                        <i class="fas fa-globe text-slate-400"></i>
+                        <button onclick="setLanguage('es')" id="btn-es" class="px-2 py-1 rounded text-blue-600 font-bold hover:bg-slate-100 transition-colors">ES</button>
+                        <button onclick="setLanguage('en')" id="btn-en" class="px-2 py-1 rounded hover:bg-slate-100 transition-colors">EN</button>
+                    </div>
+
+                    <!-- Download Dropdown -->
+                    <div class="relative dropdown ml-4">
+                        <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 font-semibold">
+                            <i class="fas fa-file-pdf"></i> <span id="dl-text">Descargar CV</span>
+                        </button>
+                        <div class="dropdown-menu absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
+                            <div class="py-1">
+                                <button onclick="downloadPDF('lead')" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-slate-50 flex items-center gap-3">
+                                    <i class="fas fa-star text-amber-400 w-4"></i> <span class="dl-lead">Formato Tech Lead</span>
+                                </button>
+                                <button onclick="downloadPDF('qa')" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-slate-50 flex items-center gap-3">
+                                    <i class="fas fa-vial text-emerald-500 w-4"></i> <span class="dl-qa">Formato QA / SDET</span>
+                                </button>
+                                <button onclick="downloadPDF('dev')" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-3">
+                                    <i class="fas fa-code text-blue-500 w-4"></i> <span class="dl-dev">Formato Full Stack</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="print-header" class="hidden print-header">
+        <div class="print-name" id="print-name">Farid Maloof Suarez</div>
+        <div class="print-title" id="print-title">Tech Lead | SDET & Desarrollador Full Stack</div>
+        <div class="print-contact" id="print-contact">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+        
+        <!-- Hero Section -->
+        <section id="hero" class="flex flex-col md:flex-row items-center gap-8 mb-20 animate-fade-in-up">
+            <div class="w-32 h-32 md:w-48 md:h-48 rounded-full bg-slate-200 border-4 border-white shadow-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative group">
+                <img src="https://placehold.co/400x400/1e293b/ffffff?text=FM" alt="Farid Maloof" class="w-full h-full object-cover" id="hero-img">
+                <div class="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <div class="text-center md:text-left flex-1">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-2">Farid Maloof</h1>
+                <h2 class="text-xl md:text-2xl font-medium text-blue-600 mb-4" id="hero-title">Tech Lead | SDET & Desarrollador Full Stack</h2>
+                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-6 print-hidden" id="hero-contact-links">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="mb-16 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-layer-group text-blue-600 web-only"></i> <span class="ui-skills-title">Competencias Principales</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="skills-content">
+                <!-- Dynamically populated skills pills -->
+            </div>
+        </section>
+
+        <section id="projects" class="mb-16 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                <i class="fab fa-github text-blue-600 web-only"></i> <span class="ui-projects-title">Proyectos Destacados</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-content">
+                <!-- Dynamically populated github projects -->
+            </div>
+        </section>
+
+        <section id="experience" class="mb-16 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-briefcase text-blue-600 web-only"></i> <span class="ui-experience-title">Experiencia Profesional</span>
+            </h3>
+            
+            <div class="space-y-6" id="main-experience-content">
+                <!-- Dynamically populated main experience -->
+            </div>
+
+            <!-- Early Career Toggle Button -->
+            <div class="mt-8 text-center print-hidden">
+                <button id="toggle-early-career" class="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-full font-semibold hover:border-blue-600 hover:text-blue-600 transition-colors shadow-sm">
+                    <span id="early-career-btn-text">Ver Roles Anteriores</span> <i class="fas fa-chevron-down transition-transform duration-300" id="early-career-icon"></i>
+                </button>
+            </div>
+
+            <!-- Early Career Grid -->
+            <div id="early-career-content" class="hidden mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Dynamically populated early career cards -->
+            </div>
+        </section>
+
+        <section id="education" class="mb-16 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-graduation-cap text-blue-600 web-only"></i> <span class="ui-education-title">Educación & Certificaciones</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Formal Education -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm print-skill-card">
+                    <h4 class="font-bold text-slate-900 text-lg mb-4 border-b border-slate-50 pb-2 ui-formal-edu">Educación Formal</h4>
+                    <div class="mb-4">
+                        <div class="font-semibold text-slate-800 text-lg">Ingeniería de Sistemas</div>
+                        <div class="text-slate-600 font-medium">Universidad Autónoma del Caribe</div>
+                    </div>
+                </div>
+
+                <!-- Featured Certifications -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm print-skill-card">
+                    <h4 class="font-bold text-slate-900 text-lg mb-4 border-b border-slate-50 pb-2 ui-certs">Certificaciones Destacadas</h4>
+                    <div class="space-y-3" id="certs-content">
+                        <!-- Dynamically populated certs -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // State
+        let currentLang = 'es';
+        let currentRole = 'lead'; // 'qa', 'dev', 'lead'
+
+        // Safely parse URL to set initial language (bypass iframe security errors)
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('lang')) currentLang = params.get('lang');
+        } catch (e) {
+            console.warn("URL params not accessible in this context.");
+        }
+
+        // Data Repository
+        const data = {
+            contact: {
+                name: "Farid Maloof",
+                fullName: "Farid Maloof Suarez",
+                email: "faridmaloof@gmail.com",
+                phone: "+57 301 555 1234",
+                linkedin: "linkedin.com/in/faridmaloof",
+                github: "github.com/faridmaloof",
+                location: "Colombia (Remoto)"
+            },
+            skills: {
+                lead: {
+                    es: [
+                        { category: "Arquitectura & Backend", tech: "C#, .NET 8, Microservicios, Node.js, Python, Docker, SQL Server, Entity Framework" },
+                        { category: "QA & Automatización E2E", tech: "Playwright, TypeScript, Selenium, JMeter, CI/CD, GitHub Actions, Azure DevOps" },
+                        { category: "Habilidades Blandas & Liderazgo", tech: "Liderazgo Técnico, Mentoría, Gestión de Proyectos, Comunicación Asertiva, Scrum, Kanban, Resolución de Problemas" }
+                    ],
+                    en: [
+                        { category: "Architecture & Backend", tech: "C#, .NET 8, Microservices, Node.js, Python, Docker, SQL Server, Entity Framework" },
+                        { category: "QA & E2E Automation", tech: "Playwright, TypeScript, Selenium, JMeter, CI/CD, GitHub Actions, Azure DevOps" },
+                        { category: "Soft Skills & Leadership", tech: "Technical Leadership, Mentoring, Project Management, Assertive Communication, Scrum, Kanban, Problem Solving" }
+                    ]
+                },
+                qa: {
+                    es: [
+                        { category: "Automatización E2E", tech: "Playwright, Cypress, Selenium, Appium, TypeScript, Python" },
+                        { category: "Rendimiento & Integración", tech: "JMeter, Postman, CI/CD, GitHub Actions, Docker, Azure DevOps" },
+                        { category: "Habilidades Blandas & QA", tech: "Estrategia de Pruebas, Mentoría, Análisis Crítico, Trabajo en Equipo, Orientación al Detalle" }
+                    ],
+                    en: [
+                        { category: "E2E Automation", tech: "Playwright, Cypress, Selenium, Appium, TypeScript, Python" },
+                        { category: "Performance & Integration", tech: "JMeter, Postman, CI/CD, GitHub Actions, Docker, Azure DevOps" },
+                        { category: "Soft Skills & QA", tech: "Test Strategy, Mentoring, Critical Analysis, Teamwork, Detail Oriented" }
+                    ]
+                },
+                dev: {
+                    es: [
+                        { category: "Desarrollo Backend", tech: "C#, .NET Core, Node.js, Express, API RESTful, Entity Framework, GraphQL" },
+                        { category: "Frontend & Bases de Datos", tech: "React, Angular, TypeScript, SQL Server, MongoDB, Tailwind CSS, PostgreSQL" },
+                        { category: "Habilidades Blandas & Dev", tech: "Código Limpio (Clean Code), Revisiones de Código, Autonomía, Adaptabilidad, Aprendizaje Continuo" }
+                    ],
+                    en: [
+                        { category: "Backend Development", tech: "C#, .NET Core, Node.js, Express, RESTful API, Entity Framework, GraphQL" },
+                        { category: "Frontend & Databases", tech: "React, Angular, TypeScript, SQL Server, MongoDB, Tailwind CSS, PostgreSQL" },
+                        { category: "Soft Skills & Dev", tech: "Clean Code, Code Reviews, Autonomy, Adaptability, Continuous Learning" }
+                    ]
+                }
+            },
+            projects: {
+                es: [
+                    { title: "Framework de Pruebas E2E", desc: "Framework altamente escalable construido con Playwright y TypeScript. Implementa Page Object Model (POM), reportes personalizados e integración total con CI/CD en GitHub Actions.", url: "https://github.com/faridmaloof", tags: ["Playwright", "TypeScript", "CI/CD"] },
+                    { title: "API de Microservicios Banking", desc: "Arquitectura RESTful desarrollada con ASP.NET Core 8 y Docker. Incluye autenticación por tokens JWT, Entity Framework Core y patrones CQRS.", url: "https://github.com/faridmaloof", tags: ["C#", ".NET 8", "Docker", "SQL"] },
+                    { title: "Suite de Pruebas de Rendimiento", desc: "Scripts detallados en JMeter para pruebas de carga en APIs de alta concurrencia, integrando escenarios guiados por datos (Data-driven) y análisis de cuellos de botella.", url: "https://github.com/faridmaloof", tags: ["JMeter", "Performance", "API Testing"] }
+                ],
+                en: [
+                    { title: "E2E Test Automation Framework", desc: "Highly scalable testing framework built with Playwright and TypeScript. Implements Page Object Model (POM), custom HTML reporters, and full GitHub Actions CI/CD integration.", url: "https://github.com/faridmaloof", tags: ["Playwright", "TypeScript", "CI/CD"] },
+                    { title: "Banking Microservices API", desc: "RESTful architecture built with ASP.NET Core 8 and Docker. Features JWT token-based authentication, Entity Framework Core, and CQRS design patterns.", url: "https://github.com/faridmaloof", tags: ["C#", ".NET 8", "Docker", "SQL"] },
+                    { title: "Performance Testing Suite", desc: "Comprehensive JMeter scripts designed for load testing high-concurrency API endpoints, integrating data-driven testing scenarios and bottleneck analysis.", url: "https://github.com/faridmaloof", tags: ["JMeter", "Performance", "API Testing"] }
+                ]
+            },
+            experience: [
+                {
+                    title: { en: "Tech Lead / Sr QA Automation Engineer", es: "Líder Técnico / Ing. Senior de Automatización QA" },
+                    company: "Empresa Confidencial",
+                    date: { en: "Jan 2022 - Present", es: "Ene 2022 - Presente" },
+                    desc: {
+                        en: [
+                            "Led a cross-functional team of engineers to architect and deploy a unified automation framework using Playwright and TypeScript.",
+                            "Reduced end-to-end testing execution time by 60% through aggressive parallelization in CI/CD pipelines.",
+                            "Mentored junior and mid-level team members, conducted strict code reviews, and defined quality standards across multiple microservices."
+                        ],
+                        es: [
+                            "Lideré un equipo multifuncional de ingenieros para diseñar e implementar un framework de automatización unificado usando Playwright y TypeScript.",
+                            "Reduje el tiempo de ejecución de pruebas E2E en un 60% mediante la paralelización agresiva en pipelines CI/CD.",
+                            "Fui mentor de miembros del equipo, realicé estrictas revisiones de código y definí estándares de calidad en múltiples microservicios."
+                        ]
+                    }
+                },
+                {
+                    title: { en: "Full Stack Developer / QA Engineer", es: "Desarrollador Full Stack / Ing. de QA" },
+                    company: "Software Solutions Ltd.",
+                    date: { en: "Mar 2019 - Dec 2021", es: "Mar 2019 - Dic 2021" },
+                    desc: {
+                        en: [
+                            "Developed robust RESTful APIs using C# .NET Core and SQL Server, optimizing complex database queries for speed.",
+                            "Built interactive and highly responsive frontend features using modern JavaScript frameworks.",
+                            "Spearheaded the implementation of automated unit and API testing, significantly reducing regression bugs in production environments."
+                        ],
+                        es: [
+                            "Desarrollé APIs RESTful robustas usando C# .NET Core y SQL Server, optimizando consultas complejas de base de datos.",
+                            "Construí funcionalidades interactivas y responsivas en el frontend usando frameworks modernos de JavaScript.",
+                            "Lideré la implementación de pruebas automatizadas unitarias y de API, reduciendo significativamente los errores de regresión en producción."
+                        ]
+                    }
+                }
+            ],
+            earlyCareer: [
+                {
+                    title: { en: "QA Analyst", es: "Analista de QA" },
+                    company: "Tech Systems S.A.",
+                    date: { en: "Jun 2017 - Feb 2019", es: "Jun 2017 - Feb 2019" },
+                    desc: {
+                        en: [
+                            "Designed comprehensive manual test cases based on complex business requirements and user stories.",
+                            "Initiated the department's transition to automated testing by introducing Selenium WebDriver for critical user paths.",
+                            "Collaborated closely with the development team to reproduce, document, and resolve complex edge-case bugs."
+                        ],
+                        es: [
+                            "Diseñé casos de prueba manuales exhaustivos basados en requisitos complejos del negocio e historias de usuario.",
+                            "Inicié la transición del departamento a pruebas automatizadas introduciendo Selenium WebDriver para flujos críticos.",
+                            "Colaboré estrechamente con el equipo de desarrollo para reproducir, documentar y resolver errores complejos."
+                        ]
+                    }
+                },
+                {
+                    title: { en: "Junior Web Developer", es: "Desarrollador Web Junior" },
+                    company: "Creative Digital Studio",
+                    date: { en: "Jan 2015 - May 2017", es: "Ene 2015 - May 2017" },
+                    desc: {
+                        en: [
+                            "Maintained, refactored, and optimized legacy backend code and database structures.",
+                            "Collaborated in the full redesign of corporate web applications ensuring strict cross-browser compatibility.",
+                            "Provided Level 3 technical support and troubleshooting directly for production environments."
+                        ],
+                        es: [
+                            "Mantuve, refactoricé y optimicé código backend heredado y estructuras de bases de datos.",
+                            "Colaboré en el rediseño completo de aplicaciones web corporativas asegurando compatibilidad entre navegadores.",
+                            "Brindé soporte técnico de Nivel 3 y resolución de problemas para entornos de producción."
+                        ]
+                    }
+                }
+            ],
+            certs: [
+                { name: "Kanban Foundation KBFC™", issuer: "CertiProf", year: "2023" },
+                { name: "Scrum Foundation Professional", issuer: "CertiProf", year: "2023" },
+                { name: "Playwright Advanced Automation", issuer: "Udemy", year: "2022" },
+                { name: "Software Testing Bootcamp", issuer: "Talently", year: "2021" }
+            ],
+            uiText: {
+                en: { navSkills: "Skills", navProjects: "Projects", navExperience: "Experience", navEducation: "Education", downloadMenu: "Download CV", dlQA: "QA / SDET Format", dlDev: "Full Stack Format", dlLead: "Tech Lead Format", roleTitleQA: "QA Automation / SDET", roleTitleDev: "Full Stack Developer", roleTitleLead: "Tech Lead | SDET & Full Stack", titleSkills: "Core Competencies", titleProjects: "Featured Projects", titleExperience: "Professional Experience", titleEducation: "Education & Certifications", formalEdu: "Formal Education", featuredCerts: "Featured Certifications", showEarly: "Show Previous Roles", hideEarly: "Hide Previous Roles" },
+                es: { navSkills: "Competencias", navProjects: "Proyectos", navExperience: "Experiencia", navEducation: "Educación", downloadMenu: "Descargar CV", dlQA: "Formato QA / SDET", dlDev: "Formato Full Stack", dlLead: "Formato Tech Lead", roleTitleQA: "QA Automation / SDET", roleTitleDev: "Desarrollador Full Stack", roleTitleLead: "Tech Lead | SDET & Full Stack", titleSkills: "Competencias Principales", titleProjects: "Proyectos Destacados", titleExperience: "Experiencia Profesional", titleEducation: "Educación & Certificaciones", formalEdu: "Educación Formal", featuredCerts: "Certificaciones Destacadas", showEarly: "Ver Roles Anteriores", hideEarly: "Ocultar Roles Anteriores" }
+            }
+        };
+
+        function updateUI() {
+            const ui = data.uiText[currentLang];
+            
+            // Navbar & Static Texts
+            document.querySelector('.ui-skills-nav').textContent = ui.navSkills;
+            document.querySelector('.ui-projects-nav').textContent = ui.navProjects;
+            document.querySelector('.ui-experience-nav').textContent = ui.navExperience;
+            document.querySelector('.ui-education-nav').textContent = ui.navEducation;
+            document.getElementById('dl-text').textContent = ui.downloadMenu;
+            document.querySelector('.dl-lead').textContent = ui.dlLead;
+            document.querySelector('.dl-qa').textContent = ui.dlQA;
+            document.querySelector('.dl-dev').textContent = ui.dlDev;
+            
+            document.querySelector('.ui-skills-title').textContent = ui.titleSkills;
+            document.querySelector('.ui-projects-title').textContent = ui.titleProjects;
+            document.querySelector('.ui-experience-title').textContent = ui.titleExperience;
+            document.querySelector('.ui-education-title').textContent = ui.titleEducation;
+            document.querySelector('.ui-formal-edu').textContent = ui.formalEdu;
+            document.querySelector('.ui-certs').textContent = ui.featuredCerts;
+
+            // Role Title Update
+            let heroTitle = ui.roleTitleLead;
+            if(currentRole === 'qa') heroTitle = ui.roleTitleQA;
+            if(currentRole === 'dev') heroTitle = ui.roleTitleDev;
+            document.getElementById('hero-title').textContent = heroTitle;
+            document.getElementById('print-title').textContent = heroTitle;
+
+            // Contact Links (Hero & Print)
+            const contactHtml = `
+                <a href="mailto:${data.contact.email}" class="text-slate-600 hover:text-blue-600 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 transition-all flex items-center gap-2 text-sm font-medium"><i class="fas fa-envelope"></i> ${data.contact.email}</a>
+                <a href="https://${data.contact.linkedin}" target="_blank" class="text-slate-600 hover:text-blue-600 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 transition-all flex items-center gap-2 text-sm font-medium"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                <a href="https://${data.contact.github}" target="_blank" class="text-slate-600 hover:text-blue-600 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 transition-all flex items-center gap-2 text-sm font-medium"><i class="fab fa-github"></i> GitHub</a>
+            `;
+            document.getElementById('hero-contact-links').innerHTML = contactHtml;
+            document.getElementById('print-contact').innerHTML = `
+                <span><i class="fas fa-envelope"></i> ${data.contact.email}</span>
+                <span><i class="fas fa-phone"></i> ${data.contact.phone}</span>
+                <span><i class="fab fa-linkedin"></i> ${data.contact.linkedin}</span>
+                <span><i class="fab fa-github"></i> ${data.contact.github}</span>
+            `;
+
+            // Skills (Pills format)
+            const skillsHtml = data.skills[currentRole][currentLang].map(skill => {
+                const techPills = skill.tech.split(',').map(t => 
+                    `<span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-200 mb-2 mr-2 shadow-sm hover:border-blue-300 hover:text-blue-700 transition-colors">
+                        <i class="fas fa-check text-[10px] text-blue-500 mr-2 web-only"></i> ${t.trim()}
+                    </span>`
+                ).join('');
+                return `
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-inner print-skill-card">
+                    <h4 class="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider text-blue-800 print-skill-cat">${skill.category}</h4>
+                    <div class="flex flex-wrap print-skill-tech">${techPills}</div>
+                </div>`;
+            }).join('');
+            document.getElementById('skills-content').innerHTML = skillsHtml;
+
+            // Projects
+            const projectsHtml = data.projects[currentLang].map(proj => `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-blue-50 w-10 h-10 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                        <a href="${proj.url}" target="_blank" class="text-slate-400 hover:text-slate-900 transition-colors"><i class="fab fa-github text-xl"></i></a>
+                    </div>
+                    <a href="${proj.url}" target="_blank"><h4 class="font-bold text-slate-900 text-lg mb-2 group-hover:text-blue-600 transition-colors">${proj.title}</h4></a>
+                    <p class="text-sm text-slate-600 mb-4 flex-1 leading-relaxed">${proj.desc}</p>
+                    <div class="pt-4 border-t border-slate-50 flex flex-wrap gap-2">
+                        ${proj.tags.map(tag => `<span class="text-[10px] font-bold uppercase text-blue-700 bg-blue-50 px-2 py-1 rounded">${tag}</span>`).join('')}
+                    </div>
+                </div>`).join('');
+            document.getElementById('projects-content').innerHTML = projectsHtml;
+
+            // Main Experience
+            const expHtml = data.experience.map(job => `
+                <div class="relative pl-8 md:pl-0 group">
+                    <div class="md:grid md:grid-cols-4 md:gap-8 items-start">
+                        <div class="md:col-span-1 md:text-right mb-2 md:mb-0 pt-1">
+                            <span class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 print-date inline-block">${job.date[currentLang]}</span>
+                        </div>
+                        <div class="md:col-span-3 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group-hover:border-blue-300 transition-colors relative">
+                            <div class="absolute left-[-39px] md:left-[-17px] top-7 w-4 h-4 rounded-full bg-slate-200 border-4 border-white shadow group-hover:bg-blue-600 transition-colors web-only"></div>
+                            <h4 class="text-xl font-bold text-slate-900 print-job-title">${job.title[currentLang]}</h4>
+                            <div class="text-lg font-medium text-blue-600 mb-4 print-company">${job.company}</div>
+                            <ul class="space-y-2 print-desc">
+                                ${job.desc[currentLang].map(d => `<li class="flex items-start text-slate-700 text-sm leading-relaxed"><i class="fas fa-chevron-right text-[10px] text-blue-400 mt-1.5 mr-3 web-only"></i><span>${d}</span></li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>`).join('');
+            document.getElementById('main-experience-content').innerHTML = expHtml;
+
+            // Early Career Grid
+            const earlyExpHtml = data.earlyCareer.map(job => `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm print-early-job">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-2 gap-2">
+                        <h4 class="text-lg font-bold text-slate-900 leading-tight">${job.title[currentLang]}</h4>
+                        <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded w-fit">${job.date[currentLang]}</span>
+                    </div>
+                    <div class="text-sm font-semibold text-blue-600 mb-4">${job.company}</div>
+                    <ul class="space-y-2">
+                        ${job.desc[currentLang].map(d => `<li class="flex items-start text-slate-600 text-sm"><i class="fas fa-circle text-[6px] text-slate-400 mt-2 mr-2 web-only"></i><span>${d}</span></li>`).join('')}
+                    </ul>
+                </div>`).join('');
+            document.getElementById('early-career-content').innerHTML = earlyExpHtml;
+
+            // Certifications
+            const certsHtml = data.certs.map(c => `
+                <div class="flex justify-between items-center border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+                    <div>
+                        <div class="font-semibold text-sm text-slate-800">${c.name}</div>
+                        <div class="text-xs text-slate-500">${c.issuer}</div>
+                    </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">${c.year}</span>
+                </div>`).join('');
+            document.getElementById('certs-content').innerHTML = certsHtml;
+            
+            updateEarlyCareerBtn();
+            updateLangButtons();
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            // Safe URL update to avoid iframe SecurityError
+            try {
+                if (window.history && window.history.pushState) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('lang', lang);
+                    window.history.replaceState({}, '', url);
+                }
+            } catch (e) { console.debug("URL update bypassed in sandbox."); }
+            
+            updateUI();
+        }
+
+        function updateLangButtons() {
+            document.getElementById('btn-es').className = currentLang === 'es' 
+                ? 'px-2 py-1 rounded text-blue-600 font-bold bg-blue-50 transition-colors' 
+                : 'px-2 py-1 rounded hover:bg-slate-100 text-slate-600 transition-colors';
+            
+            document.getElementById('btn-en').className = currentLang === 'en' 
+                ? 'px-2 py-1 rounded text-blue-600 font-bold bg-blue-50 transition-colors' 
+                : 'px-2 py-1 rounded hover:bg-slate-100 text-slate-600 transition-colors';
+        }
+
+        function updateEarlyCareerBtn() {
+            const isHidden = document.getElementById('early-career-content').classList.contains('hidden');
+            const ui = data.uiText[currentLang];
+            document.getElementById('early-career-btn-text').textContent = isHidden ? ui.showEarly : ui.hideEarly;
+            document.getElementById('early-career-icon').className = isHidden 
+                ? "fas fa-chevron-down transition-transform duration-300" 
+                : "fas fa-chevron-up transition-transform duration-300";
+        }
+
+        document.getElementById('toggle-early-career').addEventListener('click', () => {
+            document.getElementById('early-career-content').classList.toggle('hidden');
+            updateEarlyCareerBtn();
+        });
+
+        async function downloadPDF(formatRole) {
+            currentRole = formatRole;
+            updateUI(); // Set content format
+            
+            // Prepare DOM for printing
+            document.body.classList.add('print-format');
+            document.getElementById('early-career-content').classList.remove('hidden'); // Ensure early career shows in PDF
+            
+            const element = document.body;
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Farid_Maloof_${formatRole.toUpperCase()}_CV_${currentLang.toUpperCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch (e) {
+                console.error("PDF generation failed, falling back to window.print()", e);
+                window.print();
+            }
+
+            // Restore Web DOM
+            document.body.classList.remove('print-format');
+            document.getElementById('early-career-content').classList.add('hidden');
+            updateUI(); // Reset UI state based on currentRole
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', updateUI);
+    </script>
+</body>
+</html>

@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farid Maloof S. | Tech Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Web specific styles */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .timeline-dot { left: -33px; }
+        
+        /* Hide scrollbar for clean modal */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media (max-width: 768px) {
+            .timeline-dot { left: -25px; }
+            .timeline-border { margin-left: 20px; border-left-width: 2px; }
+            .timeline-content { padding-left: 20px; }
+        }
+
+        /* 
+         * PRINT STYLES: 
+         * This completely transforms the web portfolio into a classic, 
+         * highly professional ATS-friendly CV when printing to PDF.
+         */
+        @media print {
+            @page { margin: 1.5cm; size: A4 portrait; }
+            body { 
+                background: #fff; 
+                color: #000; 
+                font-size: 10pt; 
+                line-height: 1.4; 
+            }
+            
+            /* Hide Web UI Elements */
+            .web-only, nav, button, .timeline-dot, .timeline-border, #hero { 
+                display: none !important; 
+            }
+            
+            /* Force expansion of all content for the PDF */
+            #experience-hidden { display: block !important; }
+            
+            /* Print Header Formatting */
+            .print-header { 
+                display: block !important; 
+                text-align: center; 
+                margin-bottom: 20px;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 10px;
+            }
+            .print-name { font-family: 'Merriweather', serif; font-size: 24pt; font-weight: 700; color: #111; margin-bottom: 5px; }
+            .print-title { font-size: 12pt; font-weight: 600; color: #333; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+            .print-contact { font-size: 9pt; color: #555; }
+            .print-contact span { margin: 0 8px; }
+
+            /* Section Formatting */
+            .print-section-title {
+                font-family: 'Merriweather', serif;
+                font-size: 12pt;
+                font-weight: 700;
+                color: #111;
+                text-transform: uppercase;
+                border-bottom: 1px solid #000;
+                margin: 15px 0 10px 0;
+                padding-bottom: 2px;
+            }
+
+            /* Job Formatting */
+            .print-job { margin-bottom: 12px; page-break-inside: avoid; }
+            .print-job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+            .print-job-title { font-weight: 700; font-size: 10.5pt; color: #000; }
+            .print-job-company { font-weight: 600; font-style: italic; color: #444; }
+            .print-job-date { font-size: 9.5pt; color: #333; }
+            
+            /* Bullet points */
+            .print-bullets { margin: 0; padding-left: 20px; }
+            .print-bullets li { margin-bottom: 3px; text-align: justify; }
+
+            /* Grid for Education & Skills */
+            .print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .print-skill-cat { font-weight: 700; font-size: 9.5pt; margin-top: 6px; }
+            .print-skill-tech { font-size: 9pt; }
+            
+            /* Remove shadows, borders, bg from web containers */
+            main { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+            section { margin-bottom: 15px !important; }
+            .bg-white, .p-6, .rounded-2xl, .shadow-sm, .border {
+                background: none !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <script>
+        const data = {
+            contact: {
+                name: "Farid Maloof Suarez",
+                location: "Bogotá, D.C., Colombia",
+                phone: "+57 300 235 7202",
+                email: "faridmaloof@gmail.com",
+                linkedin: "linkedin.com/in/fmaloofs",
+                github: "github.com/faridmaloof",
+                linkedinUrl: "https://www.linkedin.com/in/fmaloofs/",
+                githubUrl: "https://github.com/faridmaloof"
+            },
+            titles: {
+                qa: { en: "QA Automation Engineer / SDET", es: "Ingeniero de Automatización QA / SDET" },
+                dev: { en: "Full Stack Developer | Backend Engineer", es: "Desarrollador Full Stack | Backend Engineer" },
+                combined: { en: "Tech Lead | SDET & Full Stack Developer", es: "Tech Lead | SDET & Desarrollador Full Stack" }
+            },
+            summary: {
+                qa: {
+                    en: "Automation Testing Senior Specialist and ISTQB® Certified SDET with 15+ years in tech and 6+ years spearheading software quality in fintech, banking, and enterprise sectors. Expert in designing scalable automation frameworks from scratch (Playwright, Selenium, TypeScript, C#) and integrating them into CI/CD pipelines. My strong background in software development empowers me to conduct deep API and performance testing, anticipate architectural risks, and collaborate seamlessly with DevOps to accelerate release cycles without compromising quality.",
+                    es: "Especialista Senior en Automatización de Pruebas y SDET certificado por ISTQB® con más de 15 años en tecnología y más de 6 años liderando la calidad de software en sectores fintech, banca y corporativo. Experto en diseñar frameworks de automatización escalables desde cero (Playwright, Selenium, TypeScript, C#) e integrarlos en pipelines CI/CD. Mi sólido background en desarrollo me permite realizar pruebas profundas de API y rendimiento, anticipar riesgos arquitectónicos y colaborar fluidamente con DevOps para acelerar los ciclos de entrega sin sacrificar calidad."
+                },
+                dev: {
+                    en: "Full Stack & Backend Developer with 15+ years of experience architecting, building, and scaling web applications and RESTful APIs. Proficient in C#/.NET, Java (Spring Boot), and modern frontend frameworks, with deep expertise in cloud deployments (AWS EC2, RDS) and database management. I bring a unique 'quality-first' mindset to development, leveraging my QA background to write highly testable code, implement robust unit/integration testing, and streamline CI/CD workflows, ultimately reducing technical debt and production defects.",
+                    es: "Desarrollador Full Stack y Backend con más de 15 años de experiencia diseñando, construyendo y escalando aplicaciones web y APIs RESTful. Dominio avanzado de C#/.NET, Java (Spring Boot) y frameworks frontend modernos, con sólida experiencia en despliegues cloud (AWS) y bases de datos. Aporto una mentalidad orientada a la calidad gracias a mi experiencia paralela como QA, lo que me permite escribir código altamente testeable, implementar pruebas robustas y optimizar flujos CI/CD, reduciendo drásticamente la deuda técnica."
+                },
+                combined: {
+                    en: "Comprehensive Technology Professional with 15+ years of experience bridging the gap between Software Engineering and Quality Assurance. By combining the architectural vision of a Senior Full Stack Developer (Java, C#/.NET, Cloud AWS) with the precision of an ISTQB® Certified SDET (Playwright, CI/CD, Performance Testing), I deliver robust, scalable, and highly reliable software solutions. Proven track record leading cross-functional teams, optimizing delivery lifecycles, and engineering automation frameworks that reduce time-to-market while guaranteeing enterprise-grade quality.",
+                    es: "Profesional Integral de Tecnología con más de 15 años de experiencia acortando la brecha entre Ingeniería de Software y Aseguramiento de Calidad (QA). Al combinar la visión arquitectónica de un Desarrollador Full Stack Senior (Java, C#/.NET, AWS Cloud) con la precisión de un SDET certificado por ISTQB® (Playwright, CI/CD, Pruebas de Rendimiento), entrego soluciones robustas, escalables y altamente confiables. Historial comprobado liderando equipos, optimizando ciclos de entrega y construyendo frameworks de automatización que reducen el time-to-market garantizando calidad corporativa."
+                }
+            },
+            skills: {
+                qa: {
+                    en: [
+                        { category: "Test Automation & Frameworks", tech: "Playwright, Selenium, REST Assured, Appium, PyTest, Framework Architecture" },
+                        { category: "CI/CD & DevOps", tech: "Jenkins, GitLab CI, Docker, Continuous Testing integration, GitHub Actions" },
+                        { category: "Performance & API", tech: "JMeter, Postman, SoapUI, Load Testing, API Contract Testing" },
+                        { category: "Core Development", tech: "C#, TypeScript, Java, Python, SQL (MySQL, Oracle, SQL Server)" }
+                    ],
+                    es: [
+                        { category: "Automatización & Frameworks", tech: "Playwright, Selenium, REST Assured, Appium, PyTest, Arquitectura de Frameworks" },
+                        { category: "CI/CD & DevOps", tech: "Jenkins, GitLab CI, Docker, Integración de Continuous Testing, GitHub Actions" },
+                        { category: "Rendimiento & API", tech: "JMeter, Postman, SoapUI, Pruebas de Carga, API Contract Testing" },
+                        { category: "Desarrollo Core", tech: "C#, TypeScript, Java, Python, SQL (MySQL, Oracle, SQL Server)" }
+                    ]
+                },
+                dev: {
+                    en: [
+                        { category: "Backend Engineering", tech: "C#/.NET (ASP.NET Core), Java (Spring Boot), PHP, Go, RESTful API Design" },
+                        { category: "Frontend & Mobile", tech: "React, Angular, React Native, TypeScript, Tailwind CSS" },
+                        { category: "Cloud & Infrastructure", tech: "AWS (EC2, RDS, S3), Docker, Microservices Architecture, Apigee" },
+                        { category: "Data & Quality", tech: "MySQL, Oracle, SQL Server, TDD, Unit/Integration Testing (JUnit, xUnit)" }
+                    ],
+                    es: [
+                        { category: "Ingeniería Backend", tech: "C#/.NET (ASP.NET Core), Java (Spring Boot), PHP, Go, Diseño de APIs RESTful" },
+                        { category: "Frontend & Mobile", tech: "React, Angular, React Native, TypeScript, Tailwind CSS" },
+                        { category: "Cloud e Infraestructura", tech: "AWS (EC2, RDS, S3), Docker, Arquitectura de Microservicios, Apigee" },
+                        { category: "Datos & Calidad", tech: "MySQL, Oracle, SQL Server, TDD, Pruebas Unitarias/Integración (JUnit, xUnit)" }
+                    ]
+                },
+                combined: {
+                    en: [
+                        { category: "Software Engineering", tech: "Java (Spring Boot), C#/.NET, TypeScript, React, Angular, PHP" },
+                        { category: "Quality & Automation", tech: "Playwright, Selenium, JMeter, Postman, REST Assured, ISTQB Practices" },
+                        { category: "Cloud & DevOps", tech: "AWS (EC2, RDS), Docker, CI/CD Pipelines, Microservices Architecture" },
+                        { category: "Databases & Agile", tech: "MySQL, Oracle, SQL Server, Agile/Scrum, PMI, Data Modeling" }
+                    ],
+                    es: [
+                        { category: "Ingeniería de Software", tech: "Java (Spring Boot), C#/.NET, TypeScript, React, Angular, PHP" },
+                        { category: "Calidad y Automatización", tech: "Playwright, Selenium, JMeter, Postman, REST Assured, Prácticas ISTQB" },
+                        { category: "Cloud & DevOps", tech: "AWS (EC2, RDS), Docker, Pipelines CI/CD, Arquitectura de Microservicios" },
+                        { category: "Bases de Datos & Agile", tech: "MySQL, Oracle, SQL Server, Agile/Scrum, PMI, Modelado de Datos" }
+                    ]
+                }
+            },
+            experience: [
+                {
+                    company: "Evertec", location: "Colombia",
+                    dates: { en: "Dec 2025 – Present", es: "Dic 2025 – Presente" },
+                    role: { qa: { en: "Automation Testing Senior Specialist", es: "Especialista Senior en Automatización de Pruebas" }, dev: { en: "Senior Backend Engineer", es: "Senior Backend Engineer" }, combined: { en: "Senior SDET & Automation Lead", es: "Senior SDET & Automation Lead" } },
+                    detail: {
+                        qa: {
+                            en: [
+                                "Architected and deployed highly scalable test automation frameworks from scratch using Playwright, TypeScript, and C# to support mission-critical financial systems.",
+                                "Spearheaded the integration of automated test suites directly into CI/CD pipelines, reducing manual regression testing effort by 65% and accelerating release cycles.",
+                                "Conducted comprehensive API testing using Postman and REST Assured, ensuring backend microservices met strict performance and security standards.",
+                                "Executed complex load and performance testing scenarios utilizing JMeter to validate system resilience and uptime under high transactional volumes.",
+                                "Defined the QA lifecycle strategy, establishing strict best practices for peer code reviews, version control, and test data management.",
+                                "Collaborated proactively with DevOps and Development teams to identify infrastructure bottlenecks and improve overall deployment reliability."
+                            ],
+                            es: [
+                                "Arquitectó y desplegó frameworks de automatización altamente escalables desde cero utilizando Playwright, TypeScript y C# para soportar sistemas financieros críticos.",
+                                "Lideró la integración de suites de pruebas automatizadas directamente en pipelines CI/CD, reduciendo el esfuerzo de pruebas de regresión manual en un 65% y acelerando los releases.",
+                                "Ejecutó pruebas exhaustivas de API utilizando Postman y REST Assured, asegurando que los microservicios backend cumplieran estrictos estándares de rendimiento y seguridad.",
+                                "Realizó escenarios complejos de pruebas de carga y rendimiento con JMeter para validar la resiliencia del sistema bajo altos volúmenes transaccionales.",
+                                "Definió la estrategia del ciclo de vida de QA, estableciendo mejores prácticas para revisiones de código, control de versiones y gestión de datos de prueba.",
+                                "Colaboró proactivamente con los equipos de DevOps y Desarrollo para identificar cuellos de botella en la infraestructura y mejorar la confiabilidad de los despliegues."
+                            ]
+                        },
+                        dev: {
+                            en: [
+                                "Designed and maintained complex automated test frameworks and CI/CD testing strategies for core financial systems.",
+                                "Conducted deep technical reviews of system architecture to ensure code testability and maintainability.",
+                                "Implemented proactive process improvements that increased overall test coverage by 40% and enhanced deployment reliability.",
+                                "Acted as the technical bridge between Development and QA, ensuring quality gates were met prior to production releases.",
+                                "Optimized backend performance by identifying SQL bottlenecks and refactoring legacy C# components."
+                            ],
+                            es: [
+                                "Diseñó y mantuvo frameworks de pruebas automatizadas complejos y estrategias de pruebas CI/CD para sistemas financieros core.",
+                                "Realizó revisiones técnicas profundas de la arquitectura del sistema para asegurar la testeabilidad y mantenibilidad del código.",
+                                "Implementó mejoras proactivas de procesos que aumentaron la cobertura general de pruebas en un 40% y mejoraron la confiabilidad de los despliegues.",
+                                "Actuó como puente técnico entre Desarrollo y QA, asegurando que se cumplieran los quality gates antes de los pases a producción.",
+                                "Optimizó el rendimiento del backend identificando cuellos de botella en SQL y refactorizando componentes legacy en C#."
+                            ]
+                        },
+                        combined: {
+                            en: [
+                                "Architected advanced test automation frameworks (Playwright, TypeScript) and embedded them into CI/CD pipelines for mission-critical financial systems.",
+                                "Collaborated tightly with Development and DevOps teams to streamline release processes, significantly reducing delivery timelines and deployment risks.",
+                                "Conducted comprehensive API and performance testing to validate backend resilience under heavy transactional loads.",
+                                "Led code reviews and technical mentoring sessions to foster a 'quality-first' development culture across engineering teams.",
+                                "Optimized legacy testing protocols, transitioning manual workflows to automated scripts and reducing bug escape rates by 30%."
+                            ],
+                            es: [
+                                "Arquitectó frameworks avanzados de automatización (Playwright, TypeScript) y los integró en pipelines CI/CD para sistemas financieros críticos.",
+                                "Colaboró estrechamente con Desarrollo y DevOps para optimizar procesos de release, reduciendo tiempos de entrega y riesgos de despliegue significativamente.",
+                                "Ejecutó pruebas exhaustivas de API y rendimiento para validar la resiliencia del backend bajo altas cargas transaccionales.",
+                                "Lideró revisiones de código y sesiones de mentoría técnica para fomentar una cultura de desarrollo 'quality-first' en los equipos de ingeniería.",
+                                "Optimizó protocolos de pruebas legacy, automatizando flujos de trabajo manuales y reduciendo la tasa de escape de bugs en un 30%."
+                            ]
+                        }
+                    }
+                },
+                {
+                    company: "Stori", location: "México",
+                    dates: { en: "Jun 2023 – Aug 2025", es: "Jun 2023 – Ago 2025" },
+                    role: { qa: { en: "QA Automation Engineer", es: "Ingeniero de Automatización QA" }, dev: { en: "Software Developer in Test", es: "Software Developer in Test" }, combined: { en: "QA Automation Engineer / SDET", es: "Ingeniero de Automatización QA / SDET" } },
+                    detail: {
+                        qa: {
+                            en: [
+                                "Spearheaded test planning and comprehensive automation strategies for critical fintech products, ensuring strict alignment with business risk and aggressive sprint schedules.",
+                                "Built, maintained, and executed automated test scripts to simulate product performance, effectively preventing severe functional defects from reaching production.",
+                                "Managed complex bug-tracking workflows in Jira, leveraging historical defect data and metrics to refine testing strategies continuously.",
+                                "Conducted proactive reviews of product specifications, identifying edge cases early and providing architectural input to engineering teams.",
+                                "Championed an 'automation-first' mindset, mentoring manual QA testers in automation tools and transitioning test cases into automated suites."
+                            ],
+                            es: [
+                                "Lideró la planificación de pruebas y estrategias integrales de automatización para productos fintech críticos, asegurando alineación con los riesgos del negocio y sprints agresivos.",
+                                "Construyó, mantuvo y ejecutó scripts automatizados para simular el rendimiento del producto, evitando efectivamente que defectos severos llegaran a producción.",
+                                "Gestionó flujos complejos de bug-tracking en Jira, utilizando datos históricos y métricas de defectos para refinar continuamente las estrategias de prueba.",
+                                "Realizó revisiones proactivas de especificaciones, identificando casos borde tempranamente y aportando feedback arquitectónico a los equipos de ingeniería.",
+                                "Promovió una mentalidad 'automation-first', guiando a testers manuales en herramientas de automatización y migrando casos de prueba a suites automatizadas."
+                            ]
+                        },
+                        dev: {
+                            en: [
+                                "Partnered with engineering teams to architect automated testing procedures for fintech products, embedding quality checks into the development lifecycle.",
+                                "Reviewed technical specifications and provided direct system design input to developers, mitigating downstream defects by addressing logical flaws early.",
+                                "Developed custom testing tools and internal scripts to facilitate database mocking and data generation for QA environments.",
+                                "Monitored production logs and debugging outputs to assist the backend team in resolving high-priority incidents rapidly.",
+                                "Configured continuous integration jobs to run automated regression suites on every pull request."
+                            ],
+                            es: [
+                                "Colaboró con equipos de ingeniería para diseñar procedimientos de pruebas automatizadas para productos fintech, integrando validaciones de calidad en el ciclo de desarrollo.",
+                                "Revisó especificaciones técnicas y aportó feedback de diseño directo a los desarrolladores, mitigando defectos posteriores al corregir fallos lógicos a tiempo.",
+                                "Desarrolló herramientas de prueba personalizadas y scripts internos para facilitar el mock de bases de datos y la generación de datos para entornos QA.",
+                                "Monitoreó logs de producción para asistir al equipo backend en la resolución rápida de incidentes de alta prioridad.",
+                                "Configuró jobs de integración continua para ejecutar suites de regresión automatizadas en cada pull request."
+                            ]
+                        },
+                        combined: {
+                            en: [
+                                "Built and executed automated test scripts for critical fintech products, preventing severe functional defects from reaching production environments.",
+                                "Conducted proactive reviews of product specifications, identifying edge cases and providing architectural input to engineering teams to prevent issues by design.",
+                                "Refined automation-first testing strategies and managed CI integration to align coverage strictly with business risks and aggressive release schedules.",
+                                "Developed custom internal tools to assist with test data generation and environment setup.",
+                                "Managed bug-tracking workflows in Jira, analyzing metrics to improve the overall software delivery process."
+                            ],
+                            es: [
+                                "Construyó y ejecutó scripts automatizados para productos fintech críticos, evitando que defectos funcionales severos llegaran a los entornos de producción.",
+                                "Realizó revisiones proactivas de especificaciones, identificando casos borde y aportando feedback arquitectónico al equipo de ingeniería.",
+                                "Refinó estrategias de pruebas 'automation-first' y gestionó la integración continua para alinear la cobertura con riesgos del negocio.",
+                                "Desarrolló herramientas internas personalizadas para asistir en la generación de datos de prueba y configuración de entornos.",
+                                "Gestionó flujos de bug-tracking en Jira, analizando métricas para mejorar el proceso general de entrega de software."
+                            ]
+                        }
+                    }
+                },
+                {
+                    company: "GMSTEK, LLC", location: "Palmetto Bay, FL, USA",
+                    dates: { en: "Jul 2022 – Jun 2023", es: "Jul 2022 – Jun 2023" },
+                    role: { qa: { en: "QA Tester", es: "QA Tester" }, dev: { en: "Development & QA Tester", es: "Desarrollo & QA Tester" }, combined: { en: "Development & QA Tester", es: "Desarrollo & QA Tester" } },
+                    detail: {
+                        qa: { 
+                            en: [
+                                "Engineered comprehensive test plans and executed a strategic blend of manual and automated testing to evaluate software reliability.",
+                                "Maintained strict defect databases and bug-tracking systems, optimizing the triage process and ensuring rapid resolution.",
+                                "Analyzed software specifications to catch logical errors early, continuously championing an automation-centric approach.",
+                                "Provided direct feedback to product management regarding user experience and functional bottlenecks.",
+                                "Designed regression test suites that reduced post-deployment hotfixes by over 20%."
+                            ], 
+                            es: [
+                                "Diseñó planes de prueba integrales y ejecutó una combinación estratégica de pruebas manuales y automatizadas para evaluar la fiabilidad del software.",
+                                "Mantuvo bases de datos de defectos y sistemas de tracking estrictos, optimizando el proceso de triage y asegurando resolución rápida.",
+                                "Analizó especificaciones de software para detectar errores lógicos tempranamente, promoviendo un enfoque centrado en la automatización.",
+                                "Proporcionó feedback directo a gestión de producto sobre la experiencia del usuario y cuellos de botella funcionales.",
+                                "Diseñó suites de pruebas de regresión que redujeron los hotfixes post-despliegue en más del 20%."
+                            ] 
+                        },
+                        dev: { 
+                            en: [
+                                "Executed deep technical testing and contributed directly to product design recommendations, resulting in a measurable reduction of downstream defects.",
+                                "Bridged the gap between QA and Development by optimizing bug-tracking workflows and introducing automated scripts to the codebase.",
+                                "Assisted in debugging backend logic and API endpoints, providing reproducible steps and root-cause analysis to developers.",
+                                "Automated repetitive setup tasks for development environments using shell scripts.",
+                                "Participated in agile ceremonies, providing accurate technical estimates for quality assurance tasks."
+                            ], 
+                            es: [
+                                "Ejecutó pruebas técnicas profundas y contribuyó directamente a recomendaciones de diseño, logrando una reducción medible de defectos posteriores.",
+                                "Sirvió de enlace entre QA y Desarrollo optimizando flujos de trabajo de bug-tracking e introduciendo scripts automatizados en el código base.",
+                                "Asistió en la depuración de lógica backend y endpoints API, proporcionando análisis de causa raíz a los desarrolladores.",
+                                "Automatizó tareas repetitivas de configuración para entornos de desarrollo utilizando shell scripts.",
+                                "Participó en ceremonias ágiles, proporcionando estimaciones técnicas precisas para tareas de control de calidad."
+                            ] 
+                        },
+                        combined: { 
+                            en: [
+                                "Engineered comprehensive test plans and executed a blend of manual and automated testing strategies to evaluate software reliability.",
+                                "Bridged the gap between QA and Development by contributing directly to product design recommendations.",
+                                "Optimized bug-tracking workflows and introduced automated scripts to the codebase, resulting in a measurable reduction of downstream defects.",
+                                "Analyzed software specifications to catch logical errors early, championing an automation-centric approach.",
+                                "Assisted in debugging backend logic and API endpoints, providing actionable root-cause analysis."
+                            ], 
+                            es: [
+                                "Diseñó planes de prueba integrales y ejecutó una combinación de estrategias manuales y automatizadas para evaluar la fiabilidad del software.",
+                                "Sirvió de enlace entre QA y Desarrollo aportando directamente a recomendaciones de diseño del producto.",
+                                "Optimizó flujos de trabajo de bug-tracking e introdujo scripts automatizados en el código base, reduciendo defectos posteriores.",
+                                "Analizó especificaciones de software para detectar errores lógicos temprano, promoviendo un enfoque centrado en la automatización.",
+                                "Asistió en la depuración de lógica backend y endpoints API, proporcionando análisis de causa raíz."
+                            ] 
+                        }
+                    }
+                },
+                {
+                    company: "COLSOF S.A.S", location: "Bogotá, Colombia",
+                    dates: { en: "Aug 2021 – Jun 2022", es: "Ago 2021 – Jun 2022" },
+                    role: { qa: { en: "Quality Specialist Engineer", es: "Ingeniero Especialista de Calidad" }, dev: { en: "Technical Project Manager", es: "Technical Project Manager" }, combined: { en: "Specialist Engineer & Project Lead", es: "Ingeniero Especialista & Project Lead" } },
+                    detail: {
+                        qa: { 
+                            en: [
+                                "Ensured the successful delivery of technology projects by strictly applying PMI standards and agile methodologies to QA planning.",
+                                "Coordinated cross-functional teams and tracked key quality indicators, ensuring infrastructure and software met strict acceptance criteria.",
+                                "Audited internal processes to guarantee compliance with enterprise security and quality policies.",
+                                "Designed comprehensive executive reports detailing testing coverage, defect density, and release readiness.",
+                                "Led technological innovation initiatives to modernize the company's internal QA tools."
+                            ], 
+                            es: [
+                                "Aseguró la entrega exitosa de proyectos tecnológicos aplicando estrictamente estándares PMI y metodologías ágiles en la planificación de QA.",
+                                "Coordinó equipos multidisciplinarios y monitoreó indicadores clave de calidad, garantizando criterios de aceptación estrictos.",
+                                "Auditó procesos internos para garantizar el cumplimiento con políticas de seguridad y calidad corporativa.",
+                                "Diseñó informes ejecutivos detallando cobertura de pruebas, densidad de defectos y preparación para el release.",
+                                "Lideró iniciativas de innovación tecnológica para modernizar las herramientas internas de QA de la compañía."
+                            ] 
+                        },
+                        dev: { 
+                            en: [
+                                "Managed complex technology projects following PMI standards and Agile methodologies, leading cross-functional teams from technical planning through delivery.",
+                                "Engineered data-driven management dashboards and indicators to track project progress and technical debt in real-time.",
+                                "Defined and executed technological innovation plans, seamlessly aligning software implementation projects with overarching organizational strategy.",
+                                "Organized administrative, financial, and technology-infrastructure processes to keep software projects on scope, time, and budget.",
+                                "Facilitated technical refinement sessions, breaking down complex business requirements into actionable development tasks."
+                            ], 
+                            es: [
+                                "Gestionó proyectos tecnológicos complejos bajo estándares PMI y metodologías Ágiles, liderando equipos desde la planificación técnica hasta la entrega.",
+                                "Desarrolló dashboards e indicadores basados en datos para monitorear el progreso del proyecto y la deuda técnica en tiempo real.",
+                                "Definió y ejecutó planes de innovación tecnológica, alineando proyectos de implementación de software con la estrategia organizacional.",
+                                "Organizó procesos administrativos, financieros y de infraestructura tecnológica para mantener proyectos en alcance, tiempo y presupuesto.",
+                                "Facilitó sesiones de refinamiento técnico, desglosando requerimientos de negocio complejos en tareas de desarrollo procesables."
+                            ] 
+                        },
+                        combined: { 
+                            en: [
+                                "Managed complex technology projects following PMI standards and Agile methodologies, leading cross-functional teams from technical planning through final delivery.",
+                                "Engineered data-driven management dashboards and tracked quality indicators to ensure software initiatives met strict acceptance criteria.",
+                                "Defined and executed technological innovation plans, aligning implementation projects with organizational strategy.",
+                                "Organized administrative and technology-infrastructure processes to keep projects on scope, time, and budget.",
+                                "Designed comprehensive executive reports detailing project progress, defect density, and release readiness."
+                            ], 
+                            es: [
+                                "Gestionó proyectos tecnológicos complejos bajo estándares PMI y metodologías Ágiles, liderando equipos desde la planificación técnica hasta la entrega final.",
+                                "Desarrolló dashboards basados en datos y monitoreó indicadores de calidad para asegurar que las iniciativas de software cumplieran estrictos criterios de aceptación.",
+                                "Definió y ejecutó planes de innovación tecnológica, alineando proyectos de implementación con la estrategia organizacional.",
+                                "Organizó procesos administrativos y de infraestructura para mantener los proyectos dentro del alcance, tiempo y presupuesto.",
+                                "Diseñó informes ejecutivos detallando el progreso del proyecto, densidad de defectos y preparación para el release."
+                            ] 
+                        }
+                    }
+                },
+                {
+                    company: "ECOPROYECT CONSULTORÍA SAS", location: "Cali, Colombia",
+                    dates: { en: "Nov 2021 – Feb 2022", es: "Nov 2021 – Feb 2022" },
+                    role: { qa: { en: "QA Lead / Senior Developer", es: "QA Lead / Desarrollador Senior" }, dev: { en: "Senior J2EE Developer", es: "Desarrollador Senior J2EE" }, combined: { en: "Senior J2EE Developer", es: "Desarrollador Senior J2EE" } },
+                    detail: {
+                        qa: { 
+                            en: [
+                                "Embedded a 'quality-first' mindset within the development team, strictly enforcing unit and integration testing protocols for all Java/Spring Boot code.",
+                                "Conducted rigorous peer code reviews, mentoring junior developers on secure coding practices and early defect detection.",
+                                "Evaluated code complexity and test coverage metrics before authorizing AWS deployments (EC2, RDS).",
+                                "Designed integration test suites to validate complex business logic and database transactions.",
+                                "Collaborated with architecture teams to ensure technical designs were inherently testable and robust."
+                            ], 
+                            es: [
+                                "Inculcó una mentalidad orientada a la calidad en el equipo, aplicando estrictamente protocolos de pruebas unitarias y de integración para código Java/Spring Boot.",
+                                "Realizó rigurosas revisiones de código, guiando a desarrolladores junior en prácticas seguras y detección temprana de defectos.",
+                                "Evaluó métricas de complejidad de código y cobertura de pruebas antes de autorizar despliegues en AWS (EC2, RDS).",
+                                "Diseñó suites de pruebas de integración para validar lógicas de negocio complejas y transacciones de base de datos.",
+                                "Colaboró con equipos de arquitectura para asegurar que los diseños técnicos fueran inherentemente testeables y robustos."
+                            ] 
+                        },
+                        dev: { 
+                            en: [
+                                "Spearheaded the design and development of robust software solutions using Java and Spring Boot, partnering with architects to build scalable systems.",
+                                "Owned the full Software Development Life Cycle (SDLC), building highly available cloud applications deployed on AWS infrastructure (EC2, RDS).",
+                                "Worked closely with DevOps teams to facilitate continuous deployment and automated delivery pipelines.",
+                                "Mentored junior developers through comprehensive code reviews, actively elevating the team's code quality and technical capabilities.",
+                                "Implemented complex database schemas and optimized SQL queries to support high-performance application features."
+                            ], 
+                            es: [
+                                "Lideró el diseño y desarrollo de soluciones robustas con Java y Spring Boot, colaborando con arquitectos para construir sistemas escalables.",
+                                "Responsable del ciclo de vida de desarrollo de software (SDLC) completo, construyendo aplicaciones cloud de alta disponibilidad desplegadas en AWS (EC2, RDS).",
+                                "Trabajó estrechamente con equipos DevOps para facilitar despliegues continuos y pipelines de entrega automatizada.",
+                                "Brindó mentoría a desarrolladores junior mediante revisiones de código exhaustivas, elevando la calidad técnica del equipo.",
+                                "Implementó esquemas de bases de datos complejos y optimizó consultas SQL para soportar funcionalidades de alto rendimiento."
+                            ] 
+                        },
+                        combined: { 
+                            en: [
+                                "Spearheaded the design and development of robust Java/Spring Boot solutions, owning the full SDLC and building highly available cloud applications on AWS (EC2, RDS).",
+                                "Embedded a quality-first mindset by strictly enforcing unit/integration testing protocols and facilitating continuous deployment pipelines with DevOps.",
+                                "Conducted rigorous peer code reviews and mentored junior developers to elevate the team's overall technical capabilities.",
+                                "Implemented complex database schemas and optimized SQL queries to support high-performance application features.",
+                                "Evaluated code complexity and test coverage metrics before authorizing production deployments."
+                            ], 
+                            es: [
+                                "Lideró el diseño y desarrollo de soluciones robustas en Java/Spring Boot, asumiendo el SDLC completo y construyendo aplicaciones cloud en AWS (EC2, RDS).",
+                                "Inculcó una mentalidad 'quality-first' aplicando protocolos estrictos de pruebas unitarias/integración y facilitando pipelines de CI/CD con DevOps.",
+                                "Realizó revisiones de código rigurosas y fue mentor de desarrolladores junior para elevar las capacidades técnicas generales del equipo.",
+                                "Implementó esquemas de bases de datos complejos y optimizó consultas SQL para soportar funcionalidades de alto rendimiento.",
+                                "Evaluó métricas de complejidad de código y cobertura de pruebas antes de autorizar despliegues a producción."
+                            ] 
+                        }
+                    }
+                }
+            ],
+            
+            earlyCareer: {
+                en: [
+                    { company: "GreenSQA S.A.", role: "Software Test Engineer", dates: "Feb 2020 – Aug 2021", desc: "Designed functional/non-functional tests for enterprise clients and developed automation scripts." },
+                    { company: "Busscar de Colombia", role: "Senior Software Developer", dates: "Sep 2017 – Feb 2020", desc: "Developed PDM systems (C#, VB.NET) and led QA initiatives within the SINERGIA project." },
+                    { company: "EMCALI EICE ESP", role: "Technology Solutions Analyst", dates: "Jun 2016 – Sep 2017", desc: "Developed internal telecom apps and performed comprehensive functional testing." },
+                    { company: "System Factory SAS", role: "Technology Solutions Leader", dates: "Jun 2016 – Sep 2016", desc: "Led end-to-end implementation of ASP.NET Core & PHP web applications." },
+                    { company: "Grupo SAI S.A.S", role: "Senior Support Engineer", dates: "Sep 2015 – Jun 2016", desc: "Configured and maintained accounting platforms and managed secure database migrations." }
+                ],
+                es: [
+                    { company: "GreenSQA S.A.", role: "Ingeniero de Pruebas de Software", dates: "Feb 2020 – Ago 2021", desc: "Diseñó pruebas funcionales/no funcionales para clientes corporativos y desarrolló scripts de automatización." },
+                    { company: "Busscar de Colombia", role: "Desarrollador Senior de Software", dates: "Sep 2017 – Feb 2020", desc: "Desarrolló sistemas PDM (C#, VB.NET) y lideró iniciativas QA en el proyecto SINERGIA." },
+                    { company: "EMCALI EICE ESP", role: "Analista de Soluciones Tecnológicas", dates: "Jun 2016 – Sep 2017", desc: "Desarrolló aplicaciones internas de telecomunicaciones y realizó pruebas funcionales." },
+                    { company: "System Factory SAS", role: "Líder de Soluciones Tecnológicas", dates: "Jun 2016 – Sep 2016", desc: "Lideró implementación end-to-end de aplicaciones web en ASP.NET Core y PHP." },
+                    { company: "Grupo SAI S.A.S", role: "Ingeniero Senior de Soporte", dates: "Sep 2015 – Jun 2016", desc: "Configuró plataformas contables y administró migraciones de bases de datos." }
+                ]
+            },
+            education: {
+                en: [
+                    { school: "Asturias Corporación Universitaria", degree: "Specialization in Project Management", dates: "Oct 2023 – Nov 2024", gpa: "GPA 4.9/5.0" },
+                    { school: "Uniremington", degree: "Systems Engineering", dates: "Feb 2020 – Mar 2023", gpa: "GPA 4.2/5.0" },
+                    { school: "Universidad del Valle", degree: "Information Systems Technology", dates: "Aug 2006 – May 2010", gpa: "GPA 3.77/5.0" }
+                ],
+                es: [
+                    { school: "Asturias Corporación Universitaria", degree: "Especialización en Gerencia de Proyectos", dates: "Oct 2023 – Nov 2024", gpa: "Promedio 4.9/5.0" },
+                    { school: "Uniremington", degree: "Ingeniería de Sistemas", dates: "Feb 2020 – Mar 2023", gpa: "Promedio 4.2/5.0" },
+                    { school: "Universidad del Valle", degree: "Tecnología en Sistemas de Información", dates: "Ago 2006 – May 2010", gpa: "Promedio 3.77/5.0" }
+                ]
+            },
+            certifications: {
+                en: [
+                    { name: "ISTQB® Certified Tester Foundation Level (CTFL) v4.0", date: "Recent", featured: true },
+                    { name: "Building Web APIs with ASP.NET Core 8", date: "Recent", featured: true },
+                    { name: "API Design and Fundamentals of Google Cloud's Apigee API Platform", date: "Recent", featured: true },
+                    { name: "Scrum Fundamentals Certified (SFC)", date: "Past", featured: true },
+                    { name: "Power BI: Getting Started in Data Analysis", date: "2021", featured: false },
+                    { name: "Power BI: From Scratch — The Most Powerful Course of 2021", date: "2021", featured: false },
+                    { name: "Cybersecurity Basics & OWASP Top 10", date: "Past", featured: false },
+                    { name: "Advanced Java Programming & Data Structures", date: "Past", featured: false }
+                ],
+                es: [
+                    { name: "ISTQB® Certified Tester Foundation Level (CTFL) v4.0", date: "Reciente", featured: true },
+                    { name: "Building Web APIs with ASP.NET Core 8", date: "Reciente", featured: true },
+                    { name: "API Design and Fundamentals of Google Cloud's Apigee API Platform", date: "Reciente", featured: true },
+                    { name: "Scrum Fundamentals Certified (SFC)", date: "Pasado", featured: true },
+                    { name: "Power BI: Inicia en el Mundo del Análisis de Datos", date: "2021", featured: false },
+                    { name: "Power BI: Desde Cero — El Curso Más Poderoso de 2021", date: "2021", featured: false },
+                    { name: "Fundamentos de Ciberseguridad y OWASP Top 10", date: "Pasado", featured: false },
+                    { name: "Programación Avanzada en Java y Estructuras de Datos", date: "Pasado", featured: false }
+                ]
+            },
+            languages: {
+                en: ["Spanish (Native/Bilingual)", "English (Professional Working)"],
+                es: ["Español (Nativo/Bilingüe)", "Inglés (Dominio Profesional)"]
+            },
+            uiText: {
+                en: { about: "About Me", skills: "Core Competencies", experience: "Professional Experience", earlyCareer: "Show Previous Roles", hideEarlyCareer: "Hide Previous Roles", education: "Education", certs: "Certifications", viewAllCerts: "View All", close: "Close", lang: "Languages", contact: "Contact", download: "Download CV (PDF)" },
+                es: { about: "Sobre Mí", skills: "Competencias Principales", experience: "Experiencia Profesional", earlyCareer: "Ver Roles Anteriores", hideEarlyCareer: "Ocultar Roles Anteriores", education: "Educación", certs: "Certificaciones", viewAllCerts: "Ver Todas", close: "Cerrar", lang: "Idiomas", contact: "Contacto", download: "Descargar CV (PDF)" }
+            }
+        };
+
+        // Estado Global (Manejado transparentemente por URL)
+        let currentRole = 'combined'; 
+        let currentLang = 'es';
+    </script>
+
+    
+    <!-- Print Header (Hidden on Web, visible on PDF generation) -->
+    <div id="print-header" class="hidden print-header">
+        <div class="print-name" id="print-name">Farid Maloof S.</div>
+        <div class="print-title" id="print-title">Tech Lead | SDET & Desarrollador Full Stack</div>
+        <div class="print-contact">
+            <span id="print-loc">📍 Bogotá, Colombia</span> |
+            <span id="print-mail">✉️ faridmaloof@gmail.com</span> |
+            <span id="print-phone">📱 +57 300 235 7202</span> |
+            <span id="print-lnk">🔗 linkedin.com/in/fmaloofs</span> |
+            <span id="print-gh">🐙 github.com/faridmaloof</span>
+        </div>
+    </div>
+
+    <!-- Web Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 print:hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl tracking-tight text-slate-900">FM<span class="text-blue-600">.</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                    <a href="#about" class="hover:text-blue-600 transition-colors ui-about">Sobre Mí</a>
+                    <a href="#skills" class="hover:text-blue-600 transition-colors ui-skills">Competencias</a>
+                    <a href="#experience" class="hover:text-blue-600 transition-colors ui-experience">Experiencia</a>
+                    <a href="#education" class="hover:text-blue-600 transition-colors ui-education">Educación</a>
+                </div>
+                <div>
+                    <!-- The download button simply triggers print. The @media print handles the formatting -->
+                    <button onclick="window.print()" class="bg-slate-900 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> <span class="ui-download">Descargar CV (PDF)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 print:py-0">
+        
+        <!-- Hero Section (Web only) -->
+        <section id="hero" class="flex flex-col md:flex-row items-center gap-8 mb-20 animate-fade-in-up print:hidden">
+            <div class="w-32 h-32 md:w-48 md:h-48 rounded-full bg-slate-200 border-4 border-white shadow-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <img src="Foto 02.png" alt="Farid Maloof S." class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/1e293b/ffffff?text=FM';">
+            </div>
+            <div class="text-center md:text-left flex-1">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-2">Farid Maloof S.</h1>
+                <h2 class="text-xl md:text-2xl font-medium text-blue-600 mb-4" id="hero-title">Tech Lead | SDET & Desarrollador Full Stack</h2>
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-600 font-medium">
+                    <div class="flex items-center gap-1.5"><i class="fas fa-map-marker-alt text-slate-400"></i> Bogotá, Colombia</div>
+                    <div class="flex items-center gap-1.5"><i class="fas fa-envelope text-slate-400"></i> <a href="mailto:faridmaloof@gmail.com" class="hover:text-blue-600">faridmaloof@gmail.com</a></div>
+                    <div class="flex items-center gap-1.5"><i class="fab fa-linkedin text-slate-400"></i> <a href="https://linkedin.com/in/fmaloofs" target="_blank" class="hover:text-blue-600">/in/fmaloofs</a></div>
+                    <div class="flex items-center gap-1.5"><i class="fab fa-github text-slate-400"></i> <a href="https://github.com/faridmaloof" target="_blank" class="hover:text-blue-600">/faridmaloof</a></div>
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- About Section -->
+        <section id="about" class="mb-16 print:mb-6 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3 print:hidden ui-about">
+                <i class="fas fa-id-card text-blue-600"></i> Sobre Mí
+            </h3>
+            <div class="print-section-title hidden print:block ui-about">Sobre Mí</div>
+            
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-slate-700 leading-relaxed text-lg print:p-0 print:border-none print:shadow-none print:text-[10pt] print:bg-transparent" id="about-content">
+                <!-- Dynamic -->
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="mb-16 print:mb-6 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3 print:hidden ui-skills">
+                <i class="fas fa-code text-blue-600"></i> Competencias Principales
+            </h3>
+            <div class="print-section-title hidden print:block ui-skills">Competencias Principales</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-2 print:gap-3" id="skills-content">
+                <!-- Dynamic -->
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="mb-16 print:mb-6 scroll-mt-24">
+            <h3 class="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3 print:hidden ui-experience">
+                <i class="fas fa-briefcase text-blue-600"></i> Experiencia Profesional
+            </h3>
+            <div class="print-section-title hidden print:block ui-experience">Experiencia Profesional</div>
+            
+            <div class="relative border-l border-slate-200 ml-3 md:ml-0 md:border-l-0 md:border-none print:border-none print:ml-0" id="experience-content">
+                <!-- Dynamic (Top 5) -->
+            </div>
+
+            <!-- Expandable Early Career Section -->
+            <div class="mt-8 text-center print:hidden">
+                <button id="btn-toggle-exp" onclick="toggleEarlyCareer()" class="text-blue-600 font-semibold hover:text-blue-800 transition-colors bg-blue-50 px-6 py-2 rounded-full border border-blue-100">
+                    <span class="ui-earlyCareer">Ver Roles Anteriores</span> <i class="fas fa-chevron-down text-sm ml-1" id="exp-icon"></i>
+                </button>
+            </div>
+            
+            <!-- This container becomes visible on Print via CSS, and visible on Web via JS toggle -->
+            <div id="experience-hidden" class="hidden mt-6 bg-slate-50/50 rounded-xl p-6 border border-slate-200 print:block print:p-0 print:bg-transparent print:border-none print:mt-0">
+                <!-- Dynamic (Rest of the jobs) -->
+            </div>
+        </section>
+
+        <!-- Education & Certifications -->
+        <section id="education" class="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-12 print:grid-cols-2 print:gap-6">
+            
+            <!-- Education -->
+            <div>
+                <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3 print:hidden ui-education">
+                    <i class="fas fa-graduation-cap text-blue-600"></i> Educación
+                </h3>
+                <div class="print-section-title hidden print:block ui-education">Educación</div>
+                
+                <div class="space-y-6 print:space-y-3" id="education-content">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+
+            <!-- Certifications & Languages -->
+            <div>
+                <div class="flex justify-between items-center mb-6 print:mb-2">
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-3 print:hidden ui-certs">
+                        <i class="fas fa-certificate text-blue-600"></i> Certificaciones
+                    </h3>
+                    <div class="print-section-title hidden print:block ui-certs w-full">Certificaciones</div>
+                    
+                    <button onclick="openModal()" class="text-sm font-semibold text-blue-600 hover:text-blue-800 print:hidden ui-viewAllCerts bg-blue-50 px-3 py-1 rounded-lg">
+                        Ver Todas
+                    </button>
+                </div>
+                
+                <ul class="space-y-3 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 print:p-0 print:border-none print:shadow-none print:bg-transparent" id="certs-content">
+                    <!-- Dynamic Featured Certs -->
+                </ul>
+
+                <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3 print:hidden ui-lang">
+                    <i class="fas fa-globe text-blue-600"></i> Idiomas
+                </h3>
+                <div class="print-section-title hidden print:block ui-lang">Idiomas</div>
+                
+                <div class="flex gap-4 print:gap-8" id="lang-content">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- Certifications Modal -->
+    <div id="cert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-300 print:hidden">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 m-4 max-h-[85vh] flex flex-col transform scale-95 transition-transform duration-300" id="cert-modal-content">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2 ui-certs">
+                    <i class="fas fa-certificate text-blue-600"></i> Certificaciones
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto no-scrollbar flex-1 pr-2">
+                <ul class="space-y-4" id="all-certs-list">
+                    <!-- Dynamic Full List -->
+                </ul>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-100 text-right">
+                <button onclick="closeModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-colors ui-close">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funciones de actualización de UI
+        function updateUI() {
+            // Actualizar textos estáticos según el idioma
+            const ui = data.uiText[currentLang];
+            document.querySelectorAll('.ui-about').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.about : `<i class="fas fa-id-card text-blue-600 mr-2 print:hidden"></i> ${ui.about}`);
+            document.querySelectorAll('.ui-skills').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.skills : `<i class="fas fa-code text-blue-600 mr-2 print:hidden"></i> ${ui.skills}`);
+            document.querySelectorAll('.ui-experience').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.experience : `<i class="fas fa-briefcase text-blue-600 mr-2 print:hidden"></i> ${ui.experience}`);
+            document.querySelectorAll('.ui-education').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.education : `<i class="fas fa-graduation-cap text-blue-600 mr-2 print:hidden"></i> ${ui.education}`);
+            document.querySelectorAll('.ui-earlyCareer').forEach(el => el.innerText = ui.earlyCareer);
+            document.querySelectorAll('.ui-certs').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.certs : `<i class="fas fa-certificate text-blue-600 mr-2 print:hidden"></i> ${ui.certs}`);
+            document.querySelectorAll('.ui-lang').forEach(el => el.innerHTML = el.classList.contains('print-section-title') ? ui.lang : `<i class="fas fa-globe text-blue-600 mr-2 print:hidden"></i> ${ui.lang}`);
+            document.querySelectorAll('.ui-download').forEach(el => el.innerText = ui.download);
+            document.querySelectorAll('.ui-viewAllCerts').forEach(el => el.innerText = ui.viewAllCerts);
+            document.querySelectorAll('.ui-close').forEach(el => el.innerText = ui.close);
+
+            // Print Header
+            document.getElementById('print-title').innerText = data.titles[currentRole][currentLang];
+
+            // Web Hero
+            document.getElementById('hero-title').innerText = data.titles[currentRole][currentLang];
+            
+            // About
+            document.getElementById('about-content').innerText = data.summary[currentRole][currentLang];
+
+            // Skills
+            const skillsHtml = data.skills[currentRole][currentLang].map(skill => `
+                <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow print:p-0 print:border-none print:shadow-none print:bg-transparent">
+                    <h4 class="font-bold text-slate-900 mb-1 print-skill-cat">${skill.category}</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed print-skill-tech">${skill.tech}</p>
+                </div>
+            `).join('');
+            document.getElementById('skills-content').innerHTML = skillsHtml;
+
+            // Experience (Split into main and hidden for web, all visible for print)
+            const allJobs = data.experience;
+            let mainExpHtml = '';
+            
+            allJobs.forEach((job, index) => {
+                const jobHtml = `
+                    <div class="relative md:flex gap-8 mb-10 group print:mb-4 print-job">
+                        <div class="hidden md:block w-48 flex-shrink-0 text-right pt-1 print:hidden">
+                            <div class="text-sm font-bold text-blue-600">${job.dates[currentLang]}</div>
+                            <div class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">${job.location}</div>
+                        </div>
+                        
+                        <!-- Print specific header (hidden on web) -->
+                        <div class="hidden print:flex print-job-header w-full">
+                            <div>
+                                <span class="print-job-title">${job.role[currentRole][currentLang]}</span> | 
+                                <span class="print-job-company">${job.company}</span>
+                            </div>
+                            <span class="print-job-date">${job.dates[currentLang]}</span>
+                        </div>
+
+                        <!-- Web mobile header -->
+                        <div class="md:hidden mb-2 print:hidden">
+                            <div class="text-sm font-bold text-blue-600">${job.dates[currentLang]}</div>
+                        </div>
+                        
+                        <div class="absolute timeline-dot top-2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-sm md:left-[192px] md:-ml-[8px] z-10 group-hover:bg-blue-600 transition-colors print:hidden"></div>
+                        <div class="hidden md:block absolute top-2 bottom-[-40px] left-[192px] w-px bg-slate-200 z-0 last:bottom-0 timeline-border print:hidden"></div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 hover:shadow-md transition-shadow timeline-content print:p-0 print:border-none print:shadow-none print:bg-transparent">
+                            <h4 class="text-lg font-bold text-slate-900 print:hidden">${job.role[currentRole][currentLang]}</h4>
+                            <h5 class="text-md font-medium text-slate-500 mb-4 print:hidden">${job.company}</h5>
+                            <ul class="space-y-2 text-sm text-slate-700 list-none pl-0 print:list-disc print:pl-5 print:text-[10pt] print:space-y-1 print-bullets">
+                                ${job.detail[currentRole][currentLang].map(bullet => `
+                                    <li class="flex items-start print:block">
+                                        <i class="fas fa-check text-blue-500 mt-1 mr-3 text-[10px] print:hidden"></i>
+                                        <span class="leading-relaxed print:inline">${bullet}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                mainExpHtml += jobHtml;
+            });
+            document.getElementById('experience-content').innerHTML = mainExpHtml;
+
+            // Early Career (Web Hidden section)
+            const earlyHtml = data.earlyCareer[currentLang].map(job => `
+                <div class="mb-5 last:mb-0 print-job">
+                    <div class="hidden print:flex print-job-header w-full">
+                        <div>
+                            <span class="print-job-title">${job.role}</span> | 
+                            <span class="print-job-company">${job.company}</span>
+                        </div>
+                        <span class="print-job-date">${job.dates}</span>
+                    </div>
+                    
+                    <h5 class="font-bold text-slate-800 text-sm print:hidden">${job.role} <span class="text-slate-500 font-normal">| ${job.company}</span></h5>
+                    <p class="text-xs text-blue-600 mb-2 print:hidden">${job.dates}</p>
+                    <p class="text-sm text-slate-600 print:text-[10pt] print:text-black leading-relaxed print:pl-5 print:mt-1">- ${job.desc}</p>
+                </div>
+            `).join('');
+            document.getElementById('experience-hidden').innerHTML = earlyHtml;
+
+            // Education
+            const eduHtml = data.education[currentLang].map(edu => `
+                <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4 print:p-0 print:border-none print:shadow-none print:mb-2 print-job">
+                    <div class="bg-slate-50 p-3 rounded-lg text-slate-400 print:hidden">
+                        <i class="fas fa-university text-xl"></i>
+                    </div>
+                    <div class="w-full">
+                        <div class="hidden print:flex justify-between items-baseline">
+                            <span class="font-bold text-[10.5pt]">${edu.degree}</span>
+                            <span class="text-[9.5pt]">${edu.dates}</span>
+                        </div>
+                        <div class="hidden print:block text-[9.5pt] italic text-slate-700">${edu.school}</div>
+                        
+                        <h4 class="font-bold text-slate-900 print:hidden">${edu.degree}</h4>
+                        <p class="text-sm font-medium text-slate-600 print:hidden">${edu.school}</p>
+                        <p class="text-xs text-slate-500 mt-1 print:hidden">${edu.dates} • ${edu.gpa}</p>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('education-content').innerHTML = eduHtml;
+
+            // Certifications (Featured)
+            const featuredCerts = data.certifications[currentLang].filter(c => c.featured);
+            const certHtml = featuredCerts.map(cert => `
+                <li class="flex items-start text-sm text-slate-700 print:text-[9.5pt] print:mb-1">
+                    <i class="fas fa-award text-blue-500 mt-1 mr-3 print:hidden"></i>
+                    <span class="print:inline-block print:w-2 print:h-2 print:bg-black print:rounded-full print:mr-2 print:mt-1.5 hidden"></span>
+                    <span class="font-medium flex-1">${cert.name}</span>
+                </li>
+            `).join('');
+            document.getElementById('certs-content').innerHTML = certHtml;
+
+            // Certifications (Modal - All)
+            const allCertsHtml = data.certifications[currentLang].map(cert => `
+                <li class="flex items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i>
+                    <div>
+                        <div class="font-semibold text-slate-800 text-sm">${cert.name}</div>
+                        <div class="text-xs text-slate-500 mt-1">${cert.date}</div>
+                    </div>
+                </li>
+            `).join('');
+            document.getElementById('all-certs-list').innerHTML = allCertsHtml;
+
+            // Languages
+            const langHtml = data.languages[currentLang].map(lang => `
+                <div class="flex-1 bg-white p-4 rounded-xl border border-slate-100 shadow-sm text-center print:p-0 print:border-none print:shadow-none print:text-left">
+                    <div class="text-2xl mb-2 print:hidden">${lang.includes('English') || lang.includes('Inglés') ? '🇬🇧' : '🇪🇸'}</div>
+                    <div class="font-bold text-sm text-slate-900 print:text-[10pt]">${lang.split('(')[0].trim()}</div>
+                    <div class="text-xs text-slate-500 mt-1 print:text-[9pt] print:italic">${lang.split('(')[1]?.replace(')', '') || ''}</div>
+                </div>
+            `).join('');
+            document.getElementById('lang-content').innerHTML = langHtml;
+        }
+
+        // Funciones de interacción (Modal & Toggles)
+        let isEarlyCareerVisible = false;
+        function toggleEarlyCareer() {
+            const container = document.getElementById('experience-hidden');
+            const icon = document.getElementById('exp-icon');
+            const span = document.querySelector('.ui-earlyCareer');
+            const ui = data.uiText[currentLang];
+            
+            isEarlyCareerVisible = !isEarlyCareerVisible;
+            
+            if(isEarlyCareerVisible) {
+                container.classList.remove('hidden');
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                span.innerText = ui.hideEarlyCareer;
+            } else {
+                container.classList.add('hidden');
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                span.innerText = ui.earlyCareer;
+            }
+        }
+
+        function openModal() {
+            const modal = document.getElementById('cert-modal');
+            const content = document.getElementById('cert-modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Small timeout to allow transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('cert-modal');
+            const content = document.getElementById('cert-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // Close modal on outside click
+        document.getElementById('cert-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Inicialización y parseo de URL
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            const urlRole = urlParams.get('profile');
+            if (urlRole && ['qa', 'dev', 'combined'].includes(urlRole)) {
+                currentRole = urlRole;
+            }
+
+            const urlLang = urlParams.get('lang');
+            if (urlLang && ['es', 'en'].includes(urlLang)) {
+                currentLang = urlLang;
+            }
+
+            updateUI();
+        };
+    </script>
+</body>
+</html>
