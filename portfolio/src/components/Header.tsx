@@ -1,5 +1,5 @@
-import { Mail, MapPin, Phone, Linkedin, Github } from 'lucide-react';
-import { ProfileData, Language } from '../types';
+import { Mail, MapPin, Phone, Linkedin } from 'lucide-react';
+import type { ProfileData, Language } from '../types';
 
 interface HeaderProps {
   data: ProfileData;

@@ -1,5 +1,5 @@
 import { Globe, Briefcase } from 'lucide-react';
-import { Language, TrackType } from '../types';
+import type { Language, TrackType } from '../types';
 
 interface LanguageToggleProps {
   language: Language;

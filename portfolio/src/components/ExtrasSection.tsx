@@ -1,5 +1,5 @@
 import { Award, Languages } from 'lucide-react';
-import { ProfileData, Language } from '../types';
+import type { ProfileData, Language } from '../types';
 
 interface ExtrasSectionProps {
   data: ProfileData;

@@ -1,6 +1,6 @@
 // Portfolio data - Based on Farid Maloof's profile
 
-import { ProfileData } from '../types';
+import type { ProfileData } from '../types';
 
 export const defaultProfileData: ProfileData = {
   contact: {
@@ -14,7 +14,7 @@ export const defaultProfileData: ProfileData = {
 
   titles: {
     qa: { en: "QA Automation Engineer / SDET", es: "Especialista en Automatización de Pruebas / SDET" },
-    dev: { en: "Full Stack Developer | Backend Engineer (Java · .NET)", es: "Desarrollador Full Stack | Backend (Java · .NET)" },
+    dev: { en: "Full Stack Developer | Backend Engineer (Java · NET)", es: "Desarrollador Full Stack | Backend (Java · NET)" },
   },
 
   summary: {
@@ -86,7 +86,10 @@ export const defaultProfileData: ProfileData = {
   experience: [
     {
       company: "Evertec",
-      role: { en: "Automation Testing Senior Specialist", es: "Especialista Senior en Automatización de Pruebas" },
+      role: {
+        qa: { en: "Automation Testing Senior Specialist", es: "Especialista Senior en Automatización de Pruebas" },
+        dev: { en: "Senior Backend Engineer", es: "Senior Backend Engineer" },
+      },
       location: "",
       dates: { en: "Dec 2025 – Present", es: "Dic 2025 – Presente" },
       detail: {

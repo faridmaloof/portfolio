@@ -1,5 +1,5 @@
 import { Download, Upload } from 'lucide-react';
-import { ProfileData } from '../types';
+import type { ProfileData } from '../types';
 
 interface ExportImportProps {
   data: ProfileData;

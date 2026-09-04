@@ -33,18 +33,20 @@ export interface SkillCategory {
   tech: string;
 }
 
+export type SkillTuple = [string, string];
+
 export interface Skills {
   qa: {
-    en: SkillCategory[];
-    es: SkillCategory[];
+    en: SkillTuple[];
+    es: SkillTuple[];
   };
   dev: {
-    en: SkillCategory[];
-    es: SkillCategory[];
+    en: SkillTuple[];
+    es: SkillTuple[];
   };
   combined?: {
-    en: SkillCategory[];
-    es: SkillCategory[];
+    en: SkillTuple[];
+    es: SkillTuple[];
   };
 }
 
@@ -63,21 +65,25 @@ export interface ExperienceDetail {
   };
 }
 
+export interface ExperienceRole {
+  qa: TranslatableText;
+  dev: TranslatableText;
+  combined?: TranslatableText;
+}
+
 export interface Experience {
   company: string;
-  role: {
-    qa: TranslatableText;
-    dev: TranslatableText;
-    combined?: TranslatableText;
-  };
+  role: ExperienceRole;
   location: string;
   dates: TranslatableText;
   detail: ExperienceDetail;
 }
 
+export type EarlyCareerTuple = [string, string, string, string]; // [company, role, location, description]
+
 export interface EarlyCareerItem {
-  en: [string, string, string, string]; // [company, role, location, description]
-  es: [string, string, string, string];
+  en: EarlyCareerTuple;
+  es: EarlyCareerTuple;
 }
 
 export interface EarlyCareer {
@@ -88,9 +94,11 @@ export interface EarlyCareer {
   };
 }
 
+export type EducationTuple = [string, string, string, string]; // [institution, degree, dates, gpa]
+
 export interface EducationItem {
-  en: [string, string, string, string]; // [institution, degree, dates, gpa]
-  es: [string, string, string, string];
+  en: EducationTuple;
+  es: EducationTuple;
 }
 
 export interface Education {

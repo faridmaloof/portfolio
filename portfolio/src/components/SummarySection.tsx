@@ -1,4 +1,4 @@
-import { ProfileData, Language, TrackType } from '../types';
+import type { ProfileData, Language, TrackType } from '../types';
 import { getLocalizedSummary, getLocalizedTitle, getLocalizedSkills } from '../lib/utils';
 
 interface SummarySectionProps {

@@ -1,4 +1,4 @@
-import { ProfileData, Language } from '../types';
+import type { ProfileData, Language } from '../types';
 
 interface EducationSectionProps {
   data: ProfileData;
@@ -23,18 +23,18 @@ export function EducationSection({ data, language }: EducationSectionProps) {
           >
             <div className="flex-1">
               <h3 className="font-semibold text-slate-900 dark:text-white">
-                {item[1]}
+                {item.es[1]}
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                {item[0]}
+                {item.es[0]}
               </p>
             </div>
             <div className="mt-2 sm:mt-0 sm:text-right">
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {item[2]}
+                {item.es[2]}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-500">
-                {item[3]}
+                {item.es[3]}
               </p>
             </div>
           </div>

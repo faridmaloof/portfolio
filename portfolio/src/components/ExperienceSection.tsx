@@ -1,4 +1,4 @@
-import { ProfileData, Language, TrackType } from '../types';
+import type { ProfileData, Language, TrackType } from '../types';
 import { getLocalizedRole, getLocalizedDetail, formatExperienceDates } from '../lib/utils';
 
 interface ExperienceSectionProps {
@@ -83,12 +83,12 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
                 className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 transition-colors"
               >
                 <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-1">
-                  {item[0]}
+                  {item.es[0]}
                 </h4>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">{item[1]}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-500 mb-2">{item[2]}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">{item.es[1]}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-500 mb-2">{item.es[2]}</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {item[3]}
+                  {item.es[3]}
                 </p>
               </div>
             ))}

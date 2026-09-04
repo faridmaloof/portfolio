@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Language, TrackType } from '../types';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import type { Language, TrackType } from '../types';
 
 interface ProfileContextType {
   language: Language;
