@@ -1,5 +1,5 @@
 {
-  "name": "portfolio",
+  "name": "@faridmaloof/portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -38,5 +38,9 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.2.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true,
+    "core-js@3.50.0": true
   }
 }
