@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ProfileData } from '../types';
+import type { ProfileData } from '../types';
 import { defaultProfileData } from '../data/profile';
 import { saveProfile, getProfiles, deleteProfile } from '../lib/db';
 import { generatePDF } from '../lib/pdfGenerator';

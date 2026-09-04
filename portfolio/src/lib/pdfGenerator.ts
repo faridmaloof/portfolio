@@ -1,11 +1,5 @@
-import { ProfileData, Language } from '../types';
+import type { ProfileData, Language } from '../types';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-interface PDFGeneratorProps {
-  data: ProfileData;
-  language: Language;
-}
 
 export function generatePDF(data: ProfileData, language: Language): void {
   const doc = new jsPDF({

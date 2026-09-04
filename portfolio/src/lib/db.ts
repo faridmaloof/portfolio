@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ProfileData } from '../types';
+import type { ProfileData } from '../types';
 
 const DB_NAME = 'portfolio_db';
-const PROFILE_TABLE = 'profiles';
-const ADMIN_TABLE = 'admins';
 
 // Initialize database
 export function initDB(): void {

@@ -1,4 +1,4 @@
-import { ProfileData, Language, TrackType } from '../types';
+import type { ProfileData, Language, TrackType } from '../types';
 
 export function getLocalizedText(text: { en: string; es: string }, language: Language): string {
   return text[language];
