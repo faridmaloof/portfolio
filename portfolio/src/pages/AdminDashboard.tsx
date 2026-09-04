@@ -4,7 +4,7 @@ import type { ProfileData } from '../types';
 import { defaultProfileData } from '../data/profile';
 import { saveProfile, getProfiles, deleteProfile } from '../lib/db';
 import { generatePDF } from '../lib/pdfGenerator';
-import { Download, Upload, Trash2, Edit, FileJson, FileText } from 'lucide-react';
+import { Upload, Trash2, Edit, FileJson, FileText } from 'lucide-react';
 
 export function AdminDashboard() {
   const navigate = useNavigate();

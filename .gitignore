@@ -8,61 +8,46 @@ build/
 *.js.map
 *.ts.map
 
-# Environment
+# Environment variables
 .env
 .env.local
 *.env.*
 
-# Editors
+# Logs
+*.log
+
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Logs
-*.log
+# Python artifacts (if any Python files exist in the project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
 
 # Temporary files
 *.tmp
 *.temp
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-.venv/
-venv/
-.env/
-pyvenv.cfg
-
-# Compiled files
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
-*.out
-
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# MyPy
+# Testing
+.nyc_output/
 .mypy_cache/
-
-# PyTest
 .pytest_cache/
+.coverage
 
-# Zip and compressed files
+# Compression artifacts
 *.zip
 *.gz
 *.tar

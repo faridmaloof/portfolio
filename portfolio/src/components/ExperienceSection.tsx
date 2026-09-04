@@ -1,5 +1,7 @@
 import type { ProfileData, Language, TrackType } from '../types';
 import { getLocalizedRole, getLocalizedDetail, formatExperienceDates } from '../lib/utils';
+import { useProfile } from '../context/ProfileContext';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ExperienceSectionProps {
   data: ProfileData;
@@ -8,7 +10,15 @@ interface ExperienceSectionProps {
 }
 
 export function ExperienceSection({ data, language, track }: ExperienceSectionProps) {
+  const { showAllExperience, setShowAllExperience } = useProfile();
   const label = data.labels[language].experience;
+  
+  // Show only last 5 experiences by default
+  const experiencesToShow = showAllExperience 
+    ? data.experience 
+    : data.experience.slice(0, 5);
+  
+  const hasMoreExperiences = data.experience.length > 5;
 
   return (
     <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:p-8">
@@ -21,7 +31,7 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
         <div className="absolute left-0 md:left-1/2 transform md:-translate-x-px top-0 bottom-0 w-px bg-gradient-to-b from-blue-500 via-purple-500 to-transparent"></div>
 
         <div className="space-y-8">
-          {data.experience.map((exp, index) => {
+          {experiencesToShow.map((exp, index) => {
             const role = getLocalizedRole(exp.role, track, language);
             const details = getLocalizedDetail(exp.detail, track, language);
             const dates = formatExperienceDates(exp.dates, language);
@@ -69,6 +79,28 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
           })}
         </div>
       </div>
+
+      {/* Show More / Show Less Button */}
+      {hasMoreExperiences && (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={() => setShowAllExperience(!showAllExperience)}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-md transition-all font-medium"
+          >
+            {showAllExperience ? (
+              <>
+                <span>{language === 'es' ? 'Ver menos' : 'Show less'}</span>
+                <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <span>{language === 'es' ? 'Ver más experiencia' : 'View more experience'}</span>
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Early Career */}
       {data.earlyCareer.items[language].length > 0 && (
