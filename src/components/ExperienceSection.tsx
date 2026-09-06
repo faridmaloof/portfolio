@@ -149,7 +149,7 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {earlyCareerItems.map((item, index) => {
-              const tuple = item[language] || item.es || item.en;
+              const tuple = (item as any)[language] || item.es || item.en;
               if (!tuple) return null;
               return (
                 <div

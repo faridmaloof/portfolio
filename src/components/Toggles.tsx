@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Globe, Briefcase, ChevronDown, Check, Terminal, Code2, Database, Layers, Cpu, Sparkles } from 'lucide-react';
 import type { Language, TrackType } from '../types';
+import { getLanguages } from '../lib/db';
 
 interface LanguageToggleProps {
   language: Language;
@@ -8,18 +9,28 @@ interface LanguageToggleProps {
 }
 
 export function LanguageToggle({ language, setLanguage }: LanguageToggleProps) {
-  const languages: { code: Language; label: string; flag: string }[] = [
-    { code: 'es', label: 'ES', flag: '🇪🇸' },
-    { code: 'en', label: 'EN', flag: '🇺🇸' },
-    { code: 'pt', label: 'PT', flag: '🇧🇷' },
-  ];
+  const dynamicLanguages = useMemo(() => {
+    const list = getLanguages().filter(l => l.isActive);
+    if (list.length > 0) {
+      return list.map(l => ({
+        code: l.code as Language,
+        label: l.code.toUpperCase(),
+        flag: l.flag || '🌐'
+      }));
+    }
+    return [
+      { code: 'es' as Language, label: 'ES', flag: '🇪🇸' },
+      { code: 'en' as Language, label: 'EN', flag: '🇺🇸' },
+      { code: 'pt' as Language, label: 'PT', flag: '🇧🇷' },
+    ];
+  }, []);
 
   return (
     <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full p-1 shadow-sm border border-slate-200 dark:border-slate-700">
       <div className="pl-2 pr-1 text-slate-400 dark:text-slate-500">
         <Globe className="w-3.5 h-3.5" />
       </div>
-      {languages.map((l) => (
+      {dynamicLanguages.map((l) => (
         <button
           key={l.code}
           onClick={() => setLanguage(l.code)}
@@ -53,6 +64,22 @@ export interface ProfileDefinition {
 }
 
 export const PROFILE_DEFINITIONS: ProfileDefinition[] = [
+  {
+    value: 'full',
+    title: {
+      es: 'Full: Perfil Completo & Liderazgo de Ingeniería',
+      en: 'Full: Complete Profile & Engineering Leadership',
+      pt: 'Full: Perfil Completo & Liderança de Engenharia'
+    },
+    shortLabel: 'Full (Completo)',
+    badge: '15+ Años / Todo',
+    description: {
+      es: 'Perfil transversal y genérico de 15+ años que abarca todo el stack: Backend, Frontend, SDET Automation, QA y Arquitectura.',
+      en: 'Comprehensive 15+ years cross-discipline profile covering the entire stack: Backend, Frontend, SDET, QA and Architecture.',
+      pt: 'Perfil abrangente de 15+ anos cobrindo todo o stack: Backend, Frontend, SDET, QA e Arquitetura.'
+    },
+    icon: Sparkles
+  },
   {
     value: 'combined',
     title: {
@@ -208,8 +235,8 @@ export function TrackToggle({ track, setTrack, language = 'es' }: TrackTogglePro
             {PROFILE_DEFINITIONS.map((p) => {
               const Icon = p.icon;
               const isSelected = track === p.value;
-              const titleText = p.title[language] || p.title.es;
-              const descText = p.description[language] || p.description.es;
+              const titleText = (p.title as any)[language] || p.title.es || p.title.en;
+              const descText = (p.description as any)[language] || p.description.es || p.description.en;
 
               return (
                 <button

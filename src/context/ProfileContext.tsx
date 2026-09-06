@@ -86,8 +86,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     let description = '';
     let keywords = currentSettings.seo?.keywords || '';
 
+    const customTrack = getTrackConfig(activeTrack);
+
     if (currentSettings.seo?.metaTitle) {
       title = currentSettings.seo.metaTitle;
+    } else if (customTrack?.seoTitle?.[activeLang]) {
+      title = customTrack.seoTitle[activeLang]!;
     } else {
       switch (activeTrack) {
         case 'sdet':
@@ -138,6 +142,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
     if (currentSettings.seo?.metaDescription) {
       description = currentSettings.seo.metaDescription;
+    } else if (customTrack?.seoDescription?.[activeLang]) {
+      description = customTrack.seoDescription[activeLang]!;
     } else {
       switch (activeTrack) {
         case 'sdet':
@@ -215,13 +221,20 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   // Read URL params on mount and when URL changes
   const parseUrlParams = useCallback(() => {
     const currentSettings = getSettings();
+    const sysVars = getSystemVariables();
     setSettingsState(currentSettings);
     
     const params = new URLSearchParams(window.location.search);
-    const rawProfile = params.get('profile')?.toLowerCase().trim();
+    const allowOverride = currentSettings.allowUrlProfileOverride !== undefined 
+      ? currentSettings.allowUrlProfileOverride 
+      : (sysVars.allowUrlProfileOverride !== false);
+
+    const rawProfile = allowOverride 
+      ? (params.get('profile') || params.get('track'))?.toLowerCase().trim()
+      : undefined;
     const langParam = params.get('lang')?.toLowerCase().trim();
     
-    let resolvedTrack: TrackType = currentSettings.defaultProfile || 'combined';
+    let resolvedTrack: TrackType = currentSettings.defaultProfile || sysVars.defaultProfile || 'combined';
 
     if (rawProfile) {
       if (rawProfile === 'sdet' || rawProfile === 'automation') {
@@ -247,16 +260,20 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         setIsValidProfile(true);
       }
     } else {
-      resolvedTrack = currentSettings.defaultProfile || 'combined';
+      resolvedTrack = currentSettings.defaultProfile || sysVars.defaultProfile || 'combined';
       setIsValidProfile(true);
     }
     
-    // Auto-detect browser/PC language if not explicitly overridden via query param
-    let resolvedLang: Language = currentSettings.defaultLanguage || 'es';
+    // Auto-detect browser/PC language if enabled and not explicitly overridden via query param
+    const autoDetect = currentSettings.autoDetectLanguage !== undefined
+      ? currentSettings.autoDetectLanguage
+      : (sysVars.autoDetectLanguage !== false);
+
+    let resolvedLang: Language = currentSettings.defaultLanguage || sysVars.defaultLanguage || 'es';
     if (langParam && (langParam === 'en' || langParam === 'es' || langParam === 'pt')) {
       resolvedLang = langParam as Language;
-    } else {
-      resolvedLang = detectBrowserLanguage(currentSettings.defaultLanguage || 'es');
+    } else if (autoDetect) {
+      resolvedLang = detectBrowserLanguage(resolvedLang);
     }
 
     const detected = typeof navigator !== 'undefined' ? (navigator.language || 'es') : 'es';

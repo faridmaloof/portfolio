@@ -14,7 +14,7 @@ export function ExtrasSection({ data, language, track = 'combined' }: ExtrasSect
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Get featured certifications tailored to current track
-  const featuredCerts = getFeaturedCertifications(track, 6);
+  const featuredCerts = getFeaturedCertifications(track);
   const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
 
   const getIssuerStyle = (issuer: string) => {

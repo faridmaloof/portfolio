@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
-import type { ProfileData, Language, TrackType, ProfileTrackConfig, SystemVariables } from '../types';
+import type { 
+  ProfileData, 
+  Language, 
+  TrackType, 
+  ProfileTrackConfig, 
+  SystemVariables,
+  ServiceItem,
+  LanguageOption,
+  SchedulingProvider,
+  FrontendDesignConfig
+} from '../types';
 import { defaultProfileData } from '../data/profile';
+
+export type { ServiceItem, LanguageOption, LanguageOption as LanguageConfig, FrontendDesignConfig } from '../types';
 
 const DB_NAME = 'portfolio_db';
 const ADMIN_EMAIL = 'faridmaloof@gmail.com';
@@ -43,7 +55,32 @@ export interface PortfolioSettings {
     keywords: string;
     ogImage: string;
   };
+  designConfig?: FrontendDesignConfig;
   systemVariables?: SystemVariables;
+}
+
+export const DEFAULT_DESIGN_CONFIG: FrontendDesignConfig = {
+  templatePreset: 'executive',
+  colorPalette: 'indigo',
+  fontPairing: 'modern-sans',
+  cardRadius: 'rounded',
+  heroLayout: 'classic',
+  sectionOrder: ['summary', 'services', 'experience', 'githubProjects', 'certifications', 'education', 'languages']
+};
+
+export const DEFAULT_LANGUAGES: LanguageOption[] = [
+  { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸', isActive: true },
+  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸', isActive: true },
+  { code: 'pt', name: 'Português', nativeName: 'Português', flag: '🇧🇷', isActive: true },
+];
+
+export function detectSchedulingProvider(url: string): SchedulingProvider {
+  if (!url || !url.trim()) return 'none';
+  const u = url.trim().toLowerCase();
+  if (u.includes('calendly.com')) return 'calendly';
+  if (u.includes('calendar.google.com') || u.includes('calendar.app.google')) return 'google_calendar';
+  if (u.includes('outlook.office.com') || u.includes('outlook.live.com') || u.includes('bookwithme')) return 'outlook';
+  return 'custom';
 }
 
 export const DEFAULT_SYSTEM_VARIABLES: SystemVariables = {
@@ -58,16 +95,75 @@ export const DEFAULT_SYSTEM_VARIABLES: SystemVariables = {
   linkedinUrl: "https://www.linkedin.com/in/fmaloofs/",
   githubUrl: "https://github.com/faridmaloof/",
   calendlyUrl: "",
-  defaultProfile: "combined",
+  schedulingUrl: "",
+  schedulingProvider: "calendly",
+  schedulingCtaText: {
+    es: "Agendar Llamada / Entrevista",
+    en: "Schedule Technical Call",
+    pt: "Agendar Reunião Técnica"
+  },
+  defaultProfile: "full",
   defaultLanguage: "es",
+  availableLanguages: DEFAULT_LANGUAGES,
   autoDetectLanguage: true,
   allowUrlProfileOverride: true,
   pdfFilenamePrefix: "CV-Farid-Maloof",
   copyrightText: "© 2026 Farid Maloof Suarez. Todos los derechos reservados.",
-  brandName: "FM · Farid Maloof"
+  brandName: "FM · Farid Maloof",
+  defaultSeoTitle: {
+    es: "Farid Maloof | Senior Software Engineer & SDET Architecture Lead",
+    en: "Farid Maloof | Senior Software Engineer & SDET Architecture Lead",
+    pt: "Farid Maloof | Engenheiro de Software Sênior & Líder SDET"
+  },
+  defaultSeoDescription: {
+    es: "Portafolio profesional y técnico de Farid Maloof Suarez. Más de 15 años de experiencia liderando ingeniería de software, arquitectura de automatización QA/SDET, microservicios y desarrollo full-stack.",
+    en: "Professional technical portfolio of Farid Maloof Suarez. 15+ years leading software engineering, test automation architecture (SDET), microservices, and full-stack development.",
+    pt: "Portfólio profissional de Farid Maloof Suarez. Mais de 15 anos de experiência liderando engenharia de software e arquitetura SDET."
+  },
+  defaultSeoKeywords: {
+    es: "Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack, .NET Core, Java, React, Playwright, Microservicios, Cloud",
+    en: "Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack, .NET Core, Java, React, Playwright, Microservices, Cloud",
+    pt: "Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack, .NET Core, Java, React, Playwright, Microsserviços"
+  },
+  designConfig: DEFAULT_DESIGN_CONFIG
 };
 
 export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
+  {
+    id: 'full',
+    name: 'Perfil Integral (Full Tech Lead & SDET Lead)',
+    badge: 'Full Stack & SDET Lead',
+    isSystem: true,
+    isActive: true,
+    titles: {
+      es: 'Ingeniero de Software Senior | Tech Lead & SDET Architect',
+      en: 'Senior Software Engineer | Tech Lead & SDET Architect',
+      pt: 'Engenheiro de Software Sênior | Tech Lead & SDET Architect',
+    },
+    summary: {
+      es: 'Ingeniero de Software Senior y Líder Técnico con más de 15 años de trayectoria unificando el desarrollo de sistemas distribuidos de alto rendimiento con arquitecturas de aseguramiento de calidad de nivel corporativo. Especialista en la creación de ecosistemas de software resilientes, pipelines CI/CD automatizados, microservicios (.NET Core / Java Spring Boot) y aplicaciones modernas en React / TypeScript.',
+      en: 'Senior Software Engineer & Technical Lead with 15+ years of experience bridging high-performance distributed systems engineering with enterprise-grade quality assurance architectures. Expert in resilient software ecosystems, automated CI/CD pipelines, microservices (.NET Core / Java Spring Boot), and modern React / TypeScript applications.',
+      pt: 'Engenheiro de Software Sênior e Líder Técnico com mais de 15 anos de experiência unindo desenvolvimento de microsserviços distribuídos de alto desempenho com arquiteturas corporativas de garantia de qualidade e automação de testes.',
+    },
+    skillsHighlight: defaultProfileData.skills.combined,
+    serviceIds: ['s-1', 's-2', 's-3', 's-4'],
+    featuredCertifications: ['cert-2026-03', 'cert-2026-02', 'cert-2026-04', 'cert-2025-01', 'cert-2025-03', 'cert-hist-03'],
+    seoTitle: {
+      es: 'Farid Maloof Suarez | Tech Lead, SDET Architect & Senior Full Stack (15+ Años)',
+      en: 'Farid Maloof Suarez | Tech Lead, SDET Architect & Senior Full Stack Engineer',
+      pt: 'Farid Maloof Suarez | Tech Lead, Arquiteto SDET & Full Stack Sênior'
+    },
+    seoDescription: {
+      es: 'Portafolio profesional integral y CV técnico de Farid Maloof Suarez. Más de 15 años liderando ingeniería de software, arquitectura SDET y microservicios escalables.',
+      en: 'Professional technical portfolio of Farid Maloof Suarez. 15+ years leading software engineering, test automation architectures, and enterprise cloud systems.',
+      pt: 'Portfólio técnico de Farid Maloof Suarez. Mais de 15 anos de trajetória em engenharia de software e liderança técnica.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, Tech Lead, SDET, Full Stack, Software Engineer, .NET Core, Java, React, Playwright, Cloud',
+      en: 'Farid Maloof, Tech Lead, SDET, Full Stack, Software Engineer, .NET Core, Java, React, Playwright, Cloud',
+      pt: 'Farid Maloof, Tech Lead, SDET, Full Stack, Software Engineer'
+    }
+  },
   {
     id: 'combined',
     name: 'Perfil Integral (Senior Software Engineer & SDET Lead)',
@@ -75,16 +171,18 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
     isSystem: true,
     isActive: true,
     titles: {
-      es: defaultProfileData.titles.combined.es,
-      en: defaultProfileData.titles.combined.en,
-      pt: defaultProfileData.titles.combined.pt || defaultProfileData.titles.combined.es,
+      es: defaultProfileData.titles?.combined?.es || 'Ingeniero de Software Senior | SDET | Full Stack',
+      en: defaultProfileData.titles?.combined?.en || 'Senior Software Engineer | SDET | Full Stack',
+      pt: defaultProfileData.titles?.combined?.pt || defaultProfileData.titles?.combined?.es || 'Engenheiro de Software Sênior | SDET | Full Stack',
     },
     summary: {
-      es: defaultProfileData.summary.combined.es,
-      en: defaultProfileData.summary.combined.en,
-      pt: defaultProfileData.summary.combined.pt || defaultProfileData.summary.combined.es,
+      es: defaultProfileData.summary?.combined?.es || '',
+      en: defaultProfileData.summary?.combined?.en || '',
+      pt: defaultProfileData.summary?.combined?.pt || defaultProfileData.summary?.combined?.es || '',
     },
     skillsHighlight: defaultProfileData.skills.combined,
+    serviceIds: ['s-1', 's-2', 's-3', 's-4'],
+    featuredCertifications: ['cert-2026-03', 'cert-2026-02', 'cert-2026-04', 'cert-2025-01', 'cert-2025-03'],
     seoTitle: {
       es: 'Farid Maloof Suarez | Ingeniero de Software Senior & SDET Architecture Lead (15+ Años)',
       en: 'Farid Maloof Suarez | Senior Software Engineer & SDET Architecture Lead (15+ Yrs)',
@@ -94,6 +192,11 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio técnico de Farid Maloof Suarez. Más de 15 años de trayectoria en ingeniería de software, arquitectura de automatización QA / SDET, desarrollo full-stack, cloud computing y liderazgo técnico.',
       en: 'Technical Portfolio of Farid Maloof Suarez. 15+ years of enterprise software engineering, test automation architecture (SDET), full-stack development, cloud computing, and technical leadership.',
       pt: 'Portfólio técnico de Farid Maloof Suarez. Mais de 15 anos de trajetória em engenharia de software, arquitetura de automação QA / SDET e liderança técnica.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack, .NET Core, Java, React, Playwright, Cloud',
+      en: 'Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack, .NET Core, Java, React, Playwright, Cloud',
+      pt: 'Farid Maloof, SDET, QA Automation, Tech Lead, Full Stack'
     }
   },
   {
@@ -103,16 +206,19 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
     isSystem: true,
     isActive: true,
     titles: {
-      es: defaultProfileData.titles.sdet.es,
-      en: defaultProfileData.titles.sdet.en,
-      pt: defaultProfileData.titles.sdet.pt || defaultProfileData.titles.sdet.es,
+      es: defaultProfileData.titles?.sdet?.es || 'Ingeniero de Desarrollo de Software en Pruebas (SDET)',
+      en: defaultProfileData.titles?.sdet?.en || 'Software Development Engineer in Test (SDET)',
+      pt: defaultProfileData.titles?.sdet?.pt || defaultProfileData.titles?.sdet?.es || 'Engenheiro de Software em Teste (SDET)',
     },
     summary: {
-      es: defaultProfileData.summary.sdet.es,
-      en: defaultProfileData.summary.sdet.en,
-      pt: defaultProfileData.summary.sdet.pt || defaultProfileData.summary.sdet.es,
+      es: defaultProfileData.summary?.sdet?.es || '',
+      en: defaultProfileData.summary?.sdet?.en || '',
+      pt: defaultProfileData.summary?.sdet?.pt || defaultProfileData.summary?.sdet?.es || '',
     },
     skillsHighlight: defaultProfileData.skills.sdet,
+    serviceIds: ['s-1', 's-3', 's-4'],
+    featuredCertifications: ['cert-2026-03', 'cert-2026-04', 'cert-2025-01', 'cert-2025-02', 'cert-2024-01'],
+    certCategories: ['qa', 'ai'],
     seoTitle: {
       es: 'Farid Maloof | Senior SDET Lead & Arquitecto de Automatización de Pruebas',
       en: 'Farid Maloof | Senior SDET Lead & Test Automation Architect',
@@ -122,6 +228,11 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio técnico de Farid Maloof Suarez. Senior SDET Lead con más de 15 años de experiencia. Arquitectura de pruebas, Playwright, Selenium, Robot Framework, CI/CD pipelines, automatización de APIs y testing con Inteligencia Artificial.',
       en: 'Technical Portfolio & ATS CV of Farid Maloof Suarez. Senior SDET Lead with 15+ years of experience in test automation architecture, Playwright, Selenium, Robot Framework, CI/CD gates, and AI testing.',
       pt: 'Portfólio técnico de Farid Maloof Suarez. Líder SDET Sênior com mais de 15 anos de experiência em arquitetura de automação, Playwright, Selenium, Robot Framework e testes com IA.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, SDET, QA Automation, Playwright, Cypress, Selenium, Robot Framework, CI/CD, JMeter, Test Automation Architect',
+      en: 'Farid Maloof, SDET, QA Automation, Playwright, Cypress, Selenium, Robot Framework, CI/CD, JMeter, Test Automation Architect',
+      pt: 'Farid Maloof, SDET, QA Automation, Playwright, Cypress, Selenium'
     }
   },
   {
@@ -131,16 +242,19 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
     isSystem: true,
     isActive: true,
     titles: {
-      es: defaultProfileData.titles.qa.es,
-      en: defaultProfileData.titles.qa.en,
-      pt: defaultProfileData.titles.qa.pt || defaultProfileData.titles.qa.es,
+      es: defaultProfileData.titles?.qa?.es || 'Líder de Automatización de Pruebas QA / Especialista Senior',
+      en: defaultProfileData.titles?.qa?.en || 'QA Automation Lead Engineer / Senior QA Specialist',
+      pt: defaultProfileData.titles?.qa?.pt || defaultProfileData.titles?.qa?.es || 'Líder de Automação de Testes QA',
     },
     summary: {
-      es: defaultProfileData.summary.qa.es,
-      en: defaultProfileData.summary.qa.en,
-      pt: defaultProfileData.summary.qa.pt || defaultProfileData.summary.qa.es,
+      es: defaultProfileData.summary?.qa?.es || '',
+      en: defaultProfileData.summary?.qa?.en || '',
+      pt: defaultProfileData.summary?.qa?.pt || defaultProfileData.summary?.qa?.es || '',
     },
     skillsHighlight: defaultProfileData.skills.qa,
+    serviceIds: ['s-1', 's-3'],
+    featuredCertifications: ['cert-2026-04', 'cert-2026-01', 'cert-2025-01'],
+    certCategories: ['qa', 'agile'],
     seoTitle: {
       es: 'Farid Maloof | Especialista Senior en Automatización QA & Calidad de Software',
       en: 'Farid Maloof | Senior QA Automation Specialist & Quality Lead',
@@ -150,6 +264,11 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio profesional de Farid Maloof Suarez. Especialista en QA Automation certificado ISTQB CTFL v4.0. Estrategia de calidad, gestión de pruebas funcionales y regresivas, Cypress, Appium y pruebas de rendimiento.',
       en: 'Professional Portfolio of Farid Maloof Suarez. ISTQB CTFL v4.0 Certified QA Automation Specialist, quality strategy, functional/regression test suites, Cypress, Appium and performance.',
       pt: 'Portfólio profissional de Farid Maloof Suarez. Especialista em automação de QA certificado ISTQB CTFL v4.0, estratégias de testes funcionais e regressivos.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, QA Lead, ISTQB, Quality Assurance, Test Strategy, Shift-Left, Cypress, Software Testing',
+      en: 'Farid Maloof, QA Lead, ISTQB, Quality Assurance, Test Strategy, Shift-Left, Cypress, Software Testing',
+      pt: 'Farid Maloof, QA Lead, ISTQB, Quality Assurance'
     }
   },
   {
@@ -159,16 +278,19 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
     isSystem: true,
     isActive: true,
     titles: {
-      es: defaultProfileData.titles.backend.es,
-      en: defaultProfileData.titles.backend.en,
-      pt: defaultProfileData.titles.backend.pt || defaultProfileData.titles.backend.es,
+      es: defaultProfileData.titles?.backend?.es || 'Ingeniero Backend Senior | .NET Core · Java Spring Boot',
+      en: defaultProfileData.titles?.backend?.en || 'Senior Backend Engineer | .NET Core · Java Spring Boot',
+      pt: defaultProfileData.titles?.backend?.pt || defaultProfileData.titles?.backend?.es || 'Engenheiro Backend Sênior',
     },
     summary: {
-      es: defaultProfileData.summary.backend.es,
-      en: defaultProfileData.summary.backend.en,
-      pt: defaultProfileData.summary.backend.pt || defaultProfileData.summary.backend.es,
+      es: defaultProfileData.summary?.backend?.es || '',
+      en: defaultProfileData.summary?.backend?.en || '',
+      pt: defaultProfileData.summary?.backend?.pt || defaultProfileData.summary?.backend?.es || '',
     },
     skillsHighlight: defaultProfileData.skills.backend,
+    serviceIds: ['s-2', 's-3', 's-4'],
+    featuredCertifications: ['cert-2026-02', 'cert-2025-03', 'cert-2024-03', 'cert-hist-03'],
+    certCategories: ['dev', 'cloud', 'database'],
     seoTitle: {
       es: 'Farid Maloof | Desarrollador Senior Backend (.NET 9 · Java Spring Boot · APIs REST)',
       en: 'Farid Maloof | Senior Backend Engineer (.NET 9 · Java Spring Boot · REST APIs)',
@@ -178,6 +300,11 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio técnico de Farid Maloof Suarez. Desarrollador Senior Backend enfocado en C# .NET 9, Java Spring Boot, arquitectura de microservicios, bases de datos PostgreSQL, SQL Server, Redis y Docker.',
       en: 'Technical Portfolio of Farid Maloof Suarez. Senior Backend Engineer specializing in .NET 9, C#, Java Spring Boot, microservices, PostgreSQL, SQL Server, Redis, and cloud containers.',
       pt: 'Portfólio técnico de Farid Maloof Suarez. Desenvolvedor Backend Sênior com foco em .NET 9, Java Spring Boot, microsserviços, PostgreSQL e arquiteturas em nuvem.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, Backend Engineer, .NET Core, C#, Java Spring Boot, REST APIs, PostgreSQL, Docker, Microservicios',
+      en: 'Farid Maloof, Backend Engineer, .NET Core, C#, Java Spring Boot, REST APIs, PostgreSQL, Docker, Microservices',
+      pt: 'Farid Maloof, Backend Engineer, .NET Core, C#, Java Spring Boot'
     }
   },
   {
@@ -187,16 +314,19 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
     isSystem: true,
     isActive: true,
     titles: {
-      es: defaultProfileData.titles.fullstack.es,
-      en: defaultProfileData.titles.fullstack.en,
-      pt: defaultProfileData.titles.fullstack.pt || defaultProfileData.titles.fullstack.es,
+      es: defaultProfileData.titles?.fullstack?.es || 'Ingeniero Full Stack Senior | React · TypeScript · .NET',
+      en: defaultProfileData.titles?.fullstack?.en || 'Senior Full Stack Engineer | React · TypeScript · .NET',
+      pt: defaultProfileData.titles?.fullstack?.pt || defaultProfileData.titles?.fullstack?.es || 'Engenheiro Full Stack Sênior',
     },
     summary: {
-      es: defaultProfileData.summary.fullstack.es,
-      en: defaultProfileData.summary.fullstack.en,
-      pt: defaultProfileData.summary.fullstack.pt || defaultProfileData.summary.fullstack.es,
+      es: defaultProfileData.summary?.fullstack?.es || '',
+      en: defaultProfileData.summary?.fullstack?.en || '',
+      pt: defaultProfileData.summary?.fullstack?.pt || defaultProfileData.summary?.fullstack?.es || '',
     },
     skillsHighlight: defaultProfileData.skills.fullstack,
+    serviceIds: ['s-2', 's-3', 's-1'],
+    featuredCertifications: ['cert-2026-02', 'cert-2025-03', 'cert-2024-04'],
+    certCategories: ['dev', 'cloud'],
     seoTitle: {
       es: 'Farid Maloof | Desarrollador Senior Full Stack (.NET · React · TypeScript · Cloud)',
       en: 'Farid Maloof | Senior Full Stack Developer (.NET · React · TypeScript · Cloud)',
@@ -206,6 +336,11 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio técnico de Farid Maloof Suarez. Desarrollador Senior Full Stack especializado en React, TypeScript, Next.js, .NET Core, diseño de APIs seguras y despliegues en AWS y Azure.',
       en: 'Technical Portfolio of Farid Maloof Suarez. Senior Full Stack Engineer specializing in React, TypeScript, modern UI architectures, .NET Core backends, and cloud deployments.',
       pt: 'Portfólio técnico de Farid Maloof Suarez. Desenvolvedor Full Stack Sênior com expertise em React, TypeScript, .NET Core e soluções em nuvem.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, Full Stack Developer, React, TypeScript, .NET Core, Node.js, Web Development, Tailwind CSS',
+      en: 'Farid Maloof, Full Stack Developer, React, TypeScript, .NET Core, Node.js, Web Development, Tailwind CSS',
+      pt: 'Farid Maloof, Full Stack Developer, React, TypeScript, .NET Core'
     }
   },
   {
@@ -225,6 +360,9 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       pt: defaultProfileData.summary.dev.pt || defaultProfileData.summary.dev.es,
     },
     skillsHighlight: defaultProfileData.skills.dev,
+    serviceIds: ['s-2', 's-3', 's-4'],
+    featuredCertifications: ['cert-2026-02', 'cert-2025-03', 'cert-hist-03'],
+    certCategories: ['dev', 'cloud'],
     seoTitle: {
       es: 'Farid Maloof | Ingeniero de Software Senior (.NET · Java · Microservicios · Cloud)',
       en: 'Farid Maloof | Senior Software Engineer (.NET · Java · Microservices · Cloud)',
@@ -234,71 +372,79 @@ export const DEFAULT_TRACK_CONFIGS: ProfileTrackConfig[] = [
       es: 'Portafolio técnico de Farid Maloof Suarez. Más de 15 años diseñando e implementando arquitecturas de software empresarial resilientes, microservicios y soluciones de nube de alto rendimiento.',
       en: 'Technical Portfolio of Farid Maloof Suarez. 15+ years delivering enterprise software architectures, robust microservices, and high-performance cloud engineering.',
       pt: 'Portfólio técnico de Farid Maloof Suarez. Mais de 15 anos entregando arquiteturas de software corporativo e microsserviços.'
+    },
+    seoKeywords: {
+      es: 'Farid Maloof, Software Engineer, Architecture, Microservices, .NET Core, Java, Cloud',
+      en: 'Farid Maloof, Software Engineer, Architecture, Microservices, .NET Core, Java, Cloud',
+      pt: 'Farid Maloof, Software Engineer, Architecture, Microservices'
     }
   }
 ];
-
-
-export interface ServiceItem {
-  id: string;
-  title: { es: string; en: string };
-  description: { es: string; en: string };
-  icon: string;
-  keywords: string[];
-}
 
 export const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: 's-1',
     title: {
       es: 'Automatización de Pruebas QA & SDET',
-      en: 'QA Automation & SDET Services'
+      en: 'QA Automation & SDET Architecture',
+      pt: 'Automação de Testes QA & SDET'
     },
     description: {
       es: 'Estrategia completa de automatización con Playwright, Cypress y Selenium. Diseño de frameworks mantenibles e integración en pipelines CI/CD.',
-      en: 'End-to-end test automation strategy with Playwright, Cypress, and Selenium. Enterprise framework architecture and CI/CD integration.'
+      en: 'End-to-end test automation strategy with Playwright, Cypress, and Selenium. Enterprise framework architecture and CI/CD integration.',
+      pt: 'Estratégia completa de automação com Playwright, Cypress e Selenium. Arquitetura de frameworks sustentáveis e integração em CI/CD.'
     },
     icon: 'Bot',
-    keywords: ['Playwright', 'Cypress', 'Selenium', 'CI/CD', 'SDET', 'Cucumber']
+    keywords: ['Playwright', 'Cypress', 'Selenium', 'CI/CD', 'SDET', 'Cucumber'],
+    trackIds: ['sdet', 'qa', 'combined', 'full']
   },
   {
     id: 's-2',
     title: {
       es: 'Desarrollo Backend & APIs Escalables',
-      en: 'Backend Development & Scalable APIs'
+      en: 'Backend Development & Scalable APIs',
+      pt: 'Desenvolvimento Backend & APIs Escaláveis'
     },
     description: {
       es: 'Arquitectura y desarrollo de microservicios robustos en Java (Spring Boot) y .NET Core / C#, con bases de datos relacionales y NoSQL.',
-      en: 'Robust microservices architecture in Java (Spring Boot) and .NET Core / C# with relational and NoSQL databases.'
+      en: 'Robust microservices architecture in Java (Spring Boot) and .NET Core / C# with relational and NoSQL databases.',
+      pt: 'Arquitetura e desenvolvimento de microsserviços robustos em Java (Spring Boot) e .NET Core / C#.'
     },
     icon: 'Server',
-    keywords: ['Java', 'Spring Boot', '.NET Core', 'REST APIs', 'PostgreSQL', 'Docker']
+    keywords: ['Java', 'Spring Boot', '.NET Core', 'REST APIs', 'PostgreSQL', 'Docker'],
+    trackIds: ['backend', 'fullstack', 'dev', 'combined', 'full']
   },
   {
     id: 's-3',
     title: {
       es: 'Consultoría Técnica & Auditoría de Código',
-      en: 'Technical Consulting & Code Auditing'
+      en: 'Technical Consulting & Code Auditing',
+      pt: 'Consultoria Técnica & Auditoria de Código'
     },
     description: {
       es: 'Evaluación de arquitectura de software, optimización de pipelines DevOps, mejora de cobertura de pruebas y mentoría técnica a equipos.',
-      en: 'Software architecture review, DevOps pipeline optimization, test coverage enhancement, and technical team mentoring.'
+      en: 'Software architecture review, DevOps pipeline optimization, test coverage enhancement, and technical team mentoring.',
+      pt: 'Avaliação de arquitetura de software, otimização de pipelines DevOps e mentoria técnica para equipes.'
     },
     icon: 'ShieldCheck',
-    keywords: ['Architecture', 'DevOps', 'Code Review', 'Quality Assurance']
+    keywords: ['Architecture', 'DevOps', 'Code Review', 'Quality Assurance'],
+    trackIds: ['sdet', 'backend', 'qa', 'fullstack', 'dev', 'combined', 'full']
   },
   {
     id: 's-4',
     title: {
       es: 'Pruebas de Rendimiento & Seguridad',
-      en: 'Performance & Reliability Testing'
+      en: 'Performance & Reliability Testing',
+      pt: 'Testes de Performance & Confiabilidade'
     },
     description: {
       es: 'Pruebas de carga y estrés con JMeter y k6. Diagnóstico de cuellos de botella y optimización de latencia en aplicaciones de alto tráfico.',
-      en: 'Load and stress testing with JMeter and k6. Bottleneck diagnostics and latency optimization for high-throughput applications.'
+      en: 'Load and stress testing with JMeter and k6. Bottleneck diagnostics and latency optimization for high-throughput applications.',
+      pt: 'Testes de carga e estresse com JMeter e k6. Diagnóstico de gargalos e otimização de latência.'
     },
     icon: 'Gauge',
-    keywords: ['JMeter', 'k6', 'Performance', 'Reliability', 'Stress Testing']
+    keywords: ['JMeter', 'k6', 'Performance', 'Reliability', 'Stress Testing'],
+    trackIds: ['sdet', 'backend', 'qa', 'combined', 'full']
   }
 ];
 
@@ -725,7 +871,15 @@ export function saveSettings(settings: Partial<PortfolioSettings>): boolean {
   if (!db) return false;
   
   db.settings = { ...getSettings(), ...settings };
-  return saveDB(db);
+  const ok = saveDB(db);
+  if (ok && typeof window !== 'undefined') {
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(db.settings)
+    }).catch(err => console.warn('[SQLite Sync] Could not sync settings:', err));
+  }
+  return ok;
 }
 
 // Services CRUD
@@ -738,7 +892,53 @@ export function saveServices(services: ServiceItem[]): boolean {
   const db = getDB();
   if (!db) return false;
   db.services = services;
-  return saveDB(db);
+  const ok = saveDB(db);
+  if (ok && typeof window !== 'undefined') {
+    fetch('/api/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(services)
+    }).catch(err => console.warn('[SQLite Sync] Could not sync services:', err));
+  }
+  return ok;
+}
+
+// Get services tailored for a specific technical stack (with fallback to all active services)
+export function getServicesForTrack(track: TrackType): ServiceItem[] {
+  const allServices = getServices();
+  const trackConfig = getTrackConfig(track);
+
+  // 1. If the track defines specific custom services
+  if (trackConfig?.customServices && trackConfig.customServices.length > 0) {
+    return trackConfig.customServices;
+  }
+
+  // 2. If the track specifies explicit serviceIds
+  if (trackConfig?.serviceIds && trackConfig.serviceIds.length > 0) {
+    const filtered = allServices.filter(s => trackConfig.serviceIds!.includes(s.id));
+    if (filtered.length > 0) return filtered;
+  }
+
+  // 3. Match by service trackIds
+  const cleanTrack = (track || '').toLowerCase();
+  const matched = allServices.filter(s => {
+    if (!s.trackIds || s.trackIds.length === 0) return true;
+    return s.trackIds.includes(cleanTrack) || s.trackIds.includes('combined') || s.trackIds.includes('full');
+  });
+
+  if (matched.length > 0) return matched;
+
+  // Fallback to all services
+  return allServices;
+}
+
+// Get featured certifications IDs or filter for a specific technical track
+export function getFeaturedCertificationsForTrack(track: TrackType): string[] | undefined {
+  const trackConfig = getTrackConfig(track);
+  if (trackConfig?.featuredCertifications && trackConfig.featuredCertifications.length > 0) {
+    return trackConfig.featuredCertifications;
+  }
+  return undefined;
 }
 
 // Track / Profile Configuration CRUD
@@ -785,7 +985,15 @@ export function saveTrackConfig(config: ProfileTrackConfig): boolean {
     }
   }
 
-  return saveDB(db);
+  const ok = saveDB(db);
+  if (ok && typeof window !== 'undefined') {
+    fetch('/api/tracks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cleanConfig)
+    }).catch(err => console.warn('[SQLite Sync] Could not sync track:', err));
+  }
+  return ok;
 }
 
 export function deleteTrackConfig(id: string): { success: boolean; error?: string } {
@@ -802,15 +1010,20 @@ export function deleteTrackConfig(id: string): { success: boolean; error?: strin
 
   db.tracks = db.tracks.filter((t: ProfileTrackConfig) => t.id.toLowerCase() !== cleanId);
 
-  // If deleted profile was default, fallback to 'combined'
+  // If deleted profile was default, fallback to 'full' or 'combined'
   if (db.settings && db.settings.defaultProfile === cleanId) {
-    db.settings.defaultProfile = 'combined';
+    db.settings.defaultProfile = 'full';
   }
   if (db.systemVariables && db.systemVariables.defaultProfile === cleanId) {
-    db.systemVariables.defaultProfile = 'combined';
+    db.systemVariables.defaultProfile = 'full';
   }
 
-  saveDB(db);
+  const ok = saveDB(db);
+  if (ok && typeof window !== 'undefined') {
+    fetch(`/api/tracks/${cleanId}`, {
+      method: 'DELETE'
+    }).catch(err => console.warn('[SQLite Sync] Could not delete track from sqlite:', err));
+  }
   return { success: true };
 }
 
@@ -860,7 +1073,122 @@ export function saveSystemVariables(vars: Partial<SystemVariables>): boolean {
     }
   }
 
-  return saveDB(db);
+  const ok = saveDB(db);
+  if (ok && typeof window !== 'undefined') {
+    fetch('/api/system-variables', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    }).catch(err => console.warn('[SQLite Sync] Could not sync system variables:', err));
+  }
+  return ok;
+}
+
+// Languages CRUD
+export function getLanguages(): LanguageOption[] {
+  const db = getDB();
+  if (db?.systemVariables?.availableLanguages && db.systemVariables.availableLanguages.length > 0) {
+    return db.systemVariables.availableLanguages;
+  }
+  return DEFAULT_LANGUAGES;
+}
+
+export function saveLanguages(languages: LanguageOption[]): boolean {
+  const current = getSystemVariables();
+  return saveSystemVariables({ ...current, availableLanguages: languages });
+}
+
+export function getDesignConfig(): FrontendDesignConfig {
+  const vars = getSystemVariables();
+  return vars.designConfig || DEFAULT_DESIGN_CONFIG;
+}
+
+export function saveDesignConfig(design: FrontendDesignConfig): boolean {
+  const current = getSystemVariables();
+  return saveSystemVariables({ ...current, designConfig: design });
+}
+
+// Full Export / Import Helpers
+export function exportFullBackup(): string {
+  const db = getDB();
+  const data = {
+    version: '2.0',
+    exportDate: new Date().toISOString(),
+    systemVariables: getSystemVariables(),
+    tracks: getTrackConfigs(),
+    services: getServices(),
+    settings: getSettings(),
+    profiles: db?.profiles || []
+  };
+  return JSON.stringify(data, null, 2);
+}
+
+export function importFullBackup(payload: any): { success: boolean; error?: string } {
+  try {
+    const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
+    if (!data || typeof data !== 'object') return { success: false, error: 'Formato no válido' };
+    const db = getDB() || {};
+
+    if (data.systemVariables) {
+      db.systemVariables = { ...DEFAULT_SYSTEM_VARIABLES, ...data.systemVariables };
+    }
+    if (Array.isArray(data.tracks)) {
+      db.tracks = data.tracks;
+    }
+    if (Array.isArray(data.services)) {
+      db.services = data.services;
+    }
+    if (data.settings) {
+      db.settings = { ...getSettings(), ...data.settings };
+    }
+    if (Array.isArray(data.profiles)) {
+      db.profiles = data.profiles;
+    }
+
+    const ok = saveDB(db);
+    if (ok && typeof window !== 'undefined') {
+      // Send full import to backend SQLite
+      fetch('/api/backup/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(err => console.warn('[SQLite Sync] Could not sync backup import:', err));
+    }
+    return { success: ok };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error al procesar JSON' };
+  }
+}
+
+// Initial Sync from Backend SQLite to LocalStorage
+export async function syncWithBackendDatabase(): Promise<boolean> {
+  if (typeof window === 'undefined') return true;
+  try {
+    const res = await fetch('/api/all-data');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.systemVariables) {
+        const db = getDB() || {};
+        db.systemVariables = { ...DEFAULT_SYSTEM_VARIABLES, ...data.systemVariables };
+        if (Array.isArray(data.tracks) && data.tracks.length > 0) {
+          db.tracks = data.tracks;
+        }
+        if (Array.isArray(data.services) && data.services.length > 0) {
+          db.services = data.services;
+        }
+        if (data.settings) {
+          db.settings = { ...getSettings(), ...data.settings };
+        }
+        saveDB(db);
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    // Graceful fallback to client storage
+    console.debug('[SQLite Sync] Using local storage state:', err);
+    return false;
+  }
 }
 
 

@@ -1,4 +1,5 @@
 import type { CertificationRecord, TrackType } from '../types';
+import { getTrackConfig } from '../lib/db';
 
 export const allCertificationsList: CertificationRecord[] = [
   // --- 2026 Certifications ---
@@ -1226,16 +1227,61 @@ export const allCertificationsList: CertificationRecord[] = [
   }
 ];
 
-export function getFeaturedCertifications(track: TrackType = 'combined', limit = 6): CertificationRecord[] {
+export function getFeaturedCertifications(track: TrackType = 'combined', limit?: number): CertificationRecord[] {
+  let trackConfig: any;
+  try {
+    trackConfig = getTrackConfig(track);
+  } catch {
+    // fallback if called in an uninitialized context
+  }
+
+  const effectiveLimit = limit ?? trackConfig?.initialVisibleCertsCount ?? 6;
+
+  // If the track explicitly configured featured certifications, prioritize them
+  if (trackConfig?.featuredCertifications && trackConfig.featuredCertifications.length > 0) {
+    const customList: CertificationRecord[] = [];
+    const certMap = new Map<string, CertificationRecord>(allCertificationsList.map(c => [c.id, c]));
+    
+    for (const certId of trackConfig.featuredCertifications) {
+      const found = certMap.get(certId);
+      if (found) customList.push(found);
+    }
+
+    if (customList.length >= effectiveLimit) {
+      return customList.slice(0, effectiveLimit);
+    }
+
+    // Fill up remaining slots with track category certificates
+    const remainder = effectiveLimit - customList.length;
+    const existingIds = new Set(customList.map(c => c.id));
+    const filler = allCertificationsList.filter(c => !existingIds.has(c.id));
+    
+    let additional: CertificationRecord[] = [];
+    if (track === 'qa' || track === 'sdet') {
+      additional = filler.filter(c => c.isFeaturedQA || c.category === 'qa' || c.category === 'ai');
+    } else if (track === 'dev' || track === 'backend' || track === 'fullstack') {
+      additional = filler.filter(c => c.isFeaturedDev || c.category === 'dev' || c.category === 'cloud');
+    } else {
+      additional = filler.filter(c => c.isFeaturedCombined || c.isFeaturedQA || c.isFeaturedDev);
+    }
+    
+    return [...customList, ...additional.slice(0, remainder)];
+  }
+
+  // Standard fallback behavior
   if (track === 'qa' || track === 'sdet') {
     const featured = allCertificationsList.filter(c => c.isFeaturedQA);
-    return featured.length >= limit ? featured.slice(0, limit) : allCertificationsList.filter(c => c.category === 'qa' || c.category === 'ai' || c.isFeaturedQA).slice(0, limit);
+    return featured.length >= effectiveLimit 
+      ? featured.slice(0, effectiveLimit) 
+      : allCertificationsList.filter(c => c.category === 'qa' || c.category === 'ai' || c.isFeaturedQA).slice(0, effectiveLimit);
   }
   if (track === 'dev' || track === 'backend' || track === 'fullstack') {
     const featured = allCertificationsList.filter(c => c.isFeaturedDev);
-    return featured.length >= limit ? featured.slice(0, limit) : allCertificationsList.filter(c => c.category === 'dev' || c.category === 'cloud' || c.category === 'database' || c.isFeaturedDev).slice(0, limit);
+    return featured.length >= effectiveLimit 
+      ? featured.slice(0, effectiveLimit) 
+      : allCertificationsList.filter(c => c.category === 'dev' || c.category === 'cloud' || c.category === 'database' || c.isFeaturedDev).slice(0, effectiveLimit);
   }
   // combined / general
   const featured = allCertificationsList.filter(c => c.isFeaturedCombined || c.isFeaturedQA || c.isFeaturedDev);
-  return featured.slice(0, limit);
+  return featured.slice(0, effectiveLimit);
 }
