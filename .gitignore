@@ -1,527 +1,77 @@
-# ============================================================
-
-# React + Vite + TypeScript + Node.js
-
-# VS Code / Git
-
-# ============================================================
-
-# ------------------------------------------------------------
-
-# DEPENDENCIES
-
-# ------------------------------------------------------------
-
-node_modules/
-.pnp/
-.pnp.js
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# ------------------------------------------------------------
-
-# BUILD / DISTRIBUTION
-
-# ------------------------------------------------------------
-
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 dist/
 build/
-out/
-coverage/
+target/
 
-# Vite
-
-.vite/
-
-# TypeScript build information
-
-*.tsbuildinfo
-
-# ------------------------------------------------------------
-
-# ENVIRONMENT VARIABLES
-
-# ------------------------------------------------------------
-
-# Local environment files
-
+# Dependencies
+.venv/
+venv/
+node_modules/
+.julia/
+zig*/
 .env
 .env.local
-.env.*.local
+.env.*
 
-# Environment-specific files
-
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Keep example/template environment files tracked
-
-!.env.example
-!.env.template
-!.env.sample
-
-# ------------------------------------------------------------
-
-# LOGS
-
-# ------------------------------------------------------------
-
-logs/
+# Logs and temp files
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Debug logs
-
-debug.log
-error.log
-
-# ------------------------------------------------------------
-
-# NPM / PACKAGE MANAGERS
-
-# ------------------------------------------------------------
-
-.npm/
-.npmrc.local
-
-# pnpm
-
-.pnpm-store/
-
-# Yarn
-
-.yarn/cache/
-.yarn/unplugged/
-.yarn/install-state.gz
-.yarn/build-state.yml
-
-# Corepack
-
-.corepack/
-
-# ------------------------------------------------------------
-
-# TESTING
-
-# ------------------------------------------------------------
-
-coverage/
-.nyc_output/
-
-# Playwright
-
-playwright-report/
-blob-report/
-test-results/
-
-# Cypress
-
-cypress/videos/
-cypress/screenshots/
-cypress/downloads/
-
-# Vitest
-
-.vitest/
-
-# ------------------------------------------------------------
-
-# VITE / DEVELOPMENT CACHE
-
-# ------------------------------------------------------------
-
-.vite/
-vite.config.*.timestamp-*
-*.vite-temp-*
-
-# ------------------------------------------------------------
-
-# ESLINT / LINTING / FORMATTERS
-
-# ------------------------------------------------------------
-
-.eslintcache
-.stylelintcache
-.prettiercache
-
-# ------------------------------------------------------------
-
-# TYPESCRIPT / SWC / BABEL
-
-# ------------------------------------------------------------
-
-*.tsbuildinfo
-*.swc
-
-# Babel cache
-
-node_modules/.cache/
-
-# ------------------------------------------------------------
-
-# REACT / FRAMEWORK CACHES
-
-# ------------------------------------------------------------
-
-.cache/
-.parcel-cache/
-.turbo/
-
-# React tooling / generated caches
-
-node_modules/.vite/
-node_modules/.cache/
-
-# ------------------------------------------------------------
-
-# IDE - VISUAL STUDIO CODE
-
-# ------------------------------------------------------------
-
-.vscode/*
-
-# Keep shared VS Code configuration that belongs to the project
-
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/tasks.json
-!.vscode/launch.json
-
-# VS Code local history
-
-.history/
-
-# VS Code workspace files
-
-*.code-workspace
-
-# ------------------------------------------------------------
-
-# OTHER IDEs
-
-# ------------------------------------------------------------
-
-.idea/
-*.iml
-
-# JetBrains
-
-*.iws
-*.ipr
-
-# Eclipse
-
-.classpath
-.project
-.settings/
-
-# Sublime Text
-
-*.sublime-workspace
-*.sublime-project
-
-# ------------------------------------------------------------
-
-# OPERATING SYSTEM FILES
-
-# ------------------------------------------------------------
-
-# macOS
-
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-
-# macOS Finder
-
-Icon?
-
-# Windows
-
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-Desktop.ini
-
-# Windows Explorer temporary files
-
-$RECYCLE.BIN/
-
-# Linux
-
-.directory
-
-# Temporary files
-
 *.tmp
-*.temp
+*.swp
+
+# Editors
+.vscode/
+.idea/
 *.swp
 *.swo
-*~
 
-# ------------------------------------------------------------
-
-# SECURITY / CERTIFICATES / PRIVATE KEYS
-
-# ------------------------------------------------------------
-
-# Private keys and certificates
-
-*.pem
-*.key
-*.p12
-*.pfx
-*.crt
-*.cer
-
-# SSH keys accidentally placed in project
-
-id_rsa
-id_rsa.pub
-id_dsa
-id_dsa.pub
-id_ecdsa
-id_ecdsa.pub
-id_ed25519
-id_ed25519.pub
-
-# NOTE:
-
-# If your project intentionally contains public certificates or
-
-# keys required at runtime, review these rules before committing.
-
-# ------------------------------------------------------------
-
-# DATABASE / LOCAL DEVELOPMENT
-
-# ------------------------------------------------------------
-
-*.sqlite
-*.sqlite3
-*.db
-
-# Local database files
-
-data/
-database/data/
-
-# ------------------------------------------------------------
-
-# DOCKER / LOCAL CONTAINERS
-
-# ------------------------------------------------------------
-
-# Docker local overrides
-
-docker-compose.override.yml
-docker-compose.local.yml
-
-# Docker environment files
-
-.docker/
-
-# ------------------------------------------------------------
-
-# TEMPORARY DEVELOPMENT FILES
-
-# ------------------------------------------------------------
-
-tmp/
-temp/
-.tmp/
-.temp/
-
-*.bak
-*.backup
-*.old
-*.orig
-
-# Generated files
-
-generated/
-.generated/
-
-# ------------------------------------------------------------
-
-# API / MOCK / LOCAL DATA
-
-# ------------------------------------------------------------
-
-# Local API dumps
-
-*.har
-
-# Mock/generated local data
-
-mock-data/
-local-data/
-
-# ------------------------------------------------------------
-
-# DOCUMENTATION / GENERATED REPORTS
-
-# ------------------------------------------------------------
-
-# Generated documentation
-
-docs/generated/
-
-# Generated reports
-
-reports/
-reports/generated/
-
-# ------------------------------------------------------------
-
-# PERFORMANCE / PROFILING
-
-# ------------------------------------------------------------
-
-*.cpuprofile
-*.heapprofile
-*.heapsnapshot
-
-# ------------------------------------------------------------
-
-# SENTRY / ERROR REPORTING
-
-# ------------------------------------------------------------
-
-.sentryclirc
-
-# ------------------------------------------------------------
-
-# STORYBOOK
-
-# ------------------------------------------------------------
-
-storybook-static/
-
-# ------------------------------------------------------------
-
-# NETLIFY / VERCEL / CLOUDFLARE
-
-# ------------------------------------------------------------
-
-# Netlify
-
-.netlify/
-
-# Vercel
-
-.vercel/
-
-# Cloudflare
-
-.wrangler/
-
-# ------------------------------------------------------------
-
-# SERVERLESS / CLOUD DEVELOPMENT
-
-# ------------------------------------------------------------
-
-.serverless/
-.aws-sam/
-
-# ------------------------------------------------------------
-
-# LOCAL CERTIFICATES
-
-# ------------------------------------------------------------
-
-certs/
-certificates/
-
-# ------------------------------------------------------------
-
-# GENERATED ASSETS
-
-# ------------------------------------------------------------
-
-# Uncomment only if these directories are generated automatically
-
-# public/generated/
-
-# src/generated/
-
-# ------------------------------------------------------------
-
-# OPTIONAL: LOCAL CONFIGURATION
-
-# ------------------------------------------------------------
-
-# Local-only configuration files
-
-config.local.*
-*.local.json
-*.local.yaml
-*.local.yml
-
-# ------------------------------------------------------------
-
-# OPTIONAL: SECRETS
-
-# ------------------------------------------------------------
-
-# Common secret/config files
-
-secrets/
-.secret/
-*.secret
-*.secret.json
-*.secret.yaml
-*.secret.yml
-
-# ------------------------------------------------------------
-
-# PACKAGE MANAGER LOCKFILES
-
-# ------------------------------------------------------------
-
-# IMPORTANT:
-
-# DO NOT ignore package-lock.json, pnpm-lock.yaml or yarn.lock.
-
-# Lockfiles SHOULD be committed to Git for reproducible builds.
-
-# ------------------------------------------------------------
-
-# OPTIONAL: GENERATED TYPE DEFINITIONS
-
-# ------------------------------------------------------------
-
-# Uncomment only if generated automatically
-
-# *.generated.ts
-
-# *.generated.tsx
-
-# ------------------------------------------------------------
-
-# OPTIONAL: GENERATED API CLIENTS
-
-# ------------------------------------------------------------
-
-# Uncomment only if generated automatically
-
-# src/api/generated/
-
-# src/services/generated/
-
-# ------------------------------------------------------------
-
-# END
-
-# ------------------------------------------------------------
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# Compression
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```
