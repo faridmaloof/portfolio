@@ -1,19 +1,43 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
-const DB_DIR = path.join(process.cwd(), 'data');
+// Database configuration with environment variables support
+const DB_CONFIG = {
+  path: process.env.DB_PATH || path.join(process.cwd(), 'data', 'portfolio.db'),
+  password: process.env.DB_PASSWORD || null,
+  encryption: process.env.DB_ENCRYPTION === 'true'
+};
+
+// Ensure data directory exists
+const DB_DIR = path.dirname(DB_CONFIG.path);
 if (!fs.existsSync(DB_DIR)) {
   fs.mkdirSync(DB_DIR, { recursive: true });
 }
 
-const DB_PATH = path.join(DB_DIR, 'portfolio.db');
-const db = new Database(DB_PATH);
+// Initialize database with optional encryption
+let db;
+try {
+  db = new Database(DB_CONFIG.path);
+  
+  // Enable WAL mode for better concurrency
+  db.pragma('journal_mode = WAL');
+  
+  // Set encryption key if provided
+  if (DB_CONFIG.password && DB_CONFIG.encryption) {
+    db.pragma(`key = '${DB_CONFIG.password.replace(/'/g, "''")}'`);
+  }
+  
+  // Set secure pragmas
+  db.pragma('secure_delete = ON');
+  db.pragma('auto_vacuum = FULL');
+} catch (error) {
+  console.error('Failed to initialize database:', error.message);
+  throw error;
+}
 
-// Enable WAL mode for fast concurrency
-db.pragma('journal_mode = WAL');
-
-// Initialize tables
+// Initialize tables with admin users table for server-side authentication
 db.exec(`
   CREATE TABLE IF NOT EXISTS system_variables (
     key TEXT PRIMARY KEY,
@@ -53,7 +77,79 @@ db.exec(`
     data TEXT NOT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS admin_users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    role TEXT DEFAULT 'admin',
+    must_change_password INTEGER DEFAULT 0,
+    reset_code TEXT,
+    reset_code_expiry INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS education (
+    id TEXT PRIMARY KEY,
+    school_name TEXT NOT NULL,
+    degree_name TEXT,
+    location TEXT,
+    start_date TEXT,
+    end_date TEXT,
+    description TEXT,
+    notes TEXT,
+    is_active INTEGER DEFAULT 1,
+    sort_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS languages (
+    id TEXT PRIMARY KEY,
+    name_es TEXT NOT NULL,
+    name_en TEXT NOT NULL,
+    native_name TEXT,
+    code TEXT,
+    flag_emoji TEXT,
+    proficiency_level TEXT,
+    is_active INTEGER DEFAULT 1,
+    sort_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
+
+// Helper function to hash passwords with salt
+function hashPassword(password, salt = null) {
+  if (!salt) {
+    salt = crypto.randomBytes(16).toString('hex');
+  }
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return { hash, salt };
+}
+
+// Initialize default admin user if none exists
+const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+if (adminCount.count === 0) {
+  const defaultAdmin = {
+    id: '1',
+    email: 'admin@portfolio.local',
+    username: 'admin',
+    role: 'superadmin',
+    must_change_password: 1
+  };
+  const { hash, salt } = hashPassword('Admin123!');
+  
+  db.prepare(`
+    INSERT INTO admin_users (id, email, username, password_hash, salt, role, must_change_password)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(defaultAdmin.id, defaultAdmin.email, defaultAdmin.username, hash, salt, defaultAdmin.role, defaultAdmin.must_change_password);
+  
+  console.log('✅ Default admin user created. Please change password on first login.');
+}
 
 export function getSystemVariablesDb() {
   const row = db.prepare('SELECT value FROM system_variables WHERE key = ?').get('vars');
@@ -261,4 +357,254 @@ Disallow: /admin
 
 Sitemap: ${origin}/sitemap.xml
 `;
+}
+
+// Admin authentication functions
+export function authenticateAdminDb(identifier, password) {
+  try {
+    const admin = db.prepare(`
+      SELECT * FROM admin_users 
+      WHERE email = ? OR username = ?
+    `).get(identifier.toLowerCase(), identifier.toLowerCase());
+    
+    if (!admin) {
+      return { success: false, error: 'Credenciales inválidas' };
+    }
+    
+    // Verify password
+    const { hash } = hashPassword(password, admin.salt);
+    if (hash !== admin.password_hash) {
+      return { success: false, error: 'Credenciales inválidas' };
+    }
+    
+    return {
+      success: true,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        username: admin.username,
+        role: admin.role,
+        mustChangePassword: Boolean(admin.must_change_password)
+      }
+    };
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return { success: false, error: 'Error de autenticación' };
+  }
+}
+
+export function getAdminCountDb() {
+  const result = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+  return result.count;
+}
+
+export function createFirstAdminDb(email, username, password) {
+  try {
+    const count = getAdminCountDb();
+    if (count > 0) {
+      return { success: false, error: 'Ya existe un administrador registrado' };
+    }
+    
+    const { hash, salt } = hashPassword(password);
+    const id = String(Date.now());
+    
+    db.prepare(`
+      INSERT INTO admin_users (id, email, username, password_hash, salt, role, must_change_password)
+      VALUES (?, ?, ?, ?, ?, 'superadmin', 0)
+    `).run(id, email.toLowerCase(), username.toLowerCase(), hash, salt);
+    
+    return { success: true, admin: { id, email, username, role: 'superadmin' } };
+  } catch (error) {
+    console.error('Error creating admin:', error);
+    return { success: false, error: 'Error al crear administrador' };
+  }
+}
+
+export function changeAdminPasswordDb(adminId, newPassword) {
+  try {
+    const { hash, salt } = hashPassword(newPassword);
+    db.prepare(`
+      UPDATE admin_users 
+      SET password_hash = ?, salt = ?, must_change_password = 0, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(hash, salt, adminId);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return { success: false, error: 'Error al cambiar contraseña' };
+  }
+}
+
+export function requestPasswordResetDb(identifier) {
+  try {
+    const admin = db.prepare(`
+      SELECT * FROM admin_users 
+      WHERE email = ? OR username = ?
+    `).get(identifier.toLowerCase(), identifier.toLowerCase());
+    
+    if (!admin) {
+      return { success: false, error: 'Usuario no encontrado' };
+    }
+    
+    // Generate 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = Date.now() + (15 * 60 * 1000); // 15 minutes
+    
+    db.prepare(`
+      UPDATE admin_users 
+      SET reset_code = ?, reset_code_expiry = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(resetCode, expiry, admin.id);
+    
+    // In production, send email here. For now, log the code
+    console.log(`🔑 Password reset code for ${admin.email}: ${resetCode}`);
+    
+    return { success: true, message: 'Código generado (revisar consola en desarrollo)' };
+  } catch (error) {
+    console.error('Error requesting reset:', error);
+    return { success: false, error: 'Error al solicitar restablecimiento' };
+  }
+}
+
+export function resetPasswordWithCodeDb(identifier, code, newPassword) {
+  try {
+    const admin = db.prepare(`
+      SELECT * FROM admin_users 
+      WHERE (email = ? OR username = ?) AND reset_code = ? AND reset_code_expiry > ?
+    `).get(identifier.toLowerCase(), identifier.toLowerCase(), code, Date.now());
+    
+    if (!admin) {
+      return { success: false, error: 'Código inválido o expirado' };
+    }
+    
+    const { hash, salt } = hashPassword(newPassword);
+    db.prepare(`
+      UPDATE admin_users 
+      SET password_hash = ?, salt = ?, reset_code = NULL, reset_code_expiry = NULL, must_change_password = 0, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(hash, salt, admin.id);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return { success: false, error: 'Error al restablecer contraseña' };
+  }
+}
+
+// Education management functions
+export function getEducationDb() {
+  const rows = db.prepare(`
+    SELECT * FROM education 
+    WHERE is_active = 1 
+    ORDER BY sort_order ASC, start_date DESC
+  `).all();
+  
+  return rows.map(row => ({
+    id: row.id,
+    schoolName: row.school_name,
+    degreeName: row.degree_name,
+    location: row.location,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    description: row.description,
+    notes: row.notes,
+    isActive: Boolean(row.is_active),
+    sortOrder: row.sort_order
+  }));
+}
+
+export function saveEducationDb(education) {
+  const stmt = db.prepare(`
+    INSERT INTO education (id, school_name, degree_name, location, start_date, end_date, description, notes, is_active, sort_order, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+      school_name = excluded.school_name,
+      degree_name = excluded.degree_name,
+      location = excluded.location,
+      start_date = excluded.start_date,
+      end_date = excluded.end_date,
+      description = excluded.description,
+      notes = excluded.notes,
+      is_active = excluded.is_active,
+      sort_order = excluded.sort_order,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  
+  stmt.run(
+    education.id,
+    education.schoolName,
+    education.degreeName,
+    education.location || '',
+    education.startDate || '',
+    education.endDate || '',
+    education.description || '',
+    education.notes || '',
+    education.isActive ? 1 : 0,
+    education.sortOrder || 0
+  );
+  
+  return true;
+}
+
+export function deleteEducationDb(id) {
+  db.prepare('DELETE FROM education WHERE id = ?').run(id);
+  return true;
+}
+
+// Languages management functions
+export function getLanguagesDb() {
+  const rows = db.prepare(`
+    SELECT * FROM languages 
+    WHERE is_active = 1 
+    ORDER BY sort_order ASC
+  `).all();
+  
+  return rows.map(row => ({
+    id: row.id,
+    nameEs: row.name_es,
+    nameEn: row.name_en,
+    nativeName: row.native_name,
+    code: row.code,
+    flagEmoji: row.flag_emoji,
+    proficiencyLevel: row.proficiency_level,
+    isActive: Boolean(row.is_active),
+    sortOrder: row.sort_order
+  }));
+}
+
+export function saveLanguageDb(language) {
+  const stmt = db.prepare(`
+    INSERT INTO languages (id, name_es, name_en, native_name, code, flag_emoji, proficiency_level, is_active, sort_order, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+      name_es = excluded.name_es,
+      name_en = excluded.name_en,
+      native_name = excluded.native_name,
+      code = excluded.code,
+      flag_emoji = excluded.flag_emoji,
+      proficiency_level = excluded.proficiency_level,
+      is_active = excluded.is_active,
+      sort_order = excluded.sort_order,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  
+  stmt.run(
+    language.id,
+    language.nameEs,
+    language.nameEn,
+    language.nativeName || '',
+    language.code || '',
+    language.flagEmoji || '',
+    language.proficiencyLevel || '',
+    language.isActive ? 1 : 0,
+    language.sortOrder || 0
+  );
+  
+  return true;
+}
+
+export function deleteLanguageDb(id) {
+  db.prepare('DELETE FROM languages WHERE id = ?').run(id);
+  return true;
 }

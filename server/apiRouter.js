@@ -12,7 +12,19 @@ import {
   getFullExportDb,
   importFullDataDb,
   generateSitemapXml,
-  generateRobotsTxt
+  generateRobotsTxt,
+  authenticateAdminDb,
+  getAdminCountDb,
+  createFirstAdminDb,
+  changeAdminPasswordDb,
+  requestPasswordResetDb,
+  resetPasswordWithCodeDb,
+  getEducationDb,
+  saveEducationDb,
+  deleteEducationDb,
+  getLanguagesDb,
+  saveLanguageDb,
+  deleteLanguageDb
 } from './sqliteDb.js';
 
 export function handleApiRequest(req, res, next) {
