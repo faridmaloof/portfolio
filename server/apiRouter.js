@@ -176,6 +176,68 @@ export function handleApiRequest(req, res, next) {
     return;
   }
 
+  // 9. API Education
+  if (url === '/api/education') {
+    if (method === 'GET') {
+      const education = getEducationDb();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(education));
+      return;
+    }
+    if (method === 'POST') {
+      parseJsonBody((body) => {
+        saveEducationDb(body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      });
+      return;
+    }
+    if (method === 'DELETE') {
+      parseJsonBody((body) => {
+        if (body.id) {
+          deleteEducationDb(body.id);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true }));
+        } else {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'ID is required' }));
+        }
+      });
+      return;
+    }
+  }
+
+  // 10. API Languages
+  if (url === '/api/languages') {
+    if (method === 'GET') {
+      const languages = getLanguagesDb();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(languages));
+      return;
+    }
+    if (method === 'POST') {
+      parseJsonBody((body) => {
+        saveLanguageDb(body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      });
+      return;
+    }
+    if (method === 'DELETE') {
+      parseJsonBody((body) => {
+        if (body.id) {
+          deleteLanguageDb(body.id);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true }));
+        } else {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'ID is required' }));
+        }
+      });
+      return;
+    }
+  }
+
   // Pass to next middleware if not handled
   if (typeof next === 'function') {
     next();

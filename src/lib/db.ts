@@ -15,9 +15,12 @@ import { defaultProfileData } from '../data/profile';
 export type { ServiceItem, LanguageOption, LanguageOption as LanguageConfig, FrontendDesignConfig } from '../types';
 
 const DB_NAME = 'portfolio_db';
-const ADMIN_EMAIL = 'faridmaloof@gmail.com';
-const DEFAULT_PASSWORD = 'Admin123!';
-const DEFAULT_USERNAME = 'admin';
+
+// NOTA DE SEGURIDAD: Las credenciales de administrador NO deben estar hardcodeadas.
+// El sistema valida si existe un administrador en la base de datos al iniciar.
+// Si no existe ningún administrador, el primer usuario creado se convierte automáticamente en admin.
+// Si ya existe uno o más administradores, solo se permite el login con credenciales válidas.
+// Esto evita dejar credenciales expuestas en el código fuente.
 
 export interface AdminUser {
   id: string;
@@ -456,19 +459,11 @@ export function initDB(): void {
     
     if (!db) {
       console.log('📦 [DB] No existing database found. Creating initial seed data...');
+      // NOTA: No se crean credenciales por defecto en el frontend.
+      // El backend se encargará de crear el primer administrador si no existe ninguno.
       const initialDB = {
         profiles: [],
-        admins: [{
-          id: '1',
-          email: ADMIN_EMAIL,
-          username: DEFAULT_USERNAME,
-          password: DEFAULT_PASSWORD,
-          role: 'superadmin',
-          mustChangePassword: false,
-          resetCode: null,
-          resetCodeExpiry: null,
-          createdAt: new Date().toISOString()
-        }],
+        admins: [], // Se crea vía backend según cantidad de registros
         settings: {
           defaultProfile: 'combined',
           defaultLanguage: 'es',
@@ -497,55 +492,18 @@ export function initDB(): void {
         systemVariables: DEFAULT_SYSTEM_VARIABLES
       };
       localStorage.setItem(DB_NAME, JSON.stringify(initialDB));
-      console.log('✅ [DB] Database initialized successfully with default admin:', ADMIN_EMAIL, '/', DEFAULT_USERNAME);
+      console.log('✅ [DB] Database initialized successfully (sin credenciales hardcodeadas).');
     } else {
       const parsedDB = JSON.parse(db);
-      console.log('📦 [DB] Database loaded. Verifying schema and default credentials...');
+      console.log('📦 [DB] Database loaded. Verifying schema...');
       
       let updated = false;
 
-      // Ensure admins exist and default admin is valid
-      if (!parsedDB.admins || parsedDB.admins.length === 0) {
-        parsedDB.admins = [{
-          id: '1',
-          email: ADMIN_EMAIL,
-          username: DEFAULT_USERNAME,
-          password: DEFAULT_PASSWORD,
-          role: 'superadmin',
-          mustChangePassword: false,
-          resetCode: null,
-          resetCodeExpiry: null,
-          createdAt: new Date().toISOString()
-        }];
-        updated = true;
-      } else {
-        // Ensure default admin exists in the list
-        const defaultAdmin = parsedDB.admins.find(
-          (a: any) => (a.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase() ||
-                      (a.username || '').toLowerCase() === DEFAULT_USERNAME.toLowerCase()
-        );
-
-        if (!defaultAdmin) {
-          parsedDB.admins.push({
-            id: String(Date.now()),
-            email: ADMIN_EMAIL,
-            username: DEFAULT_USERNAME,
-            password: DEFAULT_PASSWORD,
-            role: 'superadmin',
-            mustChangePassword: false,
-            resetCode: null,
-            resetCodeExpiry: null,
-            createdAt: new Date().toISOString()
-          });
-          updated = true;
-        } else {
-          // If default admin had mustChangePassword true blocking login, set to false
-          if (defaultAdmin.mustChangePassword) {
-            defaultAdmin.mustChangePassword = false;
-            updated = true;
-          }
-        }
-      }
+      // NOTA: No se agregan administradores por defecto en el frontend.
+      // La gestión de administradores se realiza exclusivamente desde el backend
+      // con validación de único usuario para mayor seguridad.
+      // Si no hay admins, el backend creará el primero al registrar.
+      // Si ya hay admins, solo se permite login con credenciales válidas.
       
       // Ensure settings exist
       if (!parsedDB.settings) {
