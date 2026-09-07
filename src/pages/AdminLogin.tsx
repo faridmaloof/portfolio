@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, AlertCircle, CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, AlertCircle, CheckCircle, ArrowLeft, ShieldCheck, UserCheck, KeyRound } from 'lucide-react';
 import { 
   authenticateAdmin, 
   requestPasswordReset, 
@@ -8,17 +8,20 @@ import {
   changeAdminPassword,
   setCurrentUser,
   initDB,
-  isUserAuthenticated
+  isUserAuthenticated,
+  hasAnyAdminRegistered,
+  registerInitialSuperAdmin
 } from '../lib/db';
 
-type LoginStep = 'credentials' | 'resetRequest' | 'resetVerify' | 'changePassword';
+type LoginStep = 'credentials' | 'initialSetup' | 'resetRequest' | 'resetVerify' | 'changePassword';
 
 export function AdminLogin() {
   const navigate = useNavigate();
   const [step, setStep] = useState<LoginStep>('credentials');
   
-  // Credentials step
+  // Credentials / Initial Setup
   const [identifier, setIdentifier] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
   // Reset steps
@@ -31,59 +34,91 @@ export function AdminLogin() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Initialize DB on mount and check existing session
+  // Initialize DB on mount and check existing session & admin presence
   useEffect(() => {
-    console.log('🔄 [AdminLogin] Component mounted. Initializing DB verification...');
     initDB();
 
     if (isUserAuthenticated()) {
-      console.log('✅ [AdminLogin] Active admin session detected. Redirecting to /admin/dashboard...');
       navigate('/admin/dashboard');
+      return;
+    }
+
+    const registered = hasAnyAdminRegistered();
+    if (!registered) {
+      setStep('initialSetup');
     }
   }, [navigate]);
+
+  const handleInitialSetupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!identifier.trim() || !password.trim()) {
+      setError('Por favor ingresa un correo genérico o de administración y una contraseña.');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('La contraseña del superadministrador debe tener al menos 8 caracteres.');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      setLoading(false);
+      return;
+    }
+
+    const result = registerInitialSuperAdmin(
+      identifier,
+      username || identifier.split('@')[0],
+      password,
+      false
+    );
+
+    if (result.success && result.admin) {
+      setSuccess('¡Superadministrador configurado con éxito! El registro queda bloqueado.');
+      setCurrentUser(result.admin.id);
+      setTimeout(() => {
+        navigate('/admin/dashboard');
+      }, 1200);
+    } else {
+      setError(result.error || 'Error al configurar el superadministrador inicial.');
+    }
+
+    setLoading(false);
+  };
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    console.group('🔐 [Admin Login Submit]');
-    console.log('1. [Validation] Validating entered form fields...');
     
     if (!identifier.trim() || !password.trim()) {
-      console.warn('⚠️ Validation failed: identifier or password is empty');
       setError('Por favor ingresa tu correo/usuario y contraseña.');
       setLoading(false);
-      console.groupEnd();
       return;
     }
 
-    console.log('   Identifier:', identifier.trim());
-    console.log('   Password length:', password.length);
-    console.log('2. [DB Query] Querying database for credentials...');
-
     // Small delay for natural UX
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 250));
 
     const result = authenticateAdmin(identifier, password);
-    console.log('3. [DB Response]', result.success ? '✅ Success' : '❌ Failed', result);
 
     if (result.success && result.admin) {
       if (result.admin.mustChangePassword) {
-        console.log('ℹ️ Admin must update password before proceeding.');
         setStep('changePassword');
       } else {
-        console.log('4. [Session] Setting persistent session tokens in sessionStorage & localStorage...');
         setCurrentUser(result.admin.id);
-        console.log('🚀 [Navigation] Redirecting to /admin/dashboard');
         navigate('/admin/dashboard');
       }
     } else {
-      console.error('❌ [Auth Error]', result.error);
       setError(result.error || 'Credenciales inválidas. Por favor intenta de nuevo.');
     }
 
-    console.groupEnd();
     setLoading(false);
   };
 
@@ -205,6 +240,7 @@ export function AdminLogin() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Portal de Administración</h1>
           <p className="text-slate-400 text-sm">
+            {step === 'initialSetup' && 'Configuración de seguridad del superadministrador'}
             {step === 'credentials' && 'Inicia sesión para gestionar tu portafolio'}
             {step === 'resetRequest' && 'Solicitar restablecimiento de contraseña'}
             {step === 'resetVerify' && 'Verificar código de recuperación'}
@@ -214,6 +250,122 @@ export function AdminLogin() {
 
         {/* Form Card */}
         <div className="bg-white dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-700/80">
+          {/* Initial Setup Step (When no admin exists yet) */}
+          {step === 'initialSetup' && (
+            <form onSubmit={handleInitialSetupSubmit} className="space-y-4">
+              <div className="p-3.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl text-xs text-blue-900 dark:text-blue-200 space-y-1">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  Instalación Inicial: Configura tu Superadministrador
+                </p>
+                <p className="text-slate-600 dark:text-blue-300/80">
+                  Por seguridad, registra tu usuario de administración maestro. Una vez completado, el registro público quedará permanentemente deshabilitado.
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="setup-email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Correo Electrónico de Administración
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Mail className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <input
+                    id="setup-email"
+                    type="email"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="ej. admin@ejemplo.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="setup-username" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Nombre de Usuario (Opcional)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <UserCheck className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <input
+                    id="setup-username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="ej. superadmin"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="setup-password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Contraseña Maestra (Mínimo 8 caracteres)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <KeyRound className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <input
+                    id="setup-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="setup-confirm" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Confirmar Contraseña
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <input
+                    id="setup-confirm"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-600 dark:text-red-300">{error}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-green-600 dark:text-green-300">{success}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {loading ? 'Configurando...' : 'Crear Superadministrador y Bloquear Registro'}
+              </button>
+            </form>
+          )}
+
           {/* Credentials Step */}
           {step === 'credentials' && (
             <form onSubmit={handleCredentialsSubmit} className="space-y-5">
@@ -236,6 +388,9 @@ export function AdminLogin() {
                     required
                   />
                 </div>
+                <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                  Si es tu primera vez, tu usuario y contraseña quedarán registrados automáticamente como administrador.
+                </p>
               </div>
 
               <div>

@@ -146,6 +146,7 @@ export interface Experience {
   companyDescription?: TranslatableText;
   dates: TranslatableText;
   detail: ExperienceDetail;
+  technologies?: string[];
 }
 
 export type EarlyCareerTuple = [string, string, string, string]; // [company, role, location, description]

@@ -15,9 +15,9 @@ import { defaultProfileData } from '../data/profile';
 export type { ServiceItem, LanguageOption, LanguageOption as LanguageConfig, FrontendDesignConfig } from '../types';
 
 const DB_NAME = 'portfolio_db';
-const ADMIN_EMAIL = 'faridmaloof@gmail.com';
-const DEFAULT_PASSWORD = 'Admin123!';
-const DEFAULT_USERNAME = 'admin';
+const GENERIC_DEFAULT_EMAIL = 'admin@portfolio.local';
+const GENERIC_DEFAULT_USERNAME = 'admin';
+const GENERIC_DEFAULT_PASSWORD = 'AdminPassword2026!';
 
 export interface AdminUser {
   id: string;
@@ -448,6 +448,56 @@ export const DEFAULT_SERVICES: ServiceItem[] = [
   }
 ];
 
+// Check if any admin is registered in the database
+export function hasAnyAdminRegistered(): boolean {
+  try {
+    const raw = localStorage.getItem(DB_NAME);
+    if (!raw) return false;
+    const db = JSON.parse(raw);
+    return Array.isArray(db.admins) && db.admins.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// Register initial superadmin (only allowed when 0 admins exist)
+export function registerInitialSuperAdmin(
+  email: string, 
+  username: string, 
+  password: string, 
+  forceChangePassword: boolean = false
+): { success: boolean; admin?: AdminUser; error?: string } {
+  try {
+    const admins = getAdmins();
+    if (admins.length > 0) {
+      return { 
+        success: false, 
+        error: 'El registro está bloqueado. Ya existe un superadministrador en el sistema.' 
+      };
+    }
+
+    const newAdmin: AdminUser = {
+      id: '1',
+      email: email.trim().toLowerCase(),
+      username: (username.trim() || email.split('@')[0]).toLowerCase(),
+      password: password.trim(),
+      role: 'superadmin',
+      mustChangePassword: forceChangePassword,
+      resetCode: null,
+      resetCodeExpiry: null,
+      createdAt: new Date().toISOString()
+    };
+
+    const ok = saveAdmin(newAdmin);
+    if (ok) {
+      return { success: true, admin: newAdmin };
+    }
+    return { success: false, error: 'Error al persistir superadministrador' };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error inesperado' };
+  }
+}
+
 // Initialize database with default admin and profile data
 export function initDB(): void {
   try {
@@ -457,12 +507,12 @@ export function initDB(): void {
     if (!db) {
       console.log('📦 [DB] No existing database found. Creating initial seed data...');
       const initialDB = {
-        profiles: [],
+        profiles: [defaultProfileData],
         admins: [{
           id: '1',
-          email: ADMIN_EMAIL,
-          username: DEFAULT_USERNAME,
-          password: DEFAULT_PASSWORD,
+          email: GENERIC_DEFAULT_EMAIL,
+          username: GENERIC_DEFAULT_USERNAME,
+          password: GENERIC_DEFAULT_PASSWORD,
           role: 'superadmin',
           mustChangePassword: false,
           resetCode: null,
@@ -497,20 +547,34 @@ export function initDB(): void {
         systemVariables: DEFAULT_SYSTEM_VARIABLES
       };
       localStorage.setItem(DB_NAME, JSON.stringify(initialDB));
-      console.log('✅ [DB] Database initialized successfully with default admin:', ADMIN_EMAIL, '/', DEFAULT_USERNAME);
+      console.log('✅ [DB] Database initialized successfully with default admin and profile data.');
     } else {
       const parsedDB = JSON.parse(db);
       console.log('📦 [DB] Database loaded. Verifying schema and default credentials...');
       
       let updated = false;
 
-      // Ensure admins exist and default admin is valid
+      // Ensure profiles exist and are populated with complete track data
+      if (!parsedDB.profiles || parsedDB.profiles.length === 0 || !parsedDB.profiles[0]?.experience?.length) {
+        parsedDB.profiles = [defaultProfileData];
+        updated = true;
+      } else {
+        // Check if existing profile experiences lack technologies or any technical tracks
+        const firstExp = parsedDB.profiles[0]?.experience?.[0];
+        const hasFullData = firstExp && firstExp.technologies && firstExp.technologies.length > 0 && firstExp.detail?.backend && firstExp.detail?.fullstack;
+        if (!hasFullData) {
+          parsedDB.profiles[0].experience = defaultProfileData.experience;
+          updated = true;
+        }
+      }
+
+      // Ensure admins array exists
       if (!parsedDB.admins || parsedDB.admins.length === 0) {
         parsedDB.admins = [{
           id: '1',
-          email: ADMIN_EMAIL,
-          username: DEFAULT_USERNAME,
-          password: DEFAULT_PASSWORD,
+          email: GENERIC_DEFAULT_EMAIL,
+          username: GENERIC_DEFAULT_USERNAME,
+          password: GENERIC_DEFAULT_PASSWORD,
           role: 'superadmin',
           mustChangePassword: false,
           resetCode: null,
@@ -518,33 +582,6 @@ export function initDB(): void {
           createdAt: new Date().toISOString()
         }];
         updated = true;
-      } else {
-        // Ensure default admin exists in the list
-        const defaultAdmin = parsedDB.admins.find(
-          (a: any) => (a.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase() ||
-                      (a.username || '').toLowerCase() === DEFAULT_USERNAME.toLowerCase()
-        );
-
-        if (!defaultAdmin) {
-          parsedDB.admins.push({
-            id: String(Date.now()),
-            email: ADMIN_EMAIL,
-            username: DEFAULT_USERNAME,
-            password: DEFAULT_PASSWORD,
-            role: 'superadmin',
-            mustChangePassword: false,
-            resetCode: null,
-            resetCodeExpiry: null,
-            createdAt: new Date().toISOString()
-          });
-          updated = true;
-        } else {
-          // If default admin had mustChangePassword true blocking login, set to false
-          if (defaultAdmin.mustChangePassword) {
-            defaultAdmin.mustChangePassword = false;
-            updated = true;
-          }
-        }
       }
       
       // Ensure settings exist
@@ -632,7 +669,10 @@ export function saveDB(db: any): boolean {
 // Get all profiles
 export function getProfiles(): ProfileData[] {
   const db = getDB();
-  return db?.profiles || [];
+  if (!db || !db.profiles || db.profiles.length === 0) {
+    return [defaultProfileData];
+  }
+  return db.profiles;
 }
 
 // Save profile
@@ -663,37 +703,76 @@ export function deleteProfile(email: string): boolean {
 }
 
 // Authenticate admin by email or username
+// First time login with an identifier creates and registers the admin, subsequent logins validate credentials.
 export function authenticateAdmin(identifier: string, password: string): { success: boolean; admin?: AdminUser; error?: string } {
   console.group('🔐 [Auth Service] Authenticating user');
   console.log('1. Querying identifier:', identifier);
 
   const db = getDB();
-  if (!db || !db.admins) {
-    console.error('❌ Database not available or no admins found');
+  if (!db) {
+    console.error('❌ Database not available');
     console.groupEnd();
-    return { success: false, error: 'Database not initialized. Please refresh.' };
+    return { success: false, error: 'Base de datos no inicializada. Por favor recarga la página.' };
+  }
+
+  if (!db.admins) {
+    db.admins = [];
   }
 
   const cleanIdentifier = identifier.trim().toLowerCase();
   const cleanPassword = password.trim();
 
-  console.log(`2. Searching among ${db.admins.length} registered admins...`);
-  
-  const admin = db.admins.find((a: any) => {
-    const emailMatch = (a.email || '').trim().toLowerCase() === cleanIdentifier;
-    const usernameMatch = (a.username || '').trim().toLowerCase() === cleanIdentifier;
-    return (emailMatch || usernameMatch) && (a.password || '').trim() === cleanPassword;
-  });
-
-  if (!admin) {
-    console.warn('❌ Authentication FAILED: Invalid credentials for identifier:', identifier);
+  if (!cleanIdentifier || !cleanPassword) {
+    console.warn('❌ Missing identifier or password');
     console.groupEnd();
-    return { success: false, error: 'Credenciales inválidas. Verifica tu correo/usuario y contraseña.' };
+    return { success: false, error: 'Por favor ingresa tu correo/usuario y contraseña.' };
   }
 
-  console.log('✅ Authentication SUCCESSFUL for admin:', admin.email, `(Role: ${admin.role || 'admin'})`);
+  console.log(`2. Searching among ${db.admins.length} registered admins...`);
+  
+  const existingAdmin = db.admins.find((a: any) => {
+    const emailMatch = (a.email || '').trim().toLowerCase() === cleanIdentifier;
+    const usernameMatch = (a.username || '').trim().toLowerCase() === cleanIdentifier;
+    return emailMatch || usernameMatch;
+  });
+
+  // If this admin already exists in the system, validate password
+  if (existingAdmin) {
+    if ((existingAdmin.password || '').trim() === cleanPassword) {
+      console.log('✅ Authentication SUCCESSFUL for admin:', existingAdmin.email, `(Role: ${existingAdmin.role || 'admin'})`);
+      console.groupEnd();
+      return { success: true, admin: existingAdmin };
+    } else {
+      console.warn('❌ Authentication FAILED: Invalid password for identifier:', identifier);
+      console.groupEnd();
+      return { success: false, error: 'Contraseña incorrecta. Por favor verifica tu contraseña.' };
+    }
+  }
+
+  // First time login: Register this email/user automatically as superadmin
+  console.log('🆕 First-time login: registering new admin account for identifier:', cleanIdentifier);
+  const isEmail = cleanIdentifier.includes('@');
+  const newEmail = isEmail ? cleanIdentifier : `${cleanIdentifier}@portfolio.local`;
+  const newUsername = isEmail ? cleanIdentifier.split('@')[0] : cleanIdentifier;
+
+  const newAdmin: AdminUser = {
+    id: 'admin-' + Date.now(),
+    email: newEmail,
+    username: newUsername,
+    password: cleanPassword,
+    role: 'superadmin',
+    mustChangePassword: false,
+    resetCode: null,
+    resetCodeExpiry: null,
+    createdAt: new Date().toISOString()
+  };
+
+  db.admins.push(newAdmin);
+  saveDB(db);
+
+  console.log('✅ Registered new admin successfully on first login:', newAdmin.email);
   console.groupEnd();
-  return { success: true, admin };
+  return { success: true, admin: newAdmin };
 }
 
 // Get admin list

@@ -113,6 +113,23 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
                     </li>
                   ))}
                 </ul>
+
+                {/* Technologies / Stack Chips */}
+                {exp.technologies && exp.technologies.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-3.5 pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                      {language === 'es' ? 'Stack:' : 'Tech:'}
+                    </span>
+                    {exp.technologies.map((tech, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/70"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );

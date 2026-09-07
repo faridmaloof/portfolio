@@ -1,7 +1,7 @@
-import { Mail, MapPin, Phone, Award, ShieldCheck, Download, ExternalLink, Sparkles } from 'lucide-react';
+import { Mail, MapPin, Phone, Award, ShieldCheck, ExternalLink, Sparkles, Calendar } from 'lucide-react';
 import type { ProfileData, Language, TrackType } from '../types';
-import { generatePDF } from '../lib/pdfGenerator';
 import { getLocalizedTitle } from '../lib/utils';
+import { getSystemVariables } from '../lib/db';
 
 interface HeaderProps {
   data: ProfileData;
@@ -40,12 +40,17 @@ const GithubIcon = ({ className }: { className?: string }) => (
 
 export function Header({ data, language, track = 'combined' }: HeaderProps) {
   const { contact } = data;
+  const sysVars = getSystemVariables();
   
   // Get dynamic title based on track and language
   const titleText = getLocalizedTitle(data.titles, track, language);
 
-  const githubUrl = contact.githubUrl || "https://github.com/faridmaloof/";
+  const githubUrl = contact.githubUrl || sysVars.githubUrl || "https://github.com/faridmaloof/";
   const avatarImage = contact.avatarUrl || "/profile.jpg";
+
+  const schedulingUrl = sysVars.schedulingUrl || sysVars.calendlyUrl;
+  const scheduleCtaLabel = sysVars.schedulingCtaText?.[language] ||
+    (language === 'es' ? 'Agendar Reunión' : language === 'pt' ? 'Agendar Reunião' : 'Schedule Meeting');
 
   return (
     <header className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800/80 overflow-hidden">
@@ -173,13 +178,26 @@ export function Header({ data, language, track = 'combined' }: HeaderProps) {
                 <span>{contact.phone}</span>
               </a>
 
-              <button
-                onClick={() => generatePDF(data, language, track)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all shadow-sm active:scale-95 cursor-pointer ml-auto md:ml-0"
-              >
-                <Download className="w-4 h-4" />
-                <span>{language === 'es' ? 'Descargar CV (PDF)' : 'Download CV (PDF)'}</span>
-              </button>
+              {schedulingUrl ? (
+                <a
+                  href={schedulingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-indigo-500/25 active:scale-95 cursor-pointer ml-auto md:ml-0"
+                >
+                  <Calendar className="w-4 h-4 text-blue-200" />
+                  <span>{scheduleCtaLabel}</span>
+                  <ExternalLink className="w-3 h-3 opacity-70" />
+                </a>
+              ) : (
+                <a
+                  href="#services-section"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-indigo-500/25 active:scale-95 cursor-pointer ml-auto md:ml-0"
+                >
+                  <Calendar className="w-4 h-4 text-blue-200" />
+                  <span>{scheduleCtaLabel}</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

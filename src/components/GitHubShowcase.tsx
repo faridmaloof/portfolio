@@ -1,9 +1,25 @@
-import { ExternalLink, GitBranch, Star, Code2, Terminal, CheckCircle, ArrowUpRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ExternalLink, GitBranch, Star, Code2, Terminal, CheckCircle, ArrowUpRight, Loader2 } from 'lucide-react';
 import type { Language, TrackType } from '../types';
+import { getSystemVariables } from '../lib/db';
 
 interface GitHubShowcaseProps {
   language: Language;
   track?: TrackType;
+}
+
+interface RepositoryItem {
+  id: string | number;
+  name: string;
+  title: string;
+  description: string;
+  url: string;
+  tech: string[];
+  stars: number;
+  forks: number;
+  type: string;
+  language?: string;
+  updatedAt?: string;
 }
 
 // GitHub SVG icon
@@ -20,73 +36,89 @@ function GitHubIcon({ className }: { className?: string }) {
 }
 
 export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseProps) {
-  const githubUrl = "https://github.com/faridmaloof/";
+  const sysVars = getSystemVariables();
+  const githubUrl = sysVars.githubUrl || "https://github.com/faridmaloof/";
+  const username = githubUrl.replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '') || 'faridmaloof';
 
-  const qaRepositories = [
+  const [liveRepos, setLiveRepos] = useState<RepositoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isLive, setIsLive] = useState(false);
+
+  // Curated High-Impact Enterprise Suites (Guaranteed Quality Fallback)
+  const curatedRepositories: RepositoryItem[] = [
     {
+      id: 'qa-1',
       name: "enterprise-playwright-automation-suite",
       title: language === 'es' ? 'Framework Empresarial Playwright & TS' : 'Enterprise Playwright & TS Framework',
       description: language === 'es'
         ? 'Arquitectura de automatización robusta con Page Object Model, soporte de ejecución distribuida en CI/CD (Azure DevOps & GitHub Actions), reportes Allure y pruebas multi-navegador.'
         : 'Enterprise-grade automation architecture featuring Page Object Model, distributed execution in CI/CD (Azure DevOps & GitHub Actions), Allure reporting and cross-browser testing.',
+      url: `${githubUrl}enterprise-playwright-automation-suite`,
       tech: ['Playwright', 'TypeScript', 'Azure DevOps', 'Allure', 'Docker'],
       stars: 18,
       forks: 7,
       type: 'QA Architecture',
     },
     {
+      id: 'qa-2',
       name: "api-automation-newman-postman-framework",
       title: language === 'es' ? 'Suite de Pruebas Automatizadas de API & Regresión' : 'Automated API & Regression Testing Suite',
       description: language === 'es'
         ? 'Pruebas de APIs RESTful de alta cobertura con validación de esquemas JSON, pruebas de contratos, ejecuciones parametrizadas y pipelines automáticos de regresión.'
         : 'Comprehensive RESTful API testing solution with JSON schema validation, contract testing, parameterized runs, and automated regression pipelines.',
+      url: `${githubUrl}api-automation-newman-postman-framework`,
       tech: ['Postman', 'Newman', 'Node.js', 'REST APIs', 'CI/CD'],
       stars: 14,
       forks: 5,
       type: 'API QA',
     },
     {
+      id: 'qa-3',
       name: "robot-framework-selenium-bdd-core",
       title: language === 'es' ? 'Robot Framework & Selenium BDD Core' : 'Robot Framework & Selenium BDD Core',
       description: language === 'es'
         ? 'Framework modular guiado por palabras clave y BDD para pruebas de extremo a extremo, integración continua y reporting automatizado de defectos.'
         : 'Modular keyword-driven and BDD automation framework for end-to-end testing, continuous integration, and automated defect reporting.',
+      url: `${githubUrl}robot-framework-selenium-bdd-core`,
       tech: ['Robot Framework', 'Python', 'Selenium', 'BDD', 'JMeter'],
       stars: 12,
       forks: 4,
       type: 'Test Automation',
     },
-  ];
-
-  const devRepositories = [
     {
+      id: 'dev-1',
       name: "clean-architecture-dotnet9-webapi",
       title: language === 'es' ? 'Arquitectura Limpia .NET 9 Web API & Microservicios' : 'Clean Architecture .NET 9 Web API & Microservices',
       description: language === 'es'
         ? 'Solución de backend escalable aplicando principios SOLID, CQRS con MediatR, autenticación basada en JWT, Entity Framework Core, PostgreSQL y Docker.'
         : 'Scalable backend solution applying SOLID principles, CQRS with MediatR, JWT token authentication, Entity Framework Core, PostgreSQL, and Docker containerization.',
+      url: `${githubUrl}clean-architecture-dotnet9-webapi`,
       tech: ['.NET 9', 'C#', 'PostgreSQL', 'CQRS', 'Docker', 'JWT'],
       stars: 22,
       forks: 9,
       type: 'Backend Architecture',
     },
     {
+      id: 'dev-2',
       name: "react-typescript-enterprise-dashboard",
       title: language === 'es' ? 'Dashboard Empresarial React + TypeScript' : 'Enterprise React + TypeScript Dashboard',
       description: language === 'es'
         ? 'Aplicación cliente moderna de alto rendimiento con Tailwind CSS, gestión de estado global, tablas virtuales, gráficos analíticos y soporte multilingüe.'
         : 'Modern high-performance client web app featuring Tailwind CSS, global state management, virtualized data tables, analytical charts, and i18n support.',
+      url: `${githubUrl}react-typescript-enterprise-dashboard`,
       tech: ['React 18', 'TypeScript', 'Tailwind CSS', 'Vite', 'REST API'],
       stars: 19,
       forks: 6,
       type: 'Full Stack / Frontend',
     },
     {
+      id: 'dev-3',
       name: "cloud-native-microservices-infrastructure",
       title: language === 'es' ? 'Infraestructura Cloud-Native & Contenedores' : 'Cloud-Native Microservices & Infrastructure',
       description: language === 'es'
         ? 'Configuraciones de contenedores Docker, despliegues en Kubernetes, servicios serverless y orquestación con AWS DynamoDB y API Gateway.'
         : 'Docker container setups, Kubernetes deployment manifests, serverless functions, and cloud orchestration with AWS DynamoDB and API Gateway.',
+      url: `${githubUrl}cloud-native-microservices-infrastructure`,
       tech: ['AWS', 'Kubernetes', 'Docker', 'DynamoDB', 'CI/CD'],
       stars: 16,
       forks: 5,
@@ -94,7 +126,61 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
     },
   ];
 
-  const reposToDisplay = track === 'qa' ? qaRepositories : track === 'dev' ? devRepositories : [...qaRepositories.slice(0, 2), ...devRepositories.slice(0, 2)];
+  // Fetch live repositories from GitHub API
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=15`)
+      .then(res => {
+        if (!res.ok) throw new Error('GitHub API rate limit or error');
+        return res.json();
+      })
+      .then((data: any[]) => {
+        if (!isMounted || !Array.isArray(data) || data.length === 0) return;
+
+        const mapped: RepositoryItem[] = data
+          .filter(r => !r.fork)
+          .slice(0, 9)
+          .map(r => ({
+            id: r.id,
+            name: r.name,
+            title: r.name.replace(/[-_]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
+            description: r.description || (language === 'es' ? 'Repositorio de ingeniería de software y código fuente en GitHub.' : 'Software engineering repository and source code on GitHub.'),
+            url: r.html_url,
+            tech: [r.language, ...(r.topics || [])].filter(Boolean).slice(0, 4),
+            stars: r.stargazers_count || 0,
+            forks: r.forks_count || 0,
+            type: r.language || 'Software Engineering',
+            language: r.language,
+            updatedAt: r.updated_at
+          }));
+
+        if (mapped.length > 0) {
+          setLiveRepos(mapped);
+          setIsLive(true);
+        }
+      })
+      .catch(() => {
+        setIsLive(false);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [username, language]);
+
+  // Determine which list to display
+  const reposToDisplay = isLive && liveRepos.length > 0
+    ? liveRepos.slice(0, 6)
+    : track === 'qa'
+    ? curatedRepositories.filter(r => r.type.includes('QA') || r.type.includes('Test'))
+    : track === 'dev'
+    ? curatedRepositories.filter(r => !r.type.includes('QA') && !r.type.includes('Test'))
+    : curatedRepositories;
 
   return (
     <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 rounded-2xl shadow-xl border border-slate-700/80 p-6 lg:p-8 text-white relative overflow-hidden">
@@ -115,7 +201,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
               </h2>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 <CheckCircle className="w-3 h-3" />
-                Active Code
+                {isLive ? (language === 'es' ? 'En Vivo' : 'Live Sync') : 'Active Code'}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
@@ -128,7 +214,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
                 rel="noopener noreferrer"
                 className="text-blue-400 font-semibold hover:underline inline-flex items-center gap-0.5"
               >
-                github.com/faridmaloof/
+                github.com/{username}/
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </p>
@@ -142,7 +228,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-xl text-sm shadow-md transition-all active:scale-95 w-full sm:w-auto"
         >
           <GitHubIcon className="w-4 h-4 text-slate-900" />
-          <span>{language === 'es' ? 'Ver Perfil @faridmaloof' : 'View Profile @faridmaloof'}</span>
+          <span>{language === 'es' ? `Ver Perfil @${username}` : `View Profile @${username}`}</span>
           <ExternalLink className="w-3.5 h-3.5 opacity-70" />
         </a>
       </div>
@@ -155,7 +241,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
         </div>
         <div className="bg-slate-800/60 rounded-xl p-3 border border-slate-700/50">
           <div className="text-xl font-bold text-purple-400">100%</div>
-          <div className="text-xs text-slate-400">{language === 'es' ? 'TypeScript & .NET Core' : 'TypeScript & .NET Core'}</div>
+          <div className="text-xs text-slate-400">TypeScript · Java · .NET</div>
         </div>
         <div className="bg-slate-800/60 rounded-xl p-3 border border-slate-700/50">
           <div className="text-xl font-bold text-emerald-400">CI / CD</div>
@@ -172,18 +258,25 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <Terminal className="w-4 h-4 text-blue-400" />
-            {language === 'es' ? 'Arquitecturas y Suites Destacadas' : 'Featured Architectural Solutions'}
+            {isLive
+              ? (language === 'es' ? 'Repositorios Activos en GitHub' : 'Active Repositories from GitHub')
+              : (language === 'es' ? 'Arquitecturas y Suites Destacadas' : 'Featured Architectural Solutions')}
           </h3>
-          <span className="text-xs text-slate-400">
-            {language === 'es' ? 'Repositorios y plantillas públicas' : 'Public templates & frameworks'}
-          </span>
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />}
+            <span>
+              {isLive
+                ? (language === 'es' ? 'Sincronizado vía API GitHub' : 'Synced via GitHub API')
+                : (language === 'es' ? 'Repositorios y plantillas empresariales' : 'Enterprise templates & frameworks')}
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {reposToDisplay.map((repo, idx) => (
             <a
-              key={idx}
-              href={githubUrl}
+              key={repo.id || idx}
+              href={repo.url}
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-blue-400/80 rounded-xl p-4.5 transition-all shadow-sm hover:shadow-lg flex flex-col justify-between"
@@ -197,7 +290,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
                   <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
                 </div>
 
-                <h4 className="font-bold text-sm text-white mb-1.5 group-hover:text-blue-300 transition-colors">
+                <h4 className="font-bold text-sm text-white mb-1.5 group-hover:text-blue-300 transition-colors line-clamp-1">
                   {repo.title}
                 </h4>
 
@@ -216,7 +309,7 @@ export function GitHubShowcase({ language, track = 'combined' }: GitHubShowcaseP
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/60">
-                  <span className="font-mono truncate max-w-[180px]">faridmaloof/{repo.name}</span>
+                  <span className="font-mono truncate max-w-[180px]">{username}/{repo.name}</span>
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-0.5">
                       <Star className="w-3 h-3 text-amber-400" />
