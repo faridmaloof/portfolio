@@ -251,18 +251,29 @@ function PortfolioContent() {
   );
 }
 
+const getRouterBasename = () => {
+  if (typeof window === 'undefined') return undefined;
+  if (window.location.pathname.startsWith('/portfolio')) {
+    return '/portfolio';
+  }
+  return undefined;
+};
+
 export default function App() {
   useEffect(() => {
     syncWithBackendDatabase().catch(() => {});
   }, []);
 
+  const basename = getRouterBasename();
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <ProfileProvider>
         <Routes>
           <Route path="/" element={<PortfolioContent />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="*" element={<PortfolioContent />} />
         </Routes>
       </ProfileProvider>
     </BrowserRouter>

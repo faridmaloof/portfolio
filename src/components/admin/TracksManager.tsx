@@ -44,7 +44,8 @@ export function TracksManager({ onNotify }: TracksManagerProps) {
   };
 
   const handleCopyLink = (trackId: string) => {
-    const url = `${window.location.origin}/?profile=${trackId}`;
+    const basePath = window.location.pathname.startsWith('/portfolio') ? '/portfolio' : '';
+    const url = `${window.location.origin}${basePath}/?profile=${trackId}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedId(trackId);
       onNotify('success', `Enlace directo copiado: ${url}`);
@@ -724,7 +725,7 @@ export function TracksManager({ onNotify }: TracksManagerProps) {
                         {editingTrack.seoTitle?.[activeLangTab] || `${editingTrack.name} | Farid Maloof`}
                       </p>
                       <span className="text-emerald-700 dark:text-emerald-400 text-xs block font-mono">
-                        {window.location.origin}/?profile={editingTrack.id || 'slug'}&lang={activeLangTab}
+                        {window.location.origin}{window.location.pathname.startsWith('/portfolio') ? '/portfolio' : ''}/?profile={editingTrack.id || 'slug'}&lang={activeLangTab}
                       </span>
                       <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug line-clamp-2">
                         {editingTrack.seoDescription?.[activeLangTab] || editingTrack.summary?.[activeLangTab] || 'Portafolio profesional de ingeniería de software...'}
