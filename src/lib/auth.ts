@@ -102,6 +102,10 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
 let serverModeKnown: boolean | null = null;
 
 async function isServerMode(): Promise<boolean> {
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+    serverModeKnown = false;
+    return false;
+  }
   if (serverModeKnown !== null) return serverModeKnown;
   try {
     const controller = new AbortController();

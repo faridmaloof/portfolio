@@ -83,6 +83,14 @@ export function detectSchedulingProvider(url: string): SchedulingProvider {
   return 'custom';
 }
 
+export function isBackendAvailable(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (window.location.hostname.endsWith('github.io')) {
+    return false;
+  }
+  return true;
+}
+
 export const DEFAULT_SYSTEM_VARIABLES: SystemVariables = {
   fullName: "Farid Maloof S.",
   professionalTagline: "Senior Software Engineer & SDET Architecture Lead",
@@ -951,7 +959,7 @@ export function saveSettings(settings: Partial<PortfolioSettings>): boolean {
   
   db.settings = { ...getSettings(), ...settings };
   const ok = saveDB(db);
-  if (ok && typeof window !== 'undefined') {
+  if (ok && typeof window !== 'undefined' && isBackendAvailable()) {
     fetch('/api/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -972,7 +980,7 @@ export function saveServices(services: ServiceItem[]): boolean {
   if (!db) return false;
   db.services = services;
   const ok = saveDB(db);
-  if (ok && typeof window !== 'undefined') {
+  if (ok && typeof window !== 'undefined' && isBackendAvailable()) {
     fetch('/api/services', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1065,7 +1073,7 @@ export function saveTrackConfig(config: ProfileTrackConfig): boolean {
   }
 
   const ok = saveDB(db);
-  if (ok && typeof window !== 'undefined') {
+  if (ok && typeof window !== 'undefined' && isBackendAvailable()) {
     fetch('/api/tracks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1153,7 +1161,7 @@ export function saveSystemVariables(vars: Partial<SystemVariables>): boolean {
   }
 
   const ok = saveDB(db);
-  if (ok && typeof window !== 'undefined') {
+  if (ok && typeof window !== 'undefined' && isBackendAvailable()) {
     fetch('/api/system-variables', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1225,7 +1233,7 @@ export function importFullBackup(payload: any): { success: boolean; error?: stri
     }
 
     const ok = saveDB(db);
-    if (ok && typeof window !== 'undefined') {
+    if (ok && typeof window !== 'undefined' && isBackendAvailable()) {
       // Send full import to backend SQLite
       fetch('/api/backup/import', {
         method: 'POST',
@@ -1241,7 +1249,7 @@ export function importFullBackup(payload: any): { success: boolean; error?: stri
 
 // Initial Sync from Backend SQLite to LocalStorage
 export async function syncWithBackendDatabase(): Promise<boolean> {
-  if (typeof window === 'undefined') return true;
+  if (typeof window === 'undefined' || !isBackendAvailable()) return false;
   try {
     const res = await fetch('/api/all-data');
     if (res.ok) {
