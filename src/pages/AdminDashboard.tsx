@@ -418,7 +418,7 @@ export function AdminDashboard() {
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-750 text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-700">
+                  <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-6 py-3.5">Usuario / Correo</th>
                       <th className="px-6 py-3.5">Rol</th>
@@ -428,7 +428,7 @@ export function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                     {admins.map((adm) => (
-                      <tr key={adm.id} className="hover:bg-slate-50 dark:hover:bg-slate-750/50">
+                      <tr key={adm.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
                         <td className="px-6 py-4">
                           <span className="font-bold text-slate-900 dark:text-white block">{adm.email}</span>
                           <span className="text-slate-400 text-[11px] font-mono">@{adm.username}</span>

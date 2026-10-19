@@ -64,10 +64,25 @@ export function detectBrowserLanguage(fallback: Language = 'es'): Language {
   }
 }
 
+const getInitialTrack = (defaultProf: TrackType): TrackType => {
+  try {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const raw = (params.get('profile') || params.get('track'))?.toLowerCase().trim();
+      if (raw) return raw as TrackType;
+      const cached = localStorage.getItem('farid_maloof_active_track') as TrackType;
+      if (cached) return cached;
+    }
+  } catch {
+    // Ignore
+  }
+  return defaultProf;
+};
+
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [settings, setSettingsState] = useState<PortfolioSettings>(() => getSettings());
   const [language, setLanguageState] = useState<Language>(() => settings.defaultLanguage || 'es');
-  const [track, setTrackState] = useState<TrackType>(() => settings.defaultProfile || 'combined');
+  const [track, setTrackState] = useState<TrackType>(() => getInitialTrack(settings.defaultProfile || 'combined'));
   const [isValidProfile, setIsValidProfile] = useState(true);
   const [showAllExperience, setShowAllExperience] = useState(false);
   const [showAllCertifications, setShowAllCertifications] = useState(false);
@@ -259,8 +274,32 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         resolvedTrack = rawProfile;
         setIsValidProfile(true);
       }
+
+      // Persist to cache so reload or subsequent direct visits maintain this chosen profile
+      try {
+        localStorage.setItem('farid_maloof_active_track', resolvedTrack);
+      } catch {
+        // Ignore
+      }
+
+      // Clean the URL bar so the visitor only sees the clean root URL https://faridmaloof.github.io/portfolio/
+      try {
+        const cleanParams = new URLSearchParams(window.location.search);
+        cleanParams.delete('profile');
+        cleanParams.delete('track');
+        const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
+        window.history.replaceState(null, '', window.location.pathname + cleanQuery + window.location.hash);
+      } catch {
+        // Ignore
+      }
     } else {
-      resolvedTrack = currentSettings.defaultProfile || sysVars.defaultProfile || 'combined';
+      let cached: TrackType | null = null;
+      try {
+        cached = localStorage.getItem('farid_maloof_active_track') as TrackType;
+      } catch {
+        // Ignore
+      }
+      resolvedTrack = cached || currentSettings.defaultProfile || sysVars.defaultProfile || 'combined';
       setIsValidProfile(true);
     }
     
@@ -313,9 +352,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   const handleSetTrack = useCallback((newTrack: TrackType) => {
     setTrackState(newTrack);
-    const params = new URLSearchParams(window.location.search);
-    params.set('profile', newTrack);
-    window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+    try {
+      localStorage.setItem('farid_maloof_active_track', newTrack);
+    } catch {
+      // Ignore
+    }
     setRefreshKey(prev => prev + 1);
     updateSEO(newTrack, language, settings);
   }, [language, settings, updateSEO]);

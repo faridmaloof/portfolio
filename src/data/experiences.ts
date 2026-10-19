@@ -52,6 +52,9 @@ export const masterExperiences: Experience[] = [
       "TypeScript",
       "C#",
       ".NET Core",
+      "Page Object Model (POM)",
+      "Screenplay Pattern",
+      "BDD (Gherkin)",
       "Azure DevOps",
       "CI/CD Pipelines",
       "REST APIs",
@@ -65,32 +68,32 @@ export const masterExperiences: Experience[] = [
     detail: {
       combined: {
         es: [
-          "Diseña, desarrolla y mantiene suites y frameworks empresariales de automatización de pruebas con Playwright y TypeScript para garantizar la confiabilidad en plataformas financieras de alta disponibilidad.",
-          "Lidera iniciativas de ingeniería de calidad y arquitectura de pruebas en pasarelas de pago y motores de liquidación bancaria, integrando compuertas en Azure DevOps.",
+          "Diseña, desarrolla y mantiene suites y frameworks empresariales de automatización de pruebas con Playwright (C# y TypeScript) aplicando Page Object Model (POM) y Screenplay Pattern para plataformas financieras de alta disponibilidad.",
+          "Lidera iniciativas de ingeniería de calidad y arquitectura de pruebas en pasarelas de pago y motores de liquidación bancaria, integrando compuertas de calidad BDD en Azure DevOps.",
           "Colabora estrechamente con equipos de Desarrollo, Arquitectura y DevOps para optimizar ciclos CI/CD, reduciendo los tiempos de regresión en más del 45% con cero defectos críticos en producción.",
           "Impulsa metodologías shift-left de calidad continua, integrando validación automatizada de contratos de APIs y pruebas de rendimiento continuo antes de cada paso a producción."
         ],
         en: [
-          "Architects, designs, and maintains enterprise test automation frameworks using Playwright and TypeScript to guarantee reliability across high-availability financial systems.",
-          "Leads quality engineering and testing architecture initiatives across core payment gateways and settlement engines, embedding automated quality gates in Azure DevOps.",
+          "Architects, designs, and maintains enterprise test automation frameworks using Playwright (C# and TypeScript) leveraging Page Object Model (POM) and Screenplay Pattern across high-availability financial systems.",
+          "Leads quality engineering and testing architecture initiatives across core payment gateways and settlement engines, embedding automated BDD quality gates in Azure DevOps.",
           "Partners closely with software development, architecture, and DevOps teams to optimize CI/CD cycles, cutting regression turnaround time by over 45% with zero critical defects.",
           "Drives shift-left continuous quality practices, integrating automated API contract validation and continuous performance benchmarking prior to production deployment."
         ],
         pt: [
-          "Projeta e mantém frameworks corporativos de automação com Playwright e TypeScript para sistemas financeiros e bancários de alta disponibilidade.",
-          "Lidera estratégias de automação e qualidade em gateways de pagamento, integrando gates de qualidade no pipeline Azure DevOps.",
+          "Projeta e mantém frameworks corporativos de automação com Playwright (C# e TypeScript) aplicando Page Object Model e Screenplay Pattern para sistemas financeiros de alta disponibilidade.",
+          "Lidera estratégias de automação e qualidade em gateways de pagamento, integrando gates de qualidade BDD no pipeline Azure DevOps.",
           "Colabora com desenvolvimento e DevOps para otimizar entregas contínuas e reduzir tempo de testes de regressão em mais de 45%."
         ]
       },
       sdet: {
         es: [
-          "Diseña la arquitectura de frameworks de automatización E2E y de APIs con Playwright y TypeScript, estandarizando patrones Page Object Model (POM) y librerías transversales.",
+          "Diseña la arquitectura de frameworks de automatización E2E y de APIs con Playwright y C# / TypeScript, estandarizando patrones Page Object Model (POM) y Screenplay Pattern con BDD (Gherkin) y librerías transversales.",
           "Implementa pruebas de contratos de APIs y validación de microservicios transaccionales con Mock Servers y assertions avanzadas en pipelines CI/CD.",
           "Desarrolla utilidades de testing en C#/.NET Core para simular transacciones financieras de alta concurrencia y validar consistencia en bases de datos SQL Server.",
           "Automatiza la ejecución de pruebas de carga y estrés con JMeter integradas a los pipelines de Azure DevOps para certificar latencias de respuesta bajo SLAs estrictos."
         ],
         en: [
-          "Architects E2E and API test automation frameworks using Playwright and TypeScript, standardizing Page Object Model (POM) and shared core testing libraries.",
+          "Architects E2E and API test automation frameworks using Playwright and C# / TypeScript, standardizing Page Object Model (POM) and Screenplay Pattern with BDD (Gherkin) and shared core testing libraries.",
           "Implements API contract testing and transactional microservice validations with mock servers and schema assertions inside CI/CD pipelines.",
           "Develops custom testing harnesses in C#/.NET Core to simulate concurrent financial transactions and verify database consistency in SQL Server.",
           "Automates continuous performance and load tests using JMeter within Azure DevOps pipelines to enforce SLA latency thresholds."
@@ -224,8 +227,10 @@ export const masterExperiences: Experience[] = [
     },
     technologies: [
       "Playwright",
-      "TypeScript",
+      "Cypress",
+      "k6",
       "Python",
+      "TypeScript",
       "AWS",
       "Docker",
       "Postman",
@@ -239,36 +244,36 @@ export const masterExperiences: Experience[] = [
     detail: {
       combined: {
         es: [
-          "Diseñó y ejecutó estrategias integrales de pruebas automatizadas con Playwright y TypeScript para productos de banca digital y tarjetas de crédito de alto crecimiento.",
+          "Diseñó y ejecutó estrategias integrales de pruebas automatizadas con Playwright (Python y TypeScript) y Cypress para productos de banca digital y tarjetas de crédito de alto crecimiento.",
           "Automatizó flujos financieros neurálgicos (evaluación crediticia, autorización de transacciones, onboarding KYC), simulando carga y validando funcionalidad antes de cada release.",
-          "Lideró la identificación, documentación y análisis de causa raíz de defectos en Jira, integrando métricas en GitHub Actions para fortalecer las suites de regresión continua.",
-          "Participó proactivamente en la revisión de especificaciones y diseño técnico con equipos de producto e ingeniería, anticipando fallas de arquitectura antes de iniciar el desarrollo.",
+          "Implementó pruebas de rendimiento y estrés continuo con k6 y JMeter integradas a los pipelines de GitHub Actions.",
+          "Lideró la identificación, documentación y análisis de causa raíz de defectos en Jira, integrando métricas continuas para fortalecer las suites de regresión.",
           "Evolucionó procesos manuales hacia pipelines de automatización continua, alcanzando más del 75% de cobertura automatizada en los flujos más críticos."
         ],
         en: [
-          "Designed and executed comprehensive automated test strategies using Playwright and TypeScript for high-growth digital banking and credit card products.",
+          "Designed and executed comprehensive automated test strategies using Playwright (Python and TypeScript) and Cypress for high-growth digital banking and credit card products.",
           "Automated critical financial workflows (credit assessment, transaction authorization, KYC onboarding), validating backend performance and edge cases before releases.",
+          "Implemented continuous performance and stress testing using k6 and JMeter directly integrated into GitHub Actions pipelines.",
           "Owned defect triage and root-cause analysis in Jira, integrating metrics into GitHub Actions to continuously strengthen regression suites.",
-          "Partnered with product and engineering teams during technical refinement and architectural design phases to eliminate systemic bugs prior to code implementation.",
           "Transformed manual QA workflows into continuous automation pipelines, achieving over 75% automated regression coverage across mission-critical paths."
         ],
         pt: [
-          "Projetou e executou estratégias de automação para produtos de cartão de crédito e contas digitais da fintech.",
-          "Automatizou fluxos críticos (crédito, autorização de transações, KYC) e elevou a cobertura para mais de 75%.",
+          "Projetou e executou estratégias de automação com Playwright (Python e TypeScript) e Cypress para produtos de cartão de crédito e contas digitais da fintech.",
+          "Automatizou fluxos críticos (crédito, autorização de transações, KYC) e executou testes de carga com k6 e JMeter.",
           "Trabalhou em conjunto com equipes de produto e engenharia para prevenir falhas desde a fase de especificação."
         ]
       },
       sdet: {
         es: [
-          "Construyó el framework central de pruebas de microservicios con TypeScript y Python, validando contratos OpenAPI/Swagger y respuestas asíncronas en AWS.",
+          "Construyó el framework central de pruebas de microservicios y APIs con Python y Playwright/Cypress, validando contratos OpenAPI/Swagger y eventos asíncronos en AWS.",
+          "Implementó suites de pruebas de rendimiento y concurrencia con k6 (TypeScript) y JMeter para certificar la resiliencia de la API de crédito bajo picos de más de 5,000 req/seg.",
           "Implementó generadores automáticos de datos de prueba y mock servers para aislar las pruebas de autorización bancaria y pasarelas de pago externas.",
-          "Ejecutó simulaciones de carga y estrés con JMeter y k6 para verificar la resiliencia de la API de crédito ante picos de concurrencia de más de 5,000 req/seg.",
           "Integró suites de regresión automatizadas en GitHub Actions que se ejecutan automáticamente en cada Pull Request, bloqueando despliegues con regresiones."
         ],
         en: [
-          "Built the core microservices test framework with TypeScript and Python, validating OpenAPI/Swagger contracts and asynchronous event responses on AWS.",
+          "Built the core microservices and API test automation frameworks using Python and Playwright/Cypress, validating OpenAPI/Swagger contracts and asynchronous event responses on AWS.",
+          "Implemented performance and concurrency benchmark suites with k6 (TypeScript) and JMeter to verify credit API resilience under peak traffic exceeding 5,000 req/sec.",
           "Implemented automated test data fixtures and mock servers to isolate banking authorization workflows from external payment gateway dependencies.",
-          "Executed load and stress benchmarks with JMeter and k6 to verify credit API resilience under peak traffic exceeding 5,000 req/sec.",
           "Integrated automated regression suites into GitHub Actions triggered per pull request, automatically gatekeeping deployments against functional regressions."
         ],
         pt: [
@@ -401,16 +406,18 @@ export const masterExperiences: Experience[] = [
       pt: "Jul 2022 – Jun 2023" 
     },
     technologies: [
-      "C#",
-      ".NET Core",
-      "React",
-      "TypeScript",
-      "Python",
+      "Angular",
+      "Playwright",
+      "Cypress",
       "Selenium WebDriver",
       "Robot Framework",
+      "C#",
+      ".NET Core",
+      "Python",
+      "Azure",
+      "SQL Server",
       "PostgreSQL",
       "Docker",
-      "AWS",
       "Git",
       "Agile/Scrum"
     ],
@@ -418,34 +425,34 @@ export const masterExperiences: Experience[] = [
       combined: {
         es: [
           "Diseñó y ejecutó soluciones de software full stack y estrategias de automatización de pruebas para clientes corporativos de Estados Unidos 100% en remoto.",
-          "Construyó componentes front-end en React y APIs en .NET Core / Python, garantizando estándares de código limpio y cobertura con Selenium y Robot Framework.",
-          "Identificó, categorizó y resolvió defectos funcionales y de performance en aplicaciones web empresariales, reduciendo incidencias en producción.",
+          "Lideró la evaluación técnica y Pruebas de Concepto (PoC) entre Selenium, Cypress y Playwright para optimizar la selección de frameworks en aplicaciones web desarrolladas en Angular.",
+          "Aseguró la calidad de software y la integridad de datos en entornos cloud de Azure y bases de datos relacionales SQL Server y PostgreSQL.",
           "Colaboró en equipos ágiles distribuidos internacionalmente, participando en revisiones de arquitectura, sprints de desarrollo y entregas continuas."
         ],
         en: [
           "Architected and delivered full-stack software solutions and automated testing frameworks for US enterprise clients in a 100% remote model.",
-          "Engineered front-end components with React and backend APIs with .NET Core and Python, enforcing clean code standards and automated test coverage via Selenium and Robot Framework.",
-          "Identified, categorized, and resolved functional and performance bottlenecks across enterprise web platforms, significantly mitigating post-release bugs.",
+          "Led technical benchmarking and Proofs of Concept (PoCs) comparing Selenium, Cypress, and Playwright to select the optimal automation stack for Angular enterprise platforms.",
+          "Ensured enterprise software reliability and data integrity across Azure cloud environments, SQL Server, and PostgreSQL relational databases.",
           "Collaborated in internationally distributed Agile squads, leading architecture code reviews, sprint cycles, and automated deployments."
         ],
         pt: [
           "Desenvolveu soluções full stack e estratégias de automação para clientes nos EUA em modelo 100% remoto.",
-          "Construiu interfaces em React e APIs em .NET Core com automação em Selenium e Robot Framework.",
-          "Colaborou em equipes ágeis internacionais com entregas contínuas de alta qualidade."
+          "Liderou Provas de Conceito (PoC) comparando Selenium, Cypress e Playwright em aplicações corporativas desenvolvidas em Angular.",
+          "Garantia de integridade de dados em ambientes Azure, SQL Server e PostgreSQL."
         ]
       },
       sdet: {
         es: [
-          "Implementó frameworks de pruebas automatizadas con Selenium WebDriver y Robot Framework en Python para aplicaciones web multinivel.",
-          "Diseñó suites de pruebas automatizadas cross-browser y de integración de APIs RESTful, reduciendo el tiempo de validación manual en más del 60%.",
-          "Desarrolló scripts de verificación de bases de datos PostgreSQL para asegurar integridad referencial tras la ejecución de pruebas transaccionales.",
-          "Configuró pipelines de ejecución continua en Docker para aislar y paralelizar la ejecución de suites de regresión automatizadas."
+          "Lideró la Prueba de Concepto (PoC) para evaluar y comparar técnicamente Selenium, Cypress y Playwright, definiendo el stack óptimo de automatización para aplicaciones Angular.",
+          "Diseñó e implementó suites de pruebas automatizadas y manuales para aplicaciones frontend en Angular y microservicios backend en .NET Core / Python.",
+          "Desarrolló scripts de verificación de bases de datos en SQL Server y PostgreSQL para asegurar integridad transaccional.",
+          "Configuró pipelines de ejecución continua en Azure y Docker para aislar y paralelizar la ejecución de suites de regresión automatizadas."
         ],
         en: [
-          "Implemented automated testing frameworks with Selenium WebDriver and Python Robot Framework for multi-tiered web applications.",
-          "Designed cross-browser and RESTful API integration automated test suites, shrinking manual regression overhead by over 60%.",
-          "Engineered database validation scripts in PostgreSQL to ensure referential integrity following transactional batch test runs.",
-          "Configured containerized execution environments in Docker to parallelize and isolate regression test suite runs."
+          "Led Proof of Concept (PoC) evaluations benchmarking Selenium, Cypress, and Playwright to establish the optimal test automation architecture for Angular web applications.",
+          "Designed and implemented automated and exploratory test suites for Angular enterprise applications and .NET Core / Python backend services.",
+          "Engineered database validation scripts in SQL Server and PostgreSQL to guarantee referential integrity following transactional test runs.",
+          "Configured containerized execution environments in Azure and Docker to parallelize and isolate regression test suite runs."
         ],
         pt: [
           "Implementou frameworks de testes com Selenium WebDriver e Robot Framework em Python.",

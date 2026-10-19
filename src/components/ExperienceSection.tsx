@@ -56,7 +56,7 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
               <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-3 border-blue-600 dark:border-blue-400 shadow-sm transition-transform duration-300 group-hover:scale-125"></div>
 
               {/* Card Container */}
-              <div className="p-5 sm:p-6 bg-slate-50/70 dark:bg-slate-750 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-500/70 transition-all shadow-xs hover:shadow-md">
+              <div className="p-5 sm:p-6 bg-slate-50/90 dark:bg-slate-800/70 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-400/80 transition-all shadow-xs hover:shadow-lg backdrop-blur-xs">
                 
                 {/* Header Row: Role & Dates */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
@@ -171,7 +171,7 @@ export function ExperienceSection({ data, language, track }: ExperienceSectionPr
               return (
                 <div
                   key={index}
-                  className="p-3.5 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-200/70 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                  className="p-3.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/70 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-500/60 transition-colors"
                 >
                   <h4 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mb-1">
                     {tuple[0]}
