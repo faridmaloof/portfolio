@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import type { Language, TrackType } from '../types';
+import type { Language, TrackType, CVTemplateType } from '../types';
 import { getSettings, getTrackConfig, getSystemVariables, type PortfolioSettings } from '../lib/db';
 
 interface ProfileContextType {
   language: Language;
   track: TrackType;
+  cvTemplate: CVTemplateType;
   setLanguage: (lang: Language) => void;
   setTrack: (track: TrackType) => void;
+  setCvTemplate: (template: CVTemplateType) => void;
   showAllExperience: boolean;
   setShowAllExperience: (show: boolean) => void;
   showAllCertifications: boolean;
@@ -64,6 +66,33 @@ export function detectBrowserLanguage(fallback: Language = 'es'): Language {
   }
 }
 
+export const normalizeCvTemplate = (raw?: string | null): CVTemplateType | null => {
+  if (!raw) return null;
+  const val = raw.toLowerCase().trim();
+  if (val === 'minimalist' || val === 'minimalista' || val === 'ats' || val === 'harvard') return 'minimalist';
+  if (val === 'sidebar' || val === 'columnas' || val === 'dos-columnas' || val === 'swiss') return 'sidebar';
+  if (val === 'engineering' || val === 'ingenieria' || val === 'sdet' || val === 'qa' || val === 'quality') return 'engineering';
+  if (val === 'compact' || val === 'compacto' || val === 'nordic') return 'compact';
+  if (val === 'executive' || val === 'ejecutivo') return 'executive';
+  return null;
+};
+
+const getInitialCvTemplate = (defaultTpl: CVTemplateType = 'executive'): CVTemplateType => {
+  try {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('cv') || params.get('cv_template') || params.get('template');
+      const normalized = normalizeCvTemplate(raw);
+      if (normalized) return normalized;
+      const cached = normalizeCvTemplate(localStorage.getItem('farid_maloof_active_cv_template'));
+      if (cached) return cached;
+    }
+  } catch {
+    // Ignore
+  }
+  return defaultTpl;
+};
+
 const getInitialTrack = (defaultProf: TrackType): TrackType => {
   try {
     if (typeof window !== 'undefined') {
@@ -83,6 +112,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [settings, setSettingsState] = useState<PortfolioSettings>(() => getSettings());
   const [language, setLanguageState] = useState<Language>(() => settings.defaultLanguage || 'es');
   const [track, setTrackState] = useState<TrackType>(() => getInitialTrack(settings.defaultProfile || 'combined'));
+  const [cvTemplate, setCvTemplateState] = useState<CVTemplateType>(() => getInitialCvTemplate(settings.defaultCvTemplate || 'executive'));
   const [isValidProfile, setIsValidProfile] = useState(true);
   const [showAllExperience, setShowAllExperience] = useState(false);
   const [showAllCertifications, setShowAllCertifications] = useState(false);
@@ -287,6 +317,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const cleanParams = new URLSearchParams(window.location.search);
         cleanParams.delete('profile');
         cleanParams.delete('track');
+        cleanParams.delete('cv');
+        cleanParams.delete('cv_template');
+        cleanParams.delete('template');
         const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
         window.history.replaceState(null, '', window.location.pathname + cleanQuery + window.location.hash);
       } catch {
@@ -302,6 +335,39 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       resolvedTrack = cached || currentSettings.defaultProfile || sysVars.defaultProfile || 'combined';
       setIsValidProfile(true);
     }
+
+    // Resolve CV template parameter (?cv=minimalist, ?cv_template=sidebar, etc.)
+    const rawCv = params.get('cv') || params.get('cv_template') || params.get('template');
+    const normalizedCv = normalizeCvTemplate(rawCv);
+    let resolvedCv: CVTemplateType = 'executive';
+    if (normalizedCv) {
+      resolvedCv = normalizedCv;
+      try {
+        localStorage.setItem('farid_maloof_active_cv_template', normalizedCv);
+      } catch {
+        // Ignore
+      }
+      try {
+        const cleanParams = new URLSearchParams(window.location.search);
+        cleanParams.delete('cv');
+        cleanParams.delete('cv_template');
+        cleanParams.delete('template');
+        const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
+        window.history.replaceState(null, '', window.location.pathname + cleanQuery + window.location.hash);
+      } catch {
+        // Ignore
+      }
+    } else {
+      let cachedCv: CVTemplateType | null = null;
+      try {
+        cachedCv = normalizeCvTemplate(localStorage.getItem('farid_maloof_active_cv_template'));
+      } catch {
+        // Ignore
+      }
+      const activeTrackConfig = getTrackConfig(resolvedTrack);
+      resolvedCv = cachedCv || activeTrackConfig?.preferredCvTemplate || currentSettings.defaultCvTemplate || 'executive';
+    }
+    setCvTemplateState(resolvedCv);
     
     // Auto-detect browser/PC language if enabled and not explicitly overridden via query param
     const autoDetect = currentSettings.autoDetectLanguage !== undefined
@@ -361,12 +427,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     updateSEO(newTrack, language, settings);
   }, [language, settings, updateSEO]);
 
+  const handleSetCvTemplate = useCallback((tpl: CVTemplateType) => {
+    setCvTemplateState(tpl);
+    try {
+      localStorage.setItem('farid_maloof_active_cv_template', tpl);
+    } catch {
+      // Ignore
+    }
+  }, []);
+
   return (
     <ProfileContext.Provider value={{ 
       language, 
       track, 
+      cvTemplate,
       setLanguage: handleSetLanguage, 
       setTrack: handleSetTrack,
+      setCvTemplate: handleSetCvTemplate,
       showAllExperience,
       setShowAllExperience,
       showAllCertifications,

@@ -1,4 +1,4 @@
-import type { ProfileData, Language, TrackType, Experience } from '../types';
+import type { ProfileData, Language, TrackType, CVTemplateType } from '../types';
 import jsPDF from 'jspdf';
 import { getFeaturedCertifications } from '../data/certificationsData';
 import { 
@@ -27,31 +27,51 @@ function sanitizeText(str: string): string {
     .trim();
 }
 
-export function generatePDF(data: ProfileData, language: Language, track: TrackType = 'combined'): void {
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-  });
+// Draw a crisp vector bullet dot
+function drawBulletDot(doc: jsPDF, x: number, y: number, color: [number, number, number] = [71, 85, 105], radius = 0.65) {
+  doc.setFillColor(color[0], color[1], color[2]);
+  doc.circle(x, y - 1.0, radius, 'F');
+}
 
-  const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
-  const pageHeight = doc.internal.pageSize.getHeight(); // 297mm
+// Draw candidate avatar or fallback monogram
+function drawAvatar(doc: jsPDF, data: ProfileData, x: number, y: number, size: number, bgColor: [number, number, number] = [30, 41, 59]): void {
+  try {
+    if (data.contact.avatarUrl && (data.contact.avatarUrl.startsWith('data:image/') || data.contact.avatarUrl.startsWith('http'))) {
+      doc.addImage(data.contact.avatarUrl, 'JPEG', x, y, size, size);
+      return;
+    }
+  } catch {
+    // Fallback to monogram
+  }
+  // Draw sleek monogram seal
+  doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+  doc.circle(x + size / 2, y + size / 2, size / 2, 'F');
+  doc.setFontSize(size * 0.45);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('FM', x + size / 2, y + size / 2 + size * 0.15, { align: 'center' });
+}
+
+// ============================================================================
+// TEMPLATE 1: EXECUTIVE TECH LEAD (Corporate Navy Banner with Avatar)
+// ============================================================================
+function renderExecutiveTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
+  const pageWidth = 210;
+  const pageHeight = 297;
   const margin = 14;
   const contentWidth = pageWidth - 2 * margin; // 182mm
 
   let yPos = margin;
   let currentPage = 1;
 
-  // Helper to add clean footer with page numbers
   const addFooter = (pageNum: number) => {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(148, 163, 184); // slate-400
+    doc.setTextColor(148, 163, 184);
     const footerText = `${sanitizeText(data.contact.name)} - Curriculum Vitae | ${pageNum}`;
     doc.text(footerText, pageWidth / 2, pageHeight - 7, { align: 'center' });
   };
 
-  // Helper to check page break and handle page numbering cleanly
   const checkPageBreak = (neededHeight: number) => {
     if (yPos + neededHeight > pageHeight - 15) {
       addFooter(currentPage);
@@ -61,13 +81,6 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     }
   };
 
-  // Helper to draw a crisp vector bullet dot (no reliance on font encoding)
-  const drawBulletDot = (x: number, y: number, color: [number, number, number] = [71, 85, 105]) => {
-    doc.setFillColor(color[0], color[1], color[2]);
-    doc.circle(x, y - 1.0, 0.65, 'F');
-  };
-
-  // Section Header helper with modern accent underline
   const renderSectionHeader = (title: string) => {
     checkPageBreak(13);
     yPos += 2;
@@ -76,134 +89,104 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     doc.setTextColor(15, 23, 42); // slate-900
     doc.text(title.toUpperCase(), margin, yPos);
 
-    // Modern thin divider line with colored accent bar
-    doc.setDrawColor(203, 213, 225); // slate-300
+    doc.setDrawColor(203, 213, 225);
     doc.setLineWidth(0.35);
     doc.line(margin, yPos + 1.8, margin + contentWidth, yPos + 1.8);
 
-    doc.setDrawColor(37, 99, 235); // blue-600 accent
+    doc.setDrawColor(37, 99, 235); // blue-600
     doc.setLineWidth(1.1);
     doc.line(margin, yPos + 1.8, margin + 26, yPos + 1.8);
-
     yPos += 5.8;
   };
 
-  // ==================== HEADER SECTION ====================
-  // Dark Navy banner for executive contrast
-  doc.setFillColor(15, 23, 42); // slate-900
-  doc.rect(0, 0, pageWidth, 40, 'F');
+  // Header Banner
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, pageWidth, 42, 'F');
 
-  // Name
+  // Avatar inside banner
+  drawAvatar(doc, data, margin, 7, 26, [37, 99, 235]);
+
+  // Name & Titles
+  const textX = margin + 31;
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(19);
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text(sanitizeText(data.contact.name), margin, 14);
+  doc.text(sanitizeText(data.contact.name), textX, 15);
 
-  // Dynamic Title based on active track
   const rawTitle = getLocalizedTitle(data.titles, track, language);
-  doc.setFontSize(10.5);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(147, 197, 253); // blue-300
-  doc.text(sanitizeText(rawTitle), margin, 21);
+  doc.text(sanitizeText(rawTitle), textX, 22);
 
-  // Subtitle / Experience Highlights badge
-  doc.setFontSize(8.2);
+  doc.setFontSize(7.8);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(226, 232, 240); // slate-200
+  doc.setTextColor(226, 232, 240);
   const expPill = language === 'es' 
     ? '15+ Años de Experiencia | ISTQB Certified | Arquitectura QA & Desarrollo Full Stack' 
-    : language === 'pt'
-    ? '15+ Anos de Experiência | ISTQB Certified | Arquitetura QA e Desenvolvimento Full Stack'
     : '15+ Years Experience | ISTQB Certified | QA Architecture & Full Stack Engineering';
-  doc.text(expPill, margin, 26.8);
+  doc.text(expPill, textX, 28);
 
-  // Contact line with GitHub & LinkedIn (pure ASCII characters to prevent corruption)
-  doc.setFontSize(7.8);
-  doc.setTextColor(203, 213, 225); // slate-300
+  // Contact line
+  doc.setFontSize(7.5);
+  doc.setTextColor(203, 213, 225);
   const githubLink = (data.contact.githubUrl || 'https://github.com/faridmaloof/').replace('https://', '');
   const linkedinLink = (data.contact.linkedinUrl || 'https://linkedin.com/in/fmaloofs').replace('https://', '');
-  const contactLine = `${data.contact.email}   |   ${data.contact.phone}   |   ${sanitizeText(data.contact.location)}   |   ${githubLink}   |   ${linkedinLink}`;
-  doc.text(contactLine, margin, 33.5);
+  const contactLine = `${data.contact.email}  |  ${data.contact.phone}  |  ${sanitizeText(data.contact.location)}  |  ${githubLink}  |  ${linkedinLink}`;
+  doc.text(contactLine, textX, 34);
 
-  yPos = 45;
+  yPos = 47;
 
-  // ==================== PROFESSIONAL SUMMARY ====================
-  const summaryHeading = language === 'es' 
-    ? 'Resumen Profesional Ejecutivo' 
-    : language === 'pt' 
-    ? 'Resumo Profissional Executivo' 
-    : 'Executive Professional Summary';
+  // Summary
+  const summaryHeading = language === 'es' ? 'Resumen Profesional Ejecutivo' : 'Executive Professional Summary';
   renderSectionHeader(summaryHeading);
-
   doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(51, 65, 85); // slate-700
+  doc.setTextColor(51, 65, 85);
   const summaryText = sanitizeText(getLocalizedSummary(data.summary, track, language));
   const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
   doc.text(splitSummary, margin, yPos);
   yPos += splitSummary.length * 3.8 + 2.5;
 
-  // ==================== TECHNICAL SKILLS & STACK ====================
-  // Fixed two-column layout: Left column for Category, Right column for Skills list
-  const skillsHeading = language === 'es' 
-    ? 'Competencias Técnicas y Tecnologías' 
-    : language === 'pt' 
-    ? 'Competências Técnicas e Tecnologias' 
-    : 'Technical Core Competencies';
+  // Skills
+  const skillsHeading = language === 'es' ? 'Competencias Técnicas y Tecnologías' : 'Technical Core Competencies';
   renderSectionHeader(skillsHeading);
-
   const skills = getLocalizedSkills(data.skills, track, language);
-  const catColWidth = 50; // Fixed reserved width for category label
-  const techColWidth = contentWidth - catColWidth - 2; // Reserved width for technologies (130mm)
+  const catColWidth = 50;
+  const techColWidth = contentWidth - catColWidth - 2;
 
   skills.forEach(([category, tech]) => {
     doc.setFontSize(8.2);
     doc.setFont('helvetica', 'bold');
-    const cleanCat = `${sanitizeText(category)}:`;
-    const splitCat = doc.splitTextToSize(cleanCat, catColWidth - 3);
+    const splitCat = doc.splitTextToSize(`${sanitizeText(category)}:`, catColWidth - 3);
 
     doc.setFont('helvetica', 'normal');
-    const cleanTech = sanitizeText(tech);
-    const splitTech = doc.splitTextToSize(cleanTech, techColWidth);
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), techColWidth);
 
-    const rowLines = Math.max(splitCat.length, splitTech.length);
-    const rowHeight = rowLines * 3.6 + 1.0;
-
+    const rowHeight = Math.max(splitCat.length, splitTech.length) * 3.6 + 1.0;
     checkPageBreak(rowHeight);
 
-    // Render category on left column
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 41, 59); // slate-800
+    doc.setTextColor(30, 41, 59);
     doc.text(splitCat, margin, yPos);
 
-    // Render technologies on right column (zero overlap)
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(71, 85, 105); // slate-600
+    doc.setTextColor(71, 85, 105);
     doc.text(splitTech, margin + catColWidth, yPos);
-
     yPos += rowHeight;
   });
   yPos += 2;
 
-  // ==================== WORK EXPERIENCE ====================
-  // Atomic block paging to avoid broken cards or orphaned bullets across page boundaries
-  const expHeading = language === 'es' 
-    ? 'Experiencia Laboral Relevante' 
-    : language === 'pt' 
-    ? 'Experiência Profissional Relevante' 
-    : 'Relevant Professional Experience';
+  // Experience
+  const expHeading = language === 'es' ? 'Experiencia Laboral Relevante' : 'Relevant Professional Experience';
   renderSectionHeader(expHeading);
 
-  // Helper to measure full height of an experience item
-  const measureExperienceHeight = (exp: Experience): {
-    totalHeight: number;
-    splitRole: string[];
-    splitDesc: string[];
-    splitBullets: string[][];
-  } => {
+  const experiences = data.experience.slice(0, 5);
+  experiences.forEach((exp) => {
     const role = sanitizeText(getLocalizedRole(exp.role, track, language));
     const dates = sanitizeText(formatExperienceDates(exp.dates, language));
     const details = getLocalizedDetail(exp.detail, track, language);
+    const modality = sanitizeText(formatModality(exp.modality, language));
     const companyDesc = sanitizeText(getLocalizedText(exp.companyDescription, language));
 
     doc.setFontSize(8);
@@ -214,38 +197,19 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     doc.setFontSize(9);
     const splitRole = doc.splitTextToSize(role, maxRoleWidth);
 
-    let totalHeight = splitRole.length * 3.8 + 3.5; // Role + Company row
-
+    let totalH = splitRole.length * 3.8 + 3.5;
     const splitDesc: string[] = [];
     if (companyDesc) {
       doc.setFontSize(7.5);
       doc.setFont('helvetica', 'italic');
-      const descLines = doc.splitTextToSize(companyDesc, contentWidth - 4) as string[];
-      splitDesc.push(...descLines);
-      totalHeight += descLines.length * 3.3 + 1.0;
+      splitDesc.push(...(doc.splitTextToSize(companyDesc, contentWidth - 4) as string[]));
+      totalH += splitDesc.length * 3.3 + 1.0;
     }
-
-    doc.setFontSize(8.2);
-    doc.setFont('helvetica', 'normal');
     const splitBullets = details.map((b) => doc.splitTextToSize(sanitizeText(b), contentWidth - 6) as string[]);
-    splitBullets.forEach((sb) => {
-      totalHeight += sb.length * 3.6 + 0.6;
-    });
+    splitBullets.forEach(sb => { totalH += sb.length * 3.6 + 0.6; });
+    totalH += 3.5;
 
-    totalHeight += 3.5; // Bottom margin between cards
-    return { totalHeight, splitRole, splitDesc, splitBullets };
-  };
-
-  const experiences = data.experience.slice(0, 5);
-
-  experiences.forEach((exp) => {
-    const dates = sanitizeText(formatExperienceDates(exp.dates, language));
-    const modality = sanitizeText(formatModality(exp.modality, language));
-    const { totalHeight, splitRole, splitDesc, splitBullets } = measureExperienceHeight(exp);
-
-    // Atomic block page-break: if the full experience block doesn't fit and we're not at top of page,
-    // move the ENTIRE experience block cleanly to the next page.
-    if (yPos + totalHeight > pageHeight - 15 && yPos > margin + 25) {
+    if (yPos + totalH > pageHeight - 15 && yPos > margin + 25) {
       addFooter(currentPage);
       doc.addPage();
       currentPage++;
@@ -254,22 +218,20 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
       checkPageBreak(18);
     }
 
-    // Role & Dates header row
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setTextColor(15, 23, 42);
     doc.text(splitRole, margin, yPos);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(37, 99, 235); // blue-600
+    doc.setTextColor(37, 99, 235);
     doc.text(dates, margin + contentWidth, yPos, { align: 'right' });
     yPos += splitRole.length * 3.8;
 
-    // Company & Location with Modality badge
     doc.setFontSize(8.2);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(51, 65, 85); // slate-700
+    doc.setTextColor(51, 65, 85);
     const modalityStr = modality ? ` [${modality}]` : '';
     const companyLoc = exp.location 
       ? `${sanitizeText(exp.company)}${modalityStr}  -  ${sanitizeText(exp.location)}` 
@@ -277,46 +239,33 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     doc.text(companyLoc, margin, yPos);
     yPos += 3.5;
 
-    // Company brief description if present
     if (splitDesc.length > 0) {
       doc.setFontSize(7.5);
       doc.setFont('helvetica', 'italic');
-      doc.setTextColor(100, 116, 139); // slate-500
+      doc.setTextColor(100, 116, 139);
       doc.text(splitDesc, margin + 2, yPos);
       yPos += splitDesc.length * 3.3 + 1.0;
     }
 
-    // Bullet points with crisp native vector dots
     doc.setFontSize(8.2);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(51, 65, 85); // slate-700
-
-    splitBullets.forEach((splitBullet) => {
-      checkPageBreak(splitBullet.length * 3.6 + 1.0);
-      drawBulletDot(margin + 2, yPos, [71, 85, 105]);
-      doc.text(splitBullet, margin + 5, yPos);
-      yPos += splitBullet.length * 3.6 + 0.6;
+    doc.setTextColor(51, 65, 85);
+    splitBullets.forEach((sb) => {
+      checkPageBreak(sb.length * 3.6 + 1.0);
+      drawBulletDot(doc, margin + 2, yPos, [71, 85, 105]);
+      doc.text(sb, margin + 5, yPos);
+      yPos += sb.length * 3.6 + 0.6;
     });
-
     yPos += 2.5;
   });
 
-  // ==================== FEATURED CERTIFICATIONS ====================
-  // Uniform 2-line executive layout:
-  // Line 1: Title in bold with verification link
-  // Line 2: Indented Issuer | Date | ID in muted text
-  const certsHeading = language === 'es' 
-    ? 'Certificaciones & Licencias Profesionales Destacadas' 
-    : language === 'pt' 
-    ? 'Certificações e Licenças Profissionais' 
-    : 'Key Professional Certifications & Accreditations';
+  // Certifications
+  const certsHeading = language === 'es' ? 'Certificaciones & Licencias Profesionales Destacadas' : 'Key Professional Certifications & Accreditations';
   renderSectionHeader(certsHeading);
 
   const featuredCerts = getFeaturedCertifications(track, 6);
-
   featuredCerts.forEach((cert) => {
     checkPageBreak(9);
-
     const hasUrl = Boolean(cert.url);
     const linkBadge = hasUrl ? ' [Ver Credencial]' : '';
     const cleanTitle = `${sanitizeText(cert.title)}${linkBadge}`;
@@ -328,41 +277,35 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     doc.setFont('helvetica', 'bold');
     const splitTitle = doc.splitTextToSize(cleanTitle, contentWidth - 6);
 
-    // Vector bullet dot
-    drawBulletDot(margin + 1.5, yPos, hasUrl ? [37, 99, 235] : [71, 85, 105]);
+    drawBulletDot(doc, margin + 1.5, yPos, hasUrl ? [37, 99, 235] : [71, 85, 105]);
 
-    // Title line
     if (hasUrl && cert.url) {
-      doc.setTextColor(29, 78, 216); // blue-700
+      doc.setTextColor(29, 78, 216);
       doc.text(splitTitle, margin + 4.5, yPos);
       doc.link(margin + 4.5, yPos - 3, contentWidth - 6, splitTitle.length * 3.7, { url: cert.url });
     } else {
-      doc.setTextColor(15, 23, 42); // slate-900
+      doc.setTextColor(15, 23, 42);
       doc.text(splitTitle, margin + 4.5, yPos);
     }
     yPos += splitTitle.length * 3.7;
 
-    // Sub-row: Issuer | Date | Credential ID
     doc.setFontSize(7.8);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 116, 139); // slate-500
+    doc.setTextColor(100, 116, 139);
     doc.text(certMeta, margin + 4.5, yPos);
     yPos += 4.0;
   });
 
-  // Full LinkedIn Certifications Redirection Link Box (100% compatible vector styling, no broken glyphs)
+  // LinkedIn Certifications Link Box
   const linkedinAllCertsUrl = 'https://www.linkedin.com/in/fmaloofs/details/certifications/';
   checkPageBreak(11);
   yPos += 1;
-  
-  // Clean clickable banner for LinkedIn certifications
-  doc.setFillColor(239, 246, 255); // blue-50
-  doc.setDrawColor(191, 219, 254); // blue-200
+  doc.setFillColor(239, 246, 255);
+  doc.setDrawColor(191, 219, 254);
   doc.setLineWidth(0.3);
   doc.roundedRect(margin, yPos, contentWidth, 8, 2, 2, 'FD');
 
-  // Small brand badge inside banner
-  doc.setFillColor(37, 99, 235); // blue-600
+  doc.setFillColor(37, 99, 235);
   doc.roundedRect(margin + 2.5, yPos + 1.6, 7.5, 4.8, 1, 1, 'F');
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
@@ -371,22 +314,16 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
   
   doc.setFontSize(7.8);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(29, 78, 216); // blue-700
+  doc.setTextColor(29, 78, 216);
   const linkedinText = language === 'es'
     ? 'Ver catálogo completo (+120 certificaciones oficiales verificadas) en LinkedIn  [Abrir enlace]'
-    : language === 'pt'
-    ? 'Ver catálogo completo (+120 certificações oficiais verificadas) no LinkedIn  [Abrir link]'
     : 'View full catalog of 120+ official verified certifications on LinkedIn  [Open Link]';
   doc.text(linkedinText, margin + 13, yPos + 5.2);
   doc.link(margin, yPos, contentWidth, 8, { url: linkedinAllCertsUrl });
   yPos += 10.5;
 
-  // ==================== EDUCATION ====================
-  const eduHeading = language === 'es' 
-    ? 'Educación Universitaria y Posgrados' 
-    : language === 'pt' 
-    ? 'Educação Superior e Pós-graduação' 
-    : 'Higher Education & Postgraduates';
+  // Education
+  const eduHeading = language === 'es' ? 'Educación Universitaria y Posgrados' : 'Higher Education & Postgraduates';
   renderSectionHeader(eduHeading);
 
   const eduList = data.education[language] || data.education.es || data.education.en || [];
@@ -407,55 +344,1033 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     doc.setFontSize(8.5);
     const splitDegree = doc.splitTextToSize(cleanDegree, maxDegreeWidth);
     const neededHeight = splitDegree.length * 3.7 + 4.8;
-
     checkPageBreak(neededHeight);
 
-    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setTextColor(15, 23, 42);
     doc.text(splitDegree, margin, yPos);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(37, 99, 235); // blue-600
+    doc.setTextColor(37, 99, 235);
     doc.text(cleanDates, margin + contentWidth, yPos, { align: 'right' });
     yPos += splitDegree.length * 3.7;
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(71, 85, 105); // slate-600
+    doc.setTextColor(71, 85, 105);
     const gpaText = gpa ? ` | ${sanitizeText(gpa)}` : '';
     doc.text(`${cleanInst}${gpaText}`, margin, yPos);
     yPos += 4.8;
   });
 
-  // ==================== LANGUAGES ====================
-  // Rendered as 3 distinct, bounded bullet points to strictly prevent border overflow
+  // Languages
   checkPageBreak(18);
-  const langHeading = language === 'es' ? 'Idiomas' : language === 'pt' ? 'Idiomas' : 'Languages';
+  const langHeading = language === 'es' ? 'Idiomas' : 'Languages';
   renderSectionHeader(langHeading);
 
   const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
-  
   languagesList.forEach((langItem) => {
     checkPageBreak(5);
     const cleanLang = sanitizeText(langItem);
-    
-    // Vector bullet dot
-    drawBulletDot(margin + 1.5, yPos, [37, 99, 235]);
+    drawBulletDot(doc, margin + 1.5, yPos, [37, 99, 235]);
 
     doc.setFontSize(8.2);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(51, 65, 85); // slate-700
-    
-    // Strict width wrap to guarantee it never touches or exceeds the right margin
+    doc.setTextColor(51, 65, 85);
     const splitLang = doc.splitTextToSize(cleanLang, contentWidth - 6);
     doc.text(splitLang, margin + 4.5, yPos);
     yPos += splitLang.length * 3.8 + 0.8;
   });
 
-  // Final footer on last page
   addFooter(currentPage);
+}
 
-  // Save the PDF with a clean, descriptive name
+// ============================================================================
+// TEMPLATE 2: MINIMALIST ATS (Harvard / Stanford Pure Clean Text - 0% Bias, 100% Parsing)
+// ============================================================================
+function renderMinimalistTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 16;
+  const contentWidth = pageWidth - 2 * margin; // 178mm
+
+  let yPos = margin;
+  let currentPage = 1;
+
+  const addFooter = (pageNum: number) => {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${sanitizeText(data.contact.name)} - Page ${pageNum}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+  };
+
+  const checkPageBreak = (neededHeight: number) => {
+    if (yPos + neededHeight > pageHeight - 14) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin;
+    }
+  };
+
+  // Pure ATS Section Header: Uppercase with thin solid 0.3mm rule
+  const renderAtsHeader = (title: string) => {
+    checkPageBreak(12);
+    yPos += 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.text(title.toUpperCase(), margin, yPos);
+
+    doc.setDrawColor(71, 85, 105); // slate-600
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos + 1.5, margin + contentWidth, yPos + 1.5);
+    yPos += 5.2;
+  };
+
+  // Clean Centered ATS Header (No photos, no colored banners)
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text(sanitizeText(data.contact.name).toUpperCase(), pageWidth / 2, yPos, { align: 'center' });
+  yPos += 5;
+
+  const rawTitle = getLocalizedTitle(data.titles, track, language);
+  doc.setFontSize(9.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 65, 85);
+  doc.text(sanitizeText(rawTitle), pageWidth / 2, yPos, { align: 'center' });
+  yPos += 4.5;
+
+  doc.setFontSize(7.8);
+  doc.setTextColor(71, 85, 105);
+  const githubLink = (data.contact.githubUrl || 'https://github.com/faridmaloof/').replace('https://', '');
+  const linkedinLink = (data.contact.linkedinUrl || 'https://linkedin.com/in/fmaloofs').replace('https://', '');
+  const contactText = `${data.contact.email}  *  ${data.contact.phone}  *  ${sanitizeText(data.contact.location)}  *  ${githubLink}  *  ${linkedinLink}`;
+  doc.text(contactText, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 5;
+
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.3);
+  doc.line(margin, yPos, margin + contentWidth, yPos);
+  yPos += 4;
+
+  // Professional Summary
+  renderAtsHeader(language === 'es' ? 'Resumen Profesional' : 'Professional Summary');
+  doc.setFontSize(8.2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(30, 41, 59);
+  const summaryText = sanitizeText(getLocalizedSummary(data.summary, track, language));
+  const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+  doc.text(splitSummary, margin, yPos);
+  yPos += splitSummary.length * 3.7 + 2;
+
+  // Technical Core Competencies (ATS Inline comma list format)
+  renderAtsHeader(language === 'es' ? 'Competencias Técnicas' : 'Technical Skills');
+  const skills = getLocalizedSkills(data.skills, track, language);
+  skills.forEach(([cat, tech]) => {
+    checkPageBreak(5);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    const catLabel = `${sanitizeText(cat)}: `;
+    const catW = doc.getTextWidth(catLabel);
+    doc.text(catLabel, margin, yPos);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), contentWidth - catW);
+    doc.text(splitTech, margin + catW, yPos);
+    yPos += splitTech.length * 3.5 + 0.8;
+  });
+  yPos += 2;
+
+  // Experience
+  renderAtsHeader(language === 'es' ? 'Experiencia Laboral' : 'Professional Experience');
+  const experiences = data.experience.slice(0, 5);
+  experiences.forEach((exp) => {
+    const role = sanitizeText(getLocalizedRole(exp.role, track, language));
+    const dates = sanitizeText(formatExperienceDates(exp.dates, language));
+    const details = getLocalizedDetail(exp.detail, track, language);
+    const company = sanitizeText(exp.company);
+    const location = exp.location ? sanitizeText(exp.location) : '';
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    const datesW = doc.getTextWidth(dates);
+
+    doc.setFontSize(8.8);
+    doc.setFont('helvetica', 'bold');
+    const splitRole = doc.splitTextToSize(role, contentWidth - datesW - 4);
+    const splitBullets = details.map((b) => doc.splitTextToSize(`-  ${sanitizeText(b)}`, contentWidth - 4) as string[]);
+
+    let expH = splitRole.length * 3.6 + 3.5;
+    splitBullets.forEach(sb => { expH += sb.length * 3.5 + 0.5; });
+
+    if (yPos + expH > pageHeight - 14 && yPos > margin + 20) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin;
+    } else {
+      checkPageBreak(15);
+    }
+
+    // Role & Dates
+    doc.setFontSize(8.8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(splitRole, margin, yPos);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(dates, margin + contentWidth, yPos, { align: 'right' });
+    yPos += splitRole.length * 3.6;
+
+    // Company & Location
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(51, 65, 85);
+    doc.text(company, margin, yPos);
+
+    if (location) {
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 116, 139);
+      doc.text(location, margin + contentWidth, yPos, { align: 'right' });
+    }
+    yPos += 3.5;
+
+    // Bullets
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(30, 41, 59);
+    splitBullets.forEach((sb) => {
+      checkPageBreak(sb.length * 3.5 + 0.8);
+      doc.text(sb, margin + 2, yPos);
+      yPos += sb.length * 3.5 + 0.5;
+    });
+    yPos += 2.5;
+  });
+
+  // Education
+  renderAtsHeader(language === 'es' ? 'Educación' : 'Education');
+  const eduList = data.education[language] || data.education.es || data.education.en || [];
+  eduList.forEach((item) => {
+    const tuple = item[language] || item.es || item.en;
+    if (!tuple) return;
+    const [inst, deg, dts, gpa] = tuple;
+    checkPageBreak(7);
+
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(sanitizeText(deg), margin, yPos);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(sanitizeText(dts), margin + contentWidth, yPos, { align: 'right' });
+    yPos += 3.5;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    const gpaStr = gpa ? ` | ${sanitizeText(gpa)}` : '';
+    doc.text(`${sanitizeText(inst)}${gpaStr}`, margin, yPos);
+    yPos += 4.5;
+  });
+
+  // Certifications
+  renderAtsHeader(language === 'es' ? 'Certificaciones' : 'Certifications');
+  const featuredCerts = getFeaturedCertifications(track, 6);
+  featuredCerts.forEach((cert) => {
+    checkPageBreak(6.5);
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(`*  ${sanitizeText(cert.title)}`, margin, yPos);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    const meta = `${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)})`;
+    doc.text(meta, margin + contentWidth, yPos, { align: 'right' });
+    yPos += 3.8;
+  });
+
+  // Languages
+  checkPageBreak(12);
+  renderAtsHeader(language === 'es' ? 'Idiomas' : 'Languages');
+  const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
+  languagesList.forEach((langItem) => {
+    checkPageBreak(4.5);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(30, 41, 59);
+    doc.text(`*  ${sanitizeText(langItem)}`, margin + 2, yPos);
+    yPos += 3.8;
+  });
+
+  addFooter(currentPage);
+}
+
+// ============================================================================
+// TEMPLATE 3: SIDEBAR SPLIT (Swiss 2-Column Layout: Sidebar 56mm | Main 124mm)
+// ============================================================================
+function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const sidebarWidth = 56;
+  const mainX = sidebarWidth + 8;
+  const mainWidth = pageWidth - mainX - 12; // 134mm
+
+  let currentPage = 1;
+
+  const drawSidebarBackground = () => {
+    doc.setFillColor(248, 250, 252); // slate-50
+    doc.rect(0, 0, sidebarWidth, pageHeight, 'F');
+    doc.setDrawColor(226, 232, 240); // slate-200
+    doc.setLineWidth(0.4);
+    doc.line(sidebarWidth, 0, sidebarWidth, pageHeight);
+  };
+
+  const addFooter = (pageNum: number) => {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184);
+    doc.text(`${sanitizeText(data.contact.name)} | Page ${pageNum}`, mainX, pageHeight - 7);
+  };
+
+  drawSidebarBackground();
+
+  // SIDEBAR CONTENT
+  let sY = 14;
+  drawAvatar(doc, data, (sidebarWidth - 28) / 2, sY, 28, [30, 41, 59]);
+  sY += 34;
+
+  const renderSidebarSectionHeader = (title: string) => {
+    sY += 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(30, 41, 59); // slate-800
+    doc.text(title.toUpperCase(), 7, sY);
+
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(0.8);
+    doc.line(7, sY + 1.5, sidebarWidth - 7, sY + 1.5);
+    sY += 4.5;
+  };
+
+  // Sidebar: Contact
+  renderSidebarSectionHeader(language === 'es' ? 'Contacto' : 'Contact');
+  doc.setFontSize(7.2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+
+  const contactItems = [
+    data.contact.email,
+    data.contact.phone,
+    sanitizeText(data.contact.location),
+    (data.contact.githubUrl || 'github.com/faridmaloof').replace('https://', ''),
+    (data.contact.linkedinUrl || 'linkedin.com/in/fmaloofs').replace('https://', '')
+  ];
+  contactItems.forEach(ci => {
+    const splitCi = doc.splitTextToSize(ci, sidebarWidth - 14);
+    doc.text(splitCi, 7, sY);
+    sY += splitCi.length * 3.2 + 0.8;
+  });
+  sY += 2;
+
+  // Sidebar: Skills
+  renderSidebarSectionHeader(language === 'es' ? 'Habilidades Core' : 'Core Skills');
+  const skills = getLocalizedSkills(data.skills, track, language);
+  skills.slice(0, 5).forEach(([cat, tech]) => {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(sanitizeText(cat), 7, sY);
+    sY += 3.2;
+
+    doc.setFontSize(6.8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), sidebarWidth - 14);
+    doc.text(splitTech, 7, sY);
+    sY += splitTech.length * 2.8 + 1.5;
+  });
+  sY += 1;
+
+  // Sidebar: Education
+  renderSidebarSectionHeader(language === 'es' ? 'Educación' : 'Education');
+  const eduList = data.education[language] || data.education.es || data.education.en || [];
+  eduList.slice(0, 3).forEach((item) => {
+    const tuple = item[language] || item.es || item.en;
+    if (!tuple) return;
+    const [inst, deg, dts] = tuple;
+    doc.setFontSize(7.2);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    const splitDeg = doc.splitTextToSize(sanitizeText(deg), sidebarWidth - 14);
+    doc.text(splitDeg, 7, sY);
+    sY += splitDeg.length * 2.8;
+
+    doc.setFontSize(6.8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${sanitizeText(inst)} (${sanitizeText(dts)})`, 7, sY);
+    sY += 3.8;
+  });
+
+  // Sidebar: Languages
+  renderSidebarSectionHeader(language === 'es' ? 'Idiomas' : 'Languages');
+  const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
+  languagesList.forEach(lang => {
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    doc.text(`* ${sanitizeText(lang)}`, 7, sY);
+    sY += 3.2;
+  });
+
+  // MAIN COLUMN CONTENT
+  let mY = 16;
+
+  const renderMainSectionHeader = (title: string) => {
+    if (mY + 12 > pageHeight - 15) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      drawSidebarBackground();
+      mY = 16;
+    }
+    mY += 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text(title.toUpperCase(), mainX, mY);
+
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(1.0);
+    doc.line(mainX, mY + 1.8, mainX + 28, mY + 1.8);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.35);
+    doc.line(mainX + 28, mY + 1.8, mainX + mainWidth, mY + 1.8);
+    mY += 5.5;
+  };
+
+  // Name & Title
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text(sanitizeText(data.contact.name), mainX, mY);
+  mY += 6;
+
+  const rawTitle = getLocalizedTitle(data.titles, track, language);
+  doc.setFontSize(10.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(37, 99, 235);
+  doc.text(sanitizeText(rawTitle), mainX, mY);
+  mY += 6;
+
+  // Summary
+  renderMainSectionHeader(language === 'es' ? 'Perfil Profesional' : 'Professional Profile');
+  doc.setFontSize(8.2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 65, 85);
+  const summaryText = sanitizeText(getLocalizedSummary(data.summary, track, language));
+  const splitSummary = doc.splitTextToSize(summaryText, mainWidth);
+  doc.text(splitSummary, mainX, mY);
+  mY += splitSummary.length * 3.6 + 4;
+
+  // Experience
+  renderMainSectionHeader(language === 'es' ? 'Trayectoria Profesional' : 'Work Experience');
+  const experiences = data.experience.slice(0, 5);
+  experiences.forEach((exp) => {
+    const role = sanitizeText(getLocalizedRole(exp.role, track, language));
+    const dates = sanitizeText(formatExperienceDates(exp.dates, language));
+    const details = getLocalizedDetail(exp.detail, track, language);
+    const company = sanitizeText(exp.company);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    const datesW = doc.getTextWidth(dates);
+
+    doc.setFontSize(9);
+    const splitRole = doc.splitTextToSize(role, mainWidth - datesW - 4);
+    const splitBullets = details.map(b => doc.splitTextToSize(sanitizeText(b), mainWidth - 6) as string[]);
+
+    let expH = splitRole.length * 3.6 + 3.5;
+    splitBullets.forEach(sb => { expH += sb.length * 3.4 + 0.5; });
+
+    if (mY + expH > pageHeight - 15 && mY > 30) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      drawSidebarBackground();
+      mY = 16;
+    }
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(splitRole, mainX, mY);
+
+    doc.setFontSize(8);
+    doc.setTextColor(37, 99, 235);
+    doc.text(dates, mainX + mainWidth, mY, { align: 'right' });
+    mY += splitRole.length * 3.6;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(company, mainX, mY);
+    mY += 3.5;
+
+    doc.setFontSize(8);
+    doc.setTextColor(51, 65, 85);
+    splitBullets.forEach((sb) => {
+      drawBulletDot(doc, mainX + 2, mY, [71, 85, 105]);
+      doc.text(sb, mainX + 5, mY);
+      mY += sb.length * 3.4 + 0.5;
+    });
+    mY += 3;
+  });
+
+  // Certifications
+  renderMainSectionHeader(language === 'es' ? 'Certificaciones Principales' : 'Key Certifications');
+  const featuredCerts = getFeaturedCertifications(track, 6);
+  featuredCerts.forEach((cert) => {
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    const splitTitle = doc.splitTextToSize(`* ${sanitizeText(cert.title)}`, mainWidth);
+    doc.text(splitTitle, mainX, mY);
+    mY += splitTitle.length * 3.4;
+
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    const meta = `${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)})${cert.credentialId ? ` | ID: ${sanitizeText(cert.credentialId)}` : ''}`;
+    doc.text(meta, mainX + 4, mY);
+    mY += 3.8;
+  });
+
+  addFooter(currentPage);
+}
+
+// ============================================================================
+// TEMPLATE 4: ENGINEERING QA (Precision Emerald/Teal Quality-First Specification)
+// ============================================================================
+function renderEngineeringTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 14;
+  const contentWidth = pageWidth - 2 * margin; // 182mm
+
+  let yPos = margin;
+  let currentPage = 1;
+
+  const addFooter = (pageNum: number) => {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184);
+    const footerText = `${sanitizeText(data.contact.name)} - Engineering Quality Specification | ${pageNum}`;
+    doc.text(footerText, pageWidth / 2, pageHeight - 7, { align: 'center' });
+  };
+
+  const checkPageBreak = (neededHeight: number) => {
+    if (yPos + neededHeight > pageHeight - 15) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin + 2;
+    }
+  };
+
+  const renderSectionHeader = (title: string) => {
+    checkPageBreak(13);
+    yPos += 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(13, 78, 62); // emerald-900 / teal-900
+    doc.text(title.toUpperCase(), margin, yPos);
+
+    doc.setDrawColor(204, 251, 241); // teal-100
+    doc.setLineWidth(0.35);
+    doc.line(margin, yPos + 1.8, margin + contentWidth, yPos + 1.8);
+
+    doc.setDrawColor(13, 148, 136); // teal-600
+    doc.setLineWidth(1.2);
+    doc.line(margin, yPos + 1.8, margin + 30, yPos + 1.8);
+    yPos += 5.8;
+  };
+
+  // Engineering Header with Avatar and Quality Card
+  doc.setFillColor(13, 78, 62); // deep teal
+  doc.rect(0, 0, pageWidth, 42, 'F');
+
+  drawAvatar(doc, data, margin, 7, 26, [13, 148, 136]);
+
+  const textX = margin + 31;
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(sanitizeText(data.contact.name), textX, 15);
+
+  const rawTitle = getLocalizedTitle(data.titles, track, language);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(153, 246, 228); // teal-200
+  doc.text(sanitizeText(rawTitle), textX, 22);
+
+  doc.setFontSize(7.8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(240, 253, 250);
+  const specPill = 'ISTQB Certified SDET | Shift-Left Automation | Performance & Resilient Microservices';
+  doc.text(specPill, textX, 28);
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(204, 251, 241);
+  const githubLink = (data.contact.githubUrl || 'https://github.com/faridmaloof/').replace('https://', '');
+  const linkedinLink = (data.contact.linkedinUrl || 'https://linkedin.com/in/fmaloofs').replace('https://', '');
+  const contactLine = `${data.contact.email}  |  ${data.contact.phone}  |  ${sanitizeText(data.contact.location)}  |  ${githubLink}  |  ${linkedinLink}`;
+  doc.text(contactLine, textX, 34);
+
+  yPos = 47;
+
+  // Summary
+  renderSectionHeader(language === 'es' ? 'Declaración de Ingeniería de Calidad' : 'Quality Engineering Specification');
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 65, 85);
+  const summaryText = sanitizeText(getLocalizedSummary(data.summary, track, language));
+  const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+  doc.text(splitSummary, margin, yPos);
+  yPos += splitSummary.length * 3.8 + 2.5;
+
+  // Skills
+  renderSectionHeader(language === 'es' ? 'Matriz Técnica de Automatización & Arquitectura' : 'Technical Automation Matrix');
+  const skills = getLocalizedSkills(data.skills, track, language);
+  const catColWidth = 52;
+  const techColWidth = contentWidth - catColWidth - 2;
+
+  skills.forEach(([category, tech]) => {
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'bold');
+    const splitCat = doc.splitTextToSize(`${sanitizeText(category)}:`, catColWidth - 3);
+
+    doc.setFont('helvetica', 'normal');
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), techColWidth);
+    const rowHeight = Math.max(splitCat.length, splitTech.length) * 3.6 + 1.0;
+    checkPageBreak(rowHeight);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 78, 62);
+    doc.text(splitCat, margin, yPos);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(splitTech, margin + catColWidth, yPos);
+    yPos += rowHeight;
+  });
+  yPos += 2;
+
+  // Experience with Core Stack tags
+  renderSectionHeader(language === 'es' ? 'Trayectoria & Sistemas Validados' : 'Verified Engineering Track Record');
+  const experiences = data.experience.slice(0, 5);
+  experiences.forEach((exp) => {
+    const role = sanitizeText(getLocalizedRole(exp.role, track, language));
+    const dates = sanitizeText(formatExperienceDates(exp.dates, language));
+    const details = getLocalizedDetail(exp.detail, track, language);
+    const modality = sanitizeText(formatModality(exp.modality, language));
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    const datesWidth = doc.getTextWidth(dates);
+    const maxRoleWidth = contentWidth - datesWidth - 4;
+
+    doc.setFontSize(9);
+    const splitRole = doc.splitTextToSize(role, maxRoleWidth);
+    const splitBullets = details.map((b) => doc.splitTextToSize(sanitizeText(b), contentWidth - 6) as string[]);
+
+    let totalH = splitRole.length * 3.8 + 7.5;
+    splitBullets.forEach(sb => { totalH += sb.length * 3.6 + 0.6; });
+
+    if (yPos + totalH > pageHeight - 15 && yPos > margin + 25) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin + 2;
+    } else {
+      checkPageBreak(18);
+    }
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 78, 62);
+    doc.text(splitRole, margin, yPos);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 148, 136);
+    doc.text(dates, margin + contentWidth, yPos, { align: 'right' });
+    yPos += splitRole.length * 3.8;
+
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    const modalityStr = modality ? ` [${modality}]` : '';
+    const companyLoc = exp.location 
+      ? `${sanitizeText(exp.company)}${modalityStr}  -  ${sanitizeText(exp.location)}` 
+      : `${sanitizeText(exp.company)}${modalityStr}`;
+    doc.text(companyLoc, margin, yPos);
+    yPos += 3.5;
+
+    // Tech stack tag row
+    if (exp.technologies && exp.technologies.length > 0) {
+      doc.setFontSize(7.2);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(13, 148, 136);
+      const techList = exp.technologies.slice(0, 8).join('  *  ');
+      doc.text(`[Stack: ${techList}]`, margin + 2, yPos);
+      yPos += 3.5;
+    }
+
+    doc.setFontSize(8.2);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    splitBullets.forEach((sb) => {
+      checkPageBreak(sb.length * 3.6 + 1.0);
+      drawBulletDot(doc, margin + 2, yPos, [13, 148, 136]);
+      doc.text(sb, margin + 5, yPos);
+      yPos += sb.length * 3.6 + 0.6;
+    });
+    yPos += 2.5;
+  });
+
+  // Certifications
+  renderSectionHeader(language === 'es' ? 'Certificaciones & Acreditaciones Técnicas' : 'Key Certifications & Accreditations');
+  const featuredCerts = getFeaturedCertifications(track, 6);
+  featuredCerts.forEach((cert) => {
+    checkPageBreak(9);
+    const hasUrl = Boolean(cert.url);
+    const linkBadge = hasUrl ? ' [Ver Credencial]' : '';
+    const cleanTitle = `${sanitizeText(cert.title)}${linkBadge}`;
+    const certMeta = cert.credentialId 
+      ? `${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)}) | ID: ${sanitizeText(cert.credentialId)}` 
+      : `${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)})`;
+
+    doc.setFontSize(8.3);
+    doc.setFont('helvetica', 'bold');
+    const splitTitle = doc.splitTextToSize(cleanTitle, contentWidth - 6);
+
+    drawBulletDot(doc, margin + 1.5, yPos, [13, 148, 136]);
+
+    if (hasUrl && cert.url) {
+      doc.setTextColor(13, 148, 136);
+      doc.text(splitTitle, margin + 4.5, yPos);
+      doc.link(margin + 4.5, yPos - 3, contentWidth - 6, splitTitle.length * 3.7, { url: cert.url });
+    } else {
+      doc.setTextColor(13, 78, 62);
+      doc.text(splitTitle, margin + 4.5, yPos);
+    }
+    yPos += splitTitle.length * 3.7;
+
+    doc.setFontSize(7.8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(certMeta, margin + 4.5, yPos);
+    yPos += 4.0;
+  });
+
+  // Education & Languages
+  renderSectionHeader(language === 'es' ? 'Educación & Idiomas' : 'Education & Languages');
+  const eduList = data.education[language] || data.education.es || data.education.en || [];
+  eduList.slice(0, 3).forEach((item) => {
+    const tuple = item[language] || item.es || item.en;
+    if (!tuple) return;
+    const [inst, deg, dts] = tuple;
+    checkPageBreak(7);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 78, 62);
+    doc.text(sanitizeText(deg), margin, yPos);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(13, 148, 136);
+    doc.text(sanitizeText(dts), margin + contentWidth, yPos, { align: 'right' });
+    yPos += 3.5;
+
+    doc.setFontSize(7.8);
+    doc.setTextColor(71, 85, 105);
+    doc.text(sanitizeText(inst), margin, yPos);
+    yPos += 4.2;
+  });
+
+  const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
+  languagesList.forEach((langItem) => {
+    checkPageBreak(5);
+    drawBulletDot(doc, margin + 1.5, yPos, [13, 148, 136]);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    doc.text(sanitizeText(langItem), margin + 4.5, yPos);
+    yPos += 3.8;
+  });
+
+  addFooter(currentPage);
+}
+
+// ============================================================================
+// TEMPLATE 5: NORDIC COMPACT (Silicon Valley High-Density 2-Page CV)
+// ============================================================================
+function renderCompactTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 12;
+  const contentWidth = pageWidth - 2 * margin; // 186mm
+
+  let yPos = margin;
+  let currentPage = 1;
+
+  const addFooter = (pageNum: number) => {
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184);
+    doc.text(`${sanitizeText(data.contact.name)} | High-Density CV | Page ${pageNum}`, pageWidth / 2, pageHeight - 6, { align: 'center' });
+  };
+
+  const checkPageBreak = (neededHeight: number) => {
+    if (yPos + neededHeight > pageHeight - 12) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin;
+    }
+  };
+
+  const renderSectionHeader = (title: string) => {
+    checkPageBreak(10);
+    yPos += 1.5;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(30, 41, 59); // slate-800
+    doc.text(title.toUpperCase(), margin, yPos);
+
+    doc.setDrawColor(99, 102, 241); // indigo-500
+    doc.setLineWidth(0.8);
+    doc.line(margin, yPos + 1.2, margin + 22, yPos + 1.2);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.line(margin + 22, yPos + 1.2, margin + contentWidth, yPos + 1.2);
+    yPos += 4.5;
+  };
+
+  // Compact Header
+  drawAvatar(doc, data, margin, yPos, 18, [79, 70, 229]);
+
+  const textX = margin + 22;
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text(sanitizeText(data.contact.name), textX, yPos + 5);
+
+  const rawTitle = getLocalizedTitle(data.titles, track, language);
+  doc.setFontSize(9.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(79, 70, 229); // indigo-600
+  doc.text(sanitizeText(rawTitle), textX, yPos + 10);
+
+  doc.setFontSize(7.2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 116, 139);
+  const githubLink = (data.contact.githubUrl || 'https://github.com/faridmaloof/').replace('https://', '');
+  const linkedinLink = (data.contact.linkedinUrl || 'https://linkedin.com/in/fmaloofs').replace('https://', '');
+  const contactText = `${data.contact.email}  *  ${data.contact.phone}  *  ${sanitizeText(data.contact.location)}  *  ${githubLink}  *  ${linkedinLink}`;
+  doc.text(contactText, textX, yPos + 15);
+  yPos += 22;
+
+  // Summary
+  renderSectionHeader(language === 'es' ? 'Resumen Ejecutivo' : 'Executive Summary');
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 65, 85);
+  const summaryText = sanitizeText(getLocalizedSummary(data.summary, track, language));
+  const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+  doc.text(splitSummary, margin, yPos);
+  yPos += splitSummary.length * 3.4 + 2;
+
+  // Skills
+  renderSectionHeader(language === 'es' ? 'Stack Tecnológico' : 'Tech Stack');
+  const skills = getLocalizedSkills(data.skills, track, language);
+  const catColWidth = 48;
+  const techColWidth = contentWidth - catColWidth - 2;
+
+  skills.forEach(([category, tech]) => {
+    doc.setFontSize(7.8);
+    doc.setFont('helvetica', 'bold');
+    const splitCat = doc.splitTextToSize(`${sanitizeText(category)}:`, catColWidth - 2);
+
+    doc.setFont('helvetica', 'normal');
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), techColWidth);
+    const rowHeight = Math.max(splitCat.length, splitTech.length) * 3.2 + 0.8;
+    checkPageBreak(rowHeight);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(splitCat, margin, yPos);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(splitTech, margin + catColWidth, yPos);
+    yPos += rowHeight;
+  });
+  yPos += 2;
+
+  // Experience
+  renderSectionHeader(language === 'es' ? 'Experiencia Profesional' : 'Experience');
+  const experiences = data.experience.slice(0, 5);
+  experiences.forEach((exp) => {
+    const role = sanitizeText(getLocalizedRole(exp.role, track, language));
+    const dates = sanitizeText(formatExperienceDates(exp.dates, language));
+    const details = getLocalizedDetail(exp.detail, track, language);
+    const company = sanitizeText(exp.company);
+
+    doc.setFontSize(7.8);
+    doc.setFont('helvetica', 'bold');
+    const datesW = doc.getTextWidth(dates);
+
+    doc.setFontSize(8.5);
+    const splitRole = doc.splitTextToSize(role, contentWidth - datesW - 4);
+    const splitBullets = details.map((b) => doc.splitTextToSize(sanitizeText(b), contentWidth - 5) as string[]);
+
+    let expH = splitRole.length * 3.4 + 3.2;
+    splitBullets.forEach(sb => { expH += sb.length * 3.2 + 0.4; });
+
+    if (yPos + expH > pageHeight - 12 && yPos > margin + 20) {
+      addFooter(currentPage);
+      doc.addPage();
+      currentPage++;
+      yPos = margin;
+    }
+
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(splitRole, margin, yPos);
+
+    doc.setFontSize(7.8);
+    doc.setTextColor(79, 70, 229);
+    doc.text(dates, margin + contentWidth, yPos, { align: 'right' });
+    yPos += splitRole.length * 3.4;
+
+    doc.setFontSize(7.8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(company, margin, yPos);
+    yPos += 3.2;
+
+    doc.setFontSize(7.8);
+    doc.setTextColor(51, 65, 85);
+    splitBullets.forEach((sb) => {
+      checkPageBreak(sb.length * 3.2 + 0.6);
+      drawBulletDot(doc, margin + 1.5, yPos, [79, 70, 229], 0.55);
+      doc.text(sb, margin + 4.5, yPos);
+      yPos += sb.length * 3.2 + 0.4;
+    });
+    yPos += 2;
+  });
+
+  // Certifications
+  renderSectionHeader(language === 'es' ? 'Certificaciones' : 'Certifications');
+  const featuredCerts = getFeaturedCertifications(track, 6);
+  featuredCerts.forEach((cert) => {
+    checkPageBreak(6.5);
+    doc.setFontSize(7.8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(`* ${sanitizeText(cert.title)}`, margin, yPos);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)})`, margin + contentWidth, yPos, { align: 'right' });
+    yPos += 3.5;
+  });
+
+  // Education & Languages
+  renderSectionHeader(language === 'es' ? 'Educación & Idiomas' : 'Education & Languages');
+  const eduList = data.education[language] || data.education.es || data.education.en || [];
+  eduList.slice(0, 3).forEach((item) => {
+    const tuple = item[language] || item.es || item.en;
+    if (!tuple) return;
+    const [inst, deg, dts] = tuple;
+    checkPageBreak(6);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(sanitizeText(deg), margin, yPos);
+
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(79, 70, 229);
+    doc.text(sanitizeText(dts), margin + contentWidth, yPos, { align: 'right' });
+    yPos += 3.2;
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(sanitizeText(inst), margin, yPos);
+    yPos += 3.8;
+  });
+
+  const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
+  languagesList.forEach((langItem) => {
+    checkPageBreak(4);
+    drawBulletDot(doc, margin + 1.5, yPos, [79, 70, 229], 0.5);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 65, 85);
+    doc.text(sanitizeText(langItem), margin + 4, yPos);
+    yPos += 3.2;
+  });
+
+  addFooter(currentPage);
+}
+
+// ============================================================================
+// MAIN GENERATOR DISPATCHER
+// ============================================================================
+export function generatePDF(
+  data: ProfileData, 
+  language: Language, 
+  track: TrackType = 'combined', 
+  template: CVTemplateType = 'executive'
+): void {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  switch (template) {
+    case 'minimalist':
+      renderMinimalistTemplate(doc, data, language, track);
+      break;
+    case 'sidebar':
+      renderSidebarTemplate(doc, data, language, track);
+      break;
+    case 'engineering':
+      renderEngineeringTemplate(doc, data, language, track);
+      break;
+    case 'compact':
+      renderCompactTemplate(doc, data, language, track);
+      break;
+    case 'executive':
+    default:
+      renderExecutiveTemplate(doc, data, language, track);
+      break;
+  }
+
   const trackSuffix = track === 'sdet' 
     ? 'sdet-lead' 
     : track === 'qa' 
@@ -467,6 +1382,7 @@ export function generatePDF(data: ProfileData, language: Language, track: TrackT
     : track === 'dev' 
     ? 'software-dev' 
     : 'senior-engineer';
-  const filename = `CV-Farid-Maloof-${trackSuffix}-${language.toUpperCase()}.pdf`;
+
+  const filename = `CV-Farid-Maloof-${template.toUpperCase()}-${trackSuffix}-${language.toUpperCase()}.pdf`;
   doc.save(filename);
 }

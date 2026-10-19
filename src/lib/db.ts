@@ -8,11 +8,12 @@ import type {
   ServiceItem,
   LanguageOption,
   SchedulingProvider,
-  FrontendDesignConfig
+  FrontendDesignConfig,
+  CVTemplateType
 } from '../types';
 import { defaultProfileData } from '../data/profile';
 
-export type { ServiceItem, LanguageOption, LanguageOption as LanguageConfig, FrontendDesignConfig } from '../types';
+export type { ServiceItem, LanguageOption, LanguageOption as LanguageConfig, FrontendDesignConfig, CVTemplateType } from '../types';
 
 const DB_NAME = 'portfolio_db';
 const GENERIC_DEFAULT_EMAIL = 'admin@portfolio.local';
@@ -34,6 +35,7 @@ export interface AdminUser {
 export interface PortfolioSettings {
   defaultProfile: TrackType;
   defaultLanguage: Language;
+  defaultCvTemplate?: CVTemplateType;
   autoDetectLanguage?: boolean;
   allowUrlProfileOverride?: boolean;
   theme: 'light' | 'dark' | 'blue';
@@ -112,6 +114,7 @@ export const DEFAULT_SYSTEM_VARIABLES: SystemVariables = {
   },
   defaultProfile: "full",
   defaultLanguage: "es",
+  defaultCvTemplate: "executive",
   availableLanguages: DEFAULT_LANGUAGES,
   autoDetectLanguage: true,
   allowUrlProfileOverride: true,

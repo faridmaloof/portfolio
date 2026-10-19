@@ -318,7 +318,10 @@ export interface ProfileTrackConfig {
     education?: boolean;
     languages?: boolean;
   };
+  preferredCvTemplate?: CVTemplateType;
 }
+
+export type CVTemplateType = 'executive' | 'minimalist' | 'sidebar' | 'engineering' | 'compact';
 
 export interface SystemVariables {
   fullName: string;
@@ -339,6 +342,7 @@ export interface SystemVariables {
   // Comportamiento de idiomas dinámicos
   defaultProfile: TrackType;
   defaultLanguage: Language;
+  defaultCvTemplate?: CVTemplateType;
   availableLanguages?: LanguageOption[];
   autoDetectLanguage: boolean;
   allowUrlProfileOverride: boolean;

@@ -12,9 +12,9 @@ import { GitHubShowcase } from './components/GitHubShowcase';
 import { ServicesSection } from './components/ServicesSection';
 import { LanguageToggle } from './components/Toggles';
 import { ThemeToggle } from './components/ThemeToggle';
-import { generatePDF } from './lib/pdfGenerator';
+import { CVDownloadDropdown } from './components/CVDownloadDropdown';
 import { getProfiles, getSystemVariables, getDesignConfig, syncWithBackendDatabase } from './lib/db';
-import { FileText, Shield, ExternalLink, Mail } from 'lucide-react';
+import { Shield, ExternalLink, Mail } from 'lucide-react';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import type { ProfileData, FrontendDesignConfig } from './types';
@@ -38,10 +38,6 @@ function PortfolioContent() {
     return defaultProfileData;
   }, [refreshKey]);
   
-  const handleDownloadPDF = () => {
-    generatePDF(activeProfileData, language, track);
-  };
-
   const visibility = settings?.visibility || {
     hero: true,
     summary: true,
@@ -159,13 +155,7 @@ function PortfolioContent() {
               <LanguageToggle language={language} setLanguage={setLanguage} />
               <ThemeToggle isDark={isDark} toggle={toggleTheme} />
               
-              <button
-                onClick={handleDownloadPDF}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl shadow-sm hover:shadow-md transition-all text-xs sm:text-sm font-semibold cursor-pointer active:scale-95"
-              >
-                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{language === 'es' ? 'Descargar CV' : language === 'pt' ? 'Baixar CV' : 'Download CV'}</span>
-              </button>
+              <CVDownloadDropdown data={activeProfileData} language={language} track={track} />
             </div>
           </div>
         </div>
