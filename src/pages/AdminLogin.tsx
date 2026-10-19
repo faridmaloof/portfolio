@@ -36,6 +36,13 @@ export function AdminLogin() {
 
   // Initialize DB on mount and check existing session & admin presence
   useEffect(() => {
+    // Set noindex, nofollow dynamically for security
+    const metaRobots = document.querySelector('meta[name="robots"]');
+    const prevRobots = metaRobots ? metaRobots.getAttribute('content') : null;
+    if (metaRobots) {
+      metaRobots.setAttribute('content', 'noindex, nofollow');
+    }
+
     initDB();
 
     if (isUserAuthenticated()) {
@@ -47,6 +54,12 @@ export function AdminLogin() {
     if (!registered) {
       setStep('initialSetup');
     }
+
+    return () => {
+      if (metaRobots && prevRobots) {
+        metaRobots.setAttribute('content', prevRobots);
+      }
+    };
   }, [navigate]);
 
   const handleInitialSetupSubmit = async (e: React.FormEvent) => {
@@ -383,7 +396,7 @@ export function AdminLogin() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     className="block w-full pl-10 pr-3.5 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                    placeholder="ej. faridmaloof@gmail.com o admin"
+                    placeholder="ej. Username"
                     autoComplete="username"
                     required
                   />
@@ -470,7 +483,7 @@ export function AdminLogin() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     className="block w-full pl-10 pr-3.5 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/70 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                    placeholder="ej. faridmaloof@gmail.com"
+                    placeholder="ej. username"
                     required
                   />
                 </div>

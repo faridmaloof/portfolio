@@ -65,6 +65,13 @@ export function AdminDashboard() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
+    // Set noindex, nofollow dynamically for security
+    const metaRobots = document.querySelector('meta[name="robots"]');
+    const prevRobots = metaRobots ? metaRobots.getAttribute('content') : null;
+    if (metaRobots) {
+      metaRobots.setAttribute('content', 'noindex, nofollow');
+    }
+
     if (!isUserAuthenticated()) {
       console.warn('⛔ [AdminDashboard] User is not authenticated. Redirecting to /admin...');
       navigate('/admin');
@@ -75,6 +82,12 @@ export function AdminDashboard() {
     setCurrentAdmin(admin);
     setSettings(getSettings());
     setAdmins(getAdmins());
+
+    return () => {
+      if (metaRobots && prevRobots) {
+        metaRobots.setAttribute('content', prevRobots);
+      }
+    };
   }, [navigate]);
 
   const showNotification = (type: 'success' | 'error', message: string) => {

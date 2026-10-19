@@ -91,7 +91,13 @@ export function Header({ data, language, track = 'combined' }: HeaderProps) {
             {/* Active Status Badge */}
             <div className="absolute -bottom-2.5 left-1/2 md:left-auto md:-right-2 transform -translate-x-1/2 md:translate-x-0 bg-slate-900/95 border border-emerald-500/60 text-emerald-400 text-[11px] font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 backdrop-blur-md whitespace-nowrap">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>{language === 'es' ? 'Disponible para Contratación' : 'Available for Hire'}</span>
+              <span>
+                {language === 'es' 
+                  ? 'Disponible para Contratación' 
+                  : language === 'pt' 
+                  ? 'Disponível para Contratação' 
+                  : 'Available for Hire'}
+              </span>
             </div>
           </div>
 
@@ -103,7 +109,9 @@ export function Header({ data, language, track = 'combined' }: HeaderProps) {
               </h1>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                <span>15+ {language === 'es' ? 'Años Exp.' : 'Yrs Exp.'}</span>
+                <span>
+                  15+ {language === 'es' ? 'Años Exp.' : language === 'pt' ? 'Anos Exp.' : 'Yrs Exp.'}
+                </span>
               </span>
             </div>
 
@@ -124,7 +132,9 @@ export function Header({ data, language, track = 'combined' }: HeaderProps) {
               <div className="bg-slate-800/80 border border-slate-700/80 rounded-xl p-2.5 flex items-center gap-2">
                 <Award className="w-4 h-4 text-purple-400 flex-shrink-0" />
                 <div className="text-left">
-                  <div className="font-bold text-white">120+ Acreditaciones</div>
+                  <div className="font-bold text-white">
+                    {language === 'es' ? '120+ Acreditaciones' : language === 'pt' ? '120+ Certificações' : '120+ Certifications'}
+                  </div>
                   <div className="text-[10px] text-slate-400">AWS · GCP · Brightest</div>
                 </div>
               </div>
@@ -133,7 +143,9 @@ export function Header({ data, language, track = 'combined' }: HeaderProps) {
                 <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 <div className="text-left">
                   <div className="font-bold text-white">{contact.location}</div>
-                  <div className="text-[10px] text-slate-400">{language === 'es' ? 'Remoto Global' : 'Remote Worldwide'}</div>
+                  <div className="text-[10px] text-slate-400">
+                    {language === 'es' ? 'Remoto Global' : language === 'pt' ? 'Remoto Global' : 'Remote Worldwide'}
+                  </div>
                 </div>
               </div>
             </div>

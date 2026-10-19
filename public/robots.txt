@@ -1,7 +1,5 @@
 # Robots.txt for Farid Maloof Portfolio
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /portfolio/admin
 
 Sitemap: https://faridmaloof.github.io/portfolio/sitemap.xml
