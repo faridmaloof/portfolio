@@ -18,12 +18,15 @@ function sqliteApiPlugin(): Plugin {
   };
 }
 
+const currentDir = typeof import.meta.dirname !== 'undefined' ? import.meta.dirname : path.resolve('');
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [sqliteApiPlugin(), react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(currentDir, './src'),
     },
   },
   server: {

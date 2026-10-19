@@ -311,10 +311,10 @@ id_ed25519.pub
 *.sqlite3
 *.db
 
-# Local database files
-
-data/
+# Local database files in project root
+/data/
 database/data/
+!src/data/
 
 # ------------------------------------------------------------
 
