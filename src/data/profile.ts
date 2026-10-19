@@ -258,18 +258,15 @@ export const defaultProfileData: ProfileData = {
   languages: {
     en: [
       "Spanish — Native / Bilingual (C2)", 
-      "English — Professional Working Proficiency (B2/C1 Technical & Conversational)",
-      "Portuguese — Basic / Elementary Understanding"
+      "English — Professional Working Proficiency (B2/C1 Technical & Conversational)"
     ],
     es: [
       "Español — Nativo / Bilingüe (C2)", 
-      "Inglés — Dominio Profesional Avanzado (B2/C1 Técnico y Conversacional)",
-      "Portugués — Comprensión Básica / Elemental"
+      "Inglés — Dominio Profesional Avanzado (B2/C1 Técnico y Conversacional)"
     ],
     pt: [
       "Espanhol — Nativo / Bilíngue (C2)",
-      "Inglês — Fluência Profissional (B2/C1 Técnico e Conversacional)",
-      "Português — Compreensão Básica"
+      "Inglês — Fluência Profissional (B2/C1 Técnico e Conversacional)"
     ]
   },
 

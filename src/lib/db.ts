@@ -577,6 +577,22 @@ export function initDB(): void {
           parsedDB.profiles[0].experience = defaultProfileData.experience;
           updated = true;
         }
+
+        // Clean out Portuguese from spoken languages in stored profiles
+        parsedDB.profiles.forEach((p: ProfileData) => {
+          if (p.languages) {
+            if (Array.isArray(p.languages.es)) {
+              p.languages.es = p.languages.es.filter((l: string) => !l.toLowerCase().includes('portugu'));
+            }
+            if (Array.isArray(p.languages.en)) {
+              p.languages.en = p.languages.en.filter((l: string) => !l.toLowerCase().includes('portuguese') && !l.toLowerCase().includes('portugu'));
+            }
+            if (Array.isArray(p.languages.pt)) {
+              p.languages.pt = p.languages.pt.filter((l: string) => !l.toLowerCase().includes('portugu'));
+            }
+          }
+        });
+        updated = true;
       }
 
       // Ensure admins array exists

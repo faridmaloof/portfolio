@@ -620,9 +620,11 @@ function renderMinimalistTemplate(doc: jsPDF, data: ProfileData, language: Langu
 function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language, track: TrackType): void {
   const pageWidth = 210;
   const pageHeight = 297;
-  const sidebarWidth = 56;
-  const mainX = sidebarWidth + 8;
-  const mainWidth = pageWidth - mainX - 12; // 134mm
+  const sidebarWidth = 60;
+  const sidebarPadding = 7;
+  const colWidth = sidebarWidth - (sidebarPadding * 2); // 46mm strictly bounded
+  const mainX = sidebarWidth + 8; // 68mm
+  const mainWidth = pageWidth - mainX - 10; // 132mm
 
   let currentPage = 1;
 
@@ -653,11 +655,11 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.setTextColor(30, 41, 59); // slate-800
-    doc.text(title.toUpperCase(), 7, sY);
+    doc.text(title.toUpperCase(), sidebarPadding, sY);
 
     doc.setDrawColor(37, 99, 235);
     doc.setLineWidth(0.8);
-    doc.line(7, sY + 1.5, sidebarWidth - 7, sY + 1.5);
+    doc.line(sidebarPadding, sY + 1.5, sidebarWidth - sidebarPadding, sY + 1.5);
     sY += 4.5;
   };
 
@@ -675,9 +677,9 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     (data.contact.linkedinUrl || 'linkedin.com/in/fmaloofs').replace('https://', '')
   ];
   contactItems.forEach(ci => {
-    const splitCi = doc.splitTextToSize(ci, sidebarWidth - 14);
-    doc.text(splitCi, 7, sY);
-    sY += splitCi.length * 3.2 + 0.8;
+    const splitCi = doc.splitTextToSize(ci, colWidth);
+    doc.text(splitCi, sidebarPadding, sY);
+    sY += splitCi.length * 3.1 + 0.8;
   });
   sY += 2;
 
@@ -688,15 +690,16 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
-    doc.text(sanitizeText(cat), 7, sY);
-    sY += 3.2;
+    const splitCat = doc.splitTextToSize(sanitizeText(cat), colWidth);
+    doc.text(splitCat, sidebarPadding, sY);
+    sY += splitCat.length * 3.0 + 0.4;
 
     doc.setFontSize(6.8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(71, 85, 105);
-    const splitTech = doc.splitTextToSize(sanitizeText(tech), sidebarWidth - 14);
-    doc.text(splitTech, 7, sY);
-    sY += splitTech.length * 2.8 + 1.5;
+    const splitTech = doc.splitTextToSize(sanitizeText(tech), colWidth);
+    doc.text(splitTech, sidebarPadding, sY);
+    sY += splitTech.length * 2.8 + 1.6;
   });
   sY += 1;
 
@@ -707,18 +710,23 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     const tuple = item[language] || item.es || item.en;
     if (!tuple) return;
     const [inst, deg, dts] = tuple;
+    
+    // Degree title wrapped strictly to colWidth
     doc.setFontSize(7.2);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
-    const splitDeg = doc.splitTextToSize(sanitizeText(deg), sidebarWidth - 14);
-    doc.text(splitDeg, 7, sY);
-    sY += splitDeg.length * 2.8;
+    const splitDeg = doc.splitTextToSize(sanitizeText(deg), colWidth);
+    doc.text(splitDeg, sidebarPadding, sY);
+    sY += splitDeg.length * 2.8 + 0.5;
 
+    // Institution and dates wrapped strictly to colWidth
     doc.setFontSize(6.8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
-    doc.text(`${sanitizeText(inst)} (${sanitizeText(dts)})`, 7, sY);
-    sY += 3.8;
+    const instAndDates = `${sanitizeText(inst)} (${sanitizeText(dts)})`;
+    const splitInst = doc.splitTextToSize(instAndDates, colWidth);
+    doc.text(splitInst, sidebarPadding, sY);
+    sY += splitInst.length * 2.7 + 1.8;
   });
 
   // Sidebar: Languages
@@ -728,8 +736,11 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(51, 65, 85);
-    doc.text(`* ${sanitizeText(lang)}`, 7, sY);
-    sY += 3.2;
+    const cleanLang = sanitizeText(lang);
+    const splitLang = doc.splitTextToSize(cleanLang, colWidth - 4);
+    drawBulletDot(doc, sidebarPadding + 1, sY, [37, 99, 235], 0.5);
+    doc.text(splitLang, sidebarPadding + 3.5, sY);
+    sY += splitLang.length * 2.8 + 1.4;
   });
 
   // MAIN COLUMN CONTENT
@@ -851,8 +862,9 @@ function renderSidebarTemplate(doc: jsPDF, data: ProfileData, language: Language
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
     const meta = `${sanitizeText(cert.issuer)} (${sanitizeText(cert.date)})${cert.credentialId ? ` | ID: ${sanitizeText(cert.credentialId)}` : ''}`;
-    doc.text(meta, mainX + 4, mY);
-    mY += 3.8;
+    const splitMeta = doc.splitTextToSize(meta, mainWidth - 4);
+    doc.text(splitMeta, mainX + 4, mY);
+    mY += splitMeta.length * 3.3 + 1.2;
   });
 
   addFooter(currentPage);
@@ -1090,33 +1102,47 @@ function renderEngineeringTemplate(doc: jsPDF, data: ProfileData, language: Lang
     const tuple = item[language] || item.es || item.en;
     if (!tuple) return;
     const [inst, deg, dts] = tuple;
-    checkPageBreak(7);
+
+    const cleanDeg = sanitizeText(deg);
+    const cleanDts = sanitizeText(dts);
+    const cleanInst = sanitizeText(inst);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    const dtsW = doc.getTextWidth(cleanDts);
+    const maxDegW = contentWidth - dtsW - 4;
+
     doc.setFontSize(8.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(13, 78, 62);
-    doc.text(sanitizeText(deg), margin, yPos);
+    const splitDeg = doc.splitTextToSize(cleanDeg, maxDegW);
+    checkPageBreak(splitDeg.length * 3.5 + 5.0);
+    doc.text(splitDeg, margin, yPos);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(13, 148, 136);
-    doc.text(sanitizeText(dts), margin + contentWidth, yPos, { align: 'right' });
-    yPos += 3.5;
+    doc.text(cleanDts, margin + contentWidth, yPos, { align: 'right' });
+    yPos += splitDeg.length * 3.5;
 
     doc.setFontSize(7.8);
     doc.setTextColor(71, 85, 105);
-    doc.text(sanitizeText(inst), margin, yPos);
-    yPos += 4.2;
+    const splitInst = doc.splitTextToSize(cleanInst, contentWidth);
+    doc.text(splitInst, margin, yPos);
+    yPos += splitInst.length * 3.3 + 1.8;
   });
 
   const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
   languagesList.forEach((langItem) => {
-    checkPageBreak(5);
+    const cleanLang = sanitizeText(langItem);
+    const splitLang = doc.splitTextToSize(cleanLang, contentWidth - 6);
+    checkPageBreak(splitLang.length * 3.5 + 1.0);
     drawBulletDot(doc, margin + 1.5, yPos, [13, 148, 136]);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(51, 65, 85);
-    doc.text(sanitizeText(langItem), margin + 4.5, yPos);
-    yPos += 3.8;
+    doc.text(splitLang, margin + 4.5, yPos);
+    yPos += splitLang.length * 3.5 + 0.8;
   });
 
   addFooter(currentPage);
@@ -1305,33 +1331,47 @@ function renderCompactTemplate(doc: jsPDF, data: ProfileData, language: Language
     const tuple = item[language] || item.es || item.en;
     if (!tuple) return;
     const [inst, deg, dts] = tuple;
-    checkPageBreak(6);
+
+    const cleanDeg = sanitizeText(deg);
+    const cleanDts = sanitizeText(dts);
+    const cleanInst = sanitizeText(inst);
+
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    const dtsW = doc.getTextWidth(cleanDts);
+    const maxDegW = contentWidth - dtsW - 4;
+
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
-    doc.text(sanitizeText(deg), margin, yPos);
+    const splitDeg = doc.splitTextToSize(cleanDeg, maxDegW);
+    checkPageBreak(splitDeg.length * 3.3 + 4.5);
+    doc.text(splitDeg, margin, yPos);
 
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(79, 70, 229);
-    doc.text(sanitizeText(dts), margin + contentWidth, yPos, { align: 'right' });
-    yPos += 3.2;
+    doc.text(cleanDts, margin + contentWidth, yPos, { align: 'right' });
+    yPos += splitDeg.length * 3.3;
 
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(sanitizeText(inst), margin, yPos);
-    yPos += 3.8;
+    const splitInst = doc.splitTextToSize(cleanInst, contentWidth);
+    doc.text(splitInst, margin, yPos);
+    yPos += splitInst.length * 3.0 + 1.5;
   });
 
   const languagesList = data.languages[language] || data.languages.es || data.languages.en || [];
   languagesList.forEach((langItem) => {
-    checkPageBreak(4);
+    const cleanLang = sanitizeText(langItem);
+    const splitLang = doc.splitTextToSize(cleanLang, contentWidth - 6);
+    checkPageBreak(splitLang.length * 3.2 + 0.8);
     drawBulletDot(doc, margin + 1.5, yPos, [79, 70, 229], 0.5);
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(51, 65, 85);
-    doc.text(sanitizeText(langItem), margin + 4, yPos);
-    yPos += 3.2;
+    doc.text(splitLang, margin + 4, yPos);
+    yPos += splitLang.length * 3.2 + 0.6;
   });
 
   addFooter(currentPage);
